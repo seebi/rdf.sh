@@ -6,7 +6,7 @@ command="$1"
 if [ "$command" == "" ]
 then
     echo "Syntax:" `basename $0` "<command>"
-    echo "(command is one of: get head ns diff)"
+    echo "(command is one of: get head ns diff count)"
     exit 1
 fi
 
@@ -60,6 +60,18 @@ case "$command" in
     rapper $source2 | sort >$dest2
     meld $dest1 $dest2
 ;;
+
+"count" )
+    file="$2"
+    if [ "$file" == "" ]
+    then
+        echo "Syntax:" `basename $0` "$command <file>"
+        echo "(count triples using rapper)"
+        exit 1
+    fi
+    rapper -c $file
+;;
+
 
 * )
     echo "Unknown command!"
