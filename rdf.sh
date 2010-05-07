@@ -47,13 +47,20 @@ case "$command" in
 
 "ns" | "namespace" )
     prefix="$2"
+    suffix="$3"
     if [ "$prefix" == "" ]
     then
-        echo "Syntax:" `basename $0` "$command <prefix>"
+        echo "Syntax:" `basename $0` "$command <prefix> <suffix>"
         echo "(catch the namespace from prefix.cc)"
+        echo " suffix can be n3, rdfa, sparql, ...)"
         exit 1
     fi
-    wget -O - -q http://prefix.cc/$prefix.file.n3
+    if [ "$suffix" == "" ]
+    then
+        wget -O - -q http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1
+    else
+        wget -O - -q http://prefix.cc/$prefix.file.$suffix
+    fi
 ;;
 
 "meld" | "diff" )
