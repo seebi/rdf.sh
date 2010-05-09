@@ -4,12 +4,37 @@
 this=`basename $0`
 command="$1"
 
+commandlist="get head rdfhead ns diff count desc list"
+commandinfo["desc"]="outputs an N3 description of the given resource"
+
+docu_desc () { echo "outputs an N3 description of the given resource";}
+docu_list () { echo "list resources which start with the given URI"; }
+docu_get () { echo "wgets rdf in xml to stdout (tries accept header)"; }
+docu_head () { echo "curls only the http header"; }
+docu_rdfhead () { echo "curls only the http header but accepts only rdf"; }
+docu_ns () { echo "catch the namespace from prefix.cc"; }
+docu_diff () { echo "diff of two RDF files"; }
+docu_count () { echo "count triples using rapper"; }
+
 if [ "$command" == "" ]
 then
     echo "Syntax:" $this "<command>"
-    echo "(command is one of: get head rdfhead ns diff count desc list)"
+    echo "(command is one of: $commandlist)"
     exit 1
 fi
+
+if [ "$command" == "zshcomp" ]
+then
+    #echo "$commandlist"
+    echo "("
+    for cmd in $commandlist
+    do
+        echo $cmd:\"`docu_$cmd`\"
+    done
+    echo ")"
+    exit 1
+fi
+
 
 # takes an input string and checks if it is a valid qname
 _isQName ()
@@ -31,7 +56,7 @@ _isQName ()
 
         # this is ugly ... here we distinguish between uris and qnames
         case "$Prefix" in
-            "http" | "https" )
+            "http" | "https" | "mailto" | "ldap" | "urn" )
                 echo "false"
                 return
             ;;
@@ -121,12 +146,12 @@ _expandQName ()
 
 case "$command" in
 
-"info" | "desc")
+"desc")
     uri="$2"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(outputs an N3 description of the given resource)"
+        echo "(`docu_desc`)"
         exit 1
     fi
     uri=`_expandQName $uri`
@@ -141,7 +166,7 @@ case "$command" in
     if [ "$uri" == "" ]
     then
         echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(list resources which start with the given URI)"
+        echo "(`docu_list`)"
         exit 1
     fi
     uri=`_expandQName $uri`
@@ -151,49 +176,49 @@ case "$command" in
     rm $tmpfile
 ;;
 
-"get" | "ld" )
+"get")
     uri="$2"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(wgets rdf in xml to stdout)"
+        echo "(`docu_get`)"
         exit 1
     fi
     uri=`_expandQName $uri`
     wget -q -O - --header="Accept: application/rdf+xml" $uri
 ;;
 
-"header" | "head" )
+"head" )
     uri="$2"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(curls only the http header)"
+        echo "(`docu_head`)"
         exit 1
     fi
     uri=`_expandQName $uri`
     curl -I -X HEAD $uri
 ;;
 
-"rdfheader" | "rdfhead" )
+"rdfhead" )
     uri="$2"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(curls only the http header but accepts only rdf)"
+        echo "(`docu_rdfhead`)"
         exit 1
     fi
     uri=`_expandQName $uri`
     curl -I -X HEAD -H "Accept: application/rdf+xml" $uri
 ;;
 
-"ns" | "namespace" )
+"ns" )
     prefix="$2"
     suffix="$3"
     if [ "$prefix" == "" ]
     then
         echo "Syntax:" $this "$command <prefix> <suffix>"
-        echo "(catch the namespace from prefix.cc)"
+        echo "(`docu_ns`)"
         echo " suffix can be n3, rdfa, sparql, ...)"
         exit 1
     fi
@@ -205,13 +230,13 @@ case "$command" in
     fi
 ;;
 
-"meld" | "diff" )
+"diff" )
 	source1="$2"
 	source2="$3"
     if [ "$source2" == "" ]
     then
         echo "Syntax:" $this "$command <rdf-file-1> <rdf-file-2>"
-        echo "(diff of two RDF files)"
+        echo "(`docu_diff`)"
         exit 1
     fi
     dest1="/tmp/$RANDOM-`basename $source1`"
@@ -226,7 +251,7 @@ case "$command" in
     if [ "$file" == "" ]
     then
         echo "Syntax:" $this "$command <file>"
-        echo "(count triples using rapper)"
+        echo "(`docu_count`)"
         exit 1
     fi
     rapper -c $file
