@@ -1,0 +1,27 @@
+#compdef rdf
+
+_rdf() {
+    local word
+
+    if [ -z $words[3] ]
+    then
+        _describe -t command "RDF commands" "`rdf zshcomp`"
+    fi
+
+    #local cmd expl
+    #`rdf zshcomp`
+    #local args=(eins:Einmal zwei:ttt)
+    #_files -J "RDF files" -g '*.(#i)rdf.'
+    #_describe 'Argument' args
+    #_describe -t command "commands" args
+    #_description files expl 'RDF files'
+    #_files "$expl[@]" -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
+
+    #_wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
+
+    #_arguments '-n[]' '-e[enable]'
+    #_arguments `rdf zshcomp`
+    #_arguments '-ntt[tt]' '-ett[enable]'
+}
+  compdef _rdf rdf rdf.sh
+
