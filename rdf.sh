@@ -155,7 +155,7 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    tmpfile=`tempfile -p rdfsh`
+    tmpfile=`mktemp`
     $this get $uri >$tmpfile
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | cwm --n3=q
     rm $tmpfile
@@ -170,7 +170,7 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    tmpfile=`tempfile -p rdfsh`
+    tmpfile=`mktemp`
     $this get $uri >$tmpfile
     roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
     rm $tmpfile
