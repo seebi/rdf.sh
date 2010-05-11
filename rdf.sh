@@ -2,7 +2,9 @@
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 this=`basename $0`
+thisexec=$0
 command="$1"
+
 
 commandlist="get head rdfhead ns diff count desc list"
 commandinfo["desc"]="outputs an N3 description of the given resource"
@@ -136,7 +138,7 @@ _expandQName ()
     then
         prefix=`_getPrefix $input`
         localName=`_getLocalName $input`
-        namespace=`$this ns $prefix`
+        namespace=`$thisexec ns $prefix`
         echo $namespace$localName
     else
         echo $input
@@ -156,7 +158,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     tmpfile=`mktemp -q ./rdfsh-XXXX`
-    $this get $uri >$tmpfile
+    $thisexec get $uri >$tmpfile
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | cwm --n3=q
     rm $tmpfile
 ;;
@@ -171,7 +173,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     tmpfile=`mktemp -q ./rdfsh-XXXX`
-    $this get $uri >$tmpfile
+    $thisexec get $uri >$tmpfile
     roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
     rm $tmpfile
 ;;
