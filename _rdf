@@ -1,11 +1,11 @@
 #compdef rdf
 
 _rdf() {
-    local word
-
-    if [ -z $words[3] ]
+    if [ "$CURRENT" -eq "2" ]
     then
         _describe -t command "RDF commands" "`rdf zshcomp`"
+    else
+        _wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
     fi
 
     #local cmd expl
@@ -17,7 +17,7 @@ _rdf() {
     #_description files expl 'RDF files'
     #_files "$expl[@]" -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
 
-    #_wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
+    #
 
     #_arguments '-n[]' '-e[enable]'
     #_arguments `rdf zshcomp`
