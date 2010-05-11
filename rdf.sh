@@ -235,6 +235,25 @@ case "$command" in
 "diff" )
 	source1="$2"
 	source2="$3"
+    difftool="$4"
+
+    if [ "$difftool" != "" ]
+    then
+        RDFSHDIFF=$difftool
+    fi
+
+    if [ "$RDFSHDIFF" == "" ]
+    then
+        for difftool in "diff" "meld" 
+        do
+            which $difftool >/dev/null
+            if [ "$?" == "0" ]
+            then
+                RDFSHDIFF=$difftool
+            fi
+        done
+    fi
+
     if [ "$source2" == "" ]
     then
         echo "Syntax:" $this "$command <rdf-file-1> <rdf-file-2>"
@@ -245,7 +264,8 @@ case "$command" in
     dest2="/tmp/$RANDOM-`basename $source2`"
     rapper $source1 | sort >$dest1
     rapper $source2 | sort >$dest2
-    meld $dest1 $dest2
+    $RDFSHDIFF $dest1 $dest2
+    rm $dest1 $dest2
 ;;
 
 "count" )
