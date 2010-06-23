@@ -1,6 +1,7 @@
 #!/bin/bash
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
+version="0.1"
 this=`basename $0`
 thisexec=$0
 command="$1"
@@ -20,6 +21,8 @@ docu_split () { echo "split an RDF file into pieces of max X triple and -optiona
 
 if [ "$command" == "" ]
 then
+    echo "$this is a a multi-tool shell script for doing Semantic Web jobs on the command line."
+    echo "Version: $version"
     echo "Syntax:" $this "<command>"
     echo "(command is one of: $commandlist)"
     exit 1

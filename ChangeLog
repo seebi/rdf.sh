@@ -1,2 +1,3 @@
 0.1
-- first public version
+- first version
+- available commands: get head rdfhead ns diff count desc list split
