@@ -166,7 +166,8 @@ _addToHistory ()
 
     touch $historyfile
     echo $resource >>$historyfile
-    uniq $historyfile >>$historyfile
+    sort -u $historyfile >$historyfile.tmp
+    mv $historyfile.tmp $historyfile
 }
 
 case "$command" in
@@ -212,7 +213,12 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     wget -q -O - --header="Accept: application/rdf+xml" $uri
-    _addToHistory $uri
+
+    # only when started by user (not by itself)
+    if [ "$SHLVL" == "2" ]
+    then
+        _addToHistory $uri
+    fi
 ;;
 
 "head" )
