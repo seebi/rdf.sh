@@ -6,8 +6,7 @@ thisexec=$0
 command="$1"
 
 
-commandlist="get head rdfhead ns diff count desc list"
-commandinfo["desc"]="outputs an N3 description of the given resource"
+commandlist="get head rdfhead ns diff count desc list split"
 
 docu_desc () { echo "outputs an N3 description of the given resource";}
 docu_list () { echo "list resources which start with the given URI"; }
@@ -17,6 +16,7 @@ docu_rdfhead () { echo "curls only the http header but accepts only rdf"; }
 docu_ns () { echo "catch the namespace from prefix.cc"; }
 docu_diff () { echo "diff of two RDF files"; }
 docu_count () { echo "count triples using rapper"; }
+docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 
 if [ "$command" == "" ]
 then
@@ -276,8 +276,43 @@ case "$command" in
         echo "(`docu_count`)"
         exit 1
     fi
-    rapper -c $file
+    rapper -i guess --count $file
 ;;
+
+"split" )
+    file="$2"
+    size="$3"
+    todo="$4"
+    if [ "$file" == "" ]
+    then
+        echo "Syntax:" $this "$command <file> <size-X> <command>"
+        echo "(`docu_split`)"
+        exit 1
+    fi
+    if [ "$size" == "" ]
+    then
+        size="25000"
+    fi
+
+    tmpdir=`mktemp -d`
+    rapper -i guess -q $file | split -a 5 -l $size - $tmpdir/
+    echo "Input splitted into `ls -1 $tmpdir | wc -l` pieces of max. $size triples."
+    
+    if [ "$todo" != "" ]
+    then
+        echo "Now executing '$todo' for every part (using %PART% as a placeholder):"
+        for piece in `ls -1 $tmpdir`
+        do
+            cd $tmpdir
+            realtodo=`echo $todo | sed "s/%PART%/$piece/" `
+            echo $realtodo
+            $realtodo
+        done
+    fi
+
+    echo "The pieces are in $tmpdir ... "
+;;
+
 
 #"validate" | "v" )
 #    file="$2"

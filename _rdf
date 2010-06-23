@@ -5,7 +5,7 @@ _rdf() {
     then
         _describe -t command "RDF commands" "`rdf zshcomp`"
     else
-        _wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml)(.)'
+        _wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml|ttl)(.)'
     fi
 
     #local cmd expl
