@@ -1,11 +1,28 @@
 #compdef rdf
 
+_rdfshInputFile () {
+    local expl
+    _wanted files expl 'RDF File' _files -g '*.(#i)(rdf|n3|nt|owl|tt)(.)'
+}
+
+_rdfshResourceHistory () {
+    typeset -a rhistory
+    local resource
+    tail ~/.resource_history 2> /dev/null | sed 's/:/\\\\:/' | while read resource
+    do
+        rhistory+=(${resource/ #    [0-9]#:*})
+    done
+    _describe -t rhistory 'resource history' rhistory
+}
+
+
 _rdf() {
     if [ "$CURRENT" -eq "2" ]
     then
         _describe -t command "RDF commands" "`rdf zshcomp`"
     else
-        _wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml|ttl)(.)'
+        #_wanted files expl 'RDF Files' _files -g '*.(#i)(rdf|n3|owl|nt|xml|ttl)(.)'
+        _alternative 'files:RDF File:_rdfshInputFile' 'rhistory:resource history:_rdfshResourceHistory'
     fi
 
     #local cmd expl

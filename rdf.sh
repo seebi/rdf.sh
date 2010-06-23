@@ -6,6 +6,7 @@ this=`basename $0`
 thisexec=$0
 command="$1"
 
+historyfile="$HOME/.resource_history"
 
 commandlist="get head rdfhead ns diff count desc list split"
 
@@ -148,6 +149,25 @@ _expandQName ()
     fi
 }
 
+# add a resource to the .resource_history file
+_addToHistory ()
+{
+    resource=$1
+    if [ "$resource" == "" ]
+    then
+        echo "addToHistory error: need an resource parameter"
+        exit 1
+    fi
+
+    if [ "$historyfile" == "" ]
+    then
+        historyfile="$HOME/.resource_history"
+    fi
+
+    touch $historyfile
+    echo $resource >>$historyfile
+    uniq $historyfile >>$historyfile
+}
 
 case "$command" in
 
@@ -164,6 +184,7 @@ case "$command" in
     $thisexec get $uri >$tmpfile
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | cwm --n3=q
     rm $tmpfile
+    _addToHistory $uri
 ;;
 
 "list" )
@@ -191,6 +212,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     wget -q -O - --header="Accept: application/rdf+xml" $uri
+    _addToHistory $uri
 ;;
 
 "head" )
@@ -203,6 +225,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     curl -I -X HEAD $uri
+    _addToHistory $uri
 ;;
 
 "rdfhead" )
@@ -215,6 +238,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     curl -I -X HEAD -H "Accept: application/rdf+xml" $uri
+    _addToHistory $uri
 ;;
 
 "ns" )
