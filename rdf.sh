@@ -10,7 +10,7 @@ historyfile="$HOME/.resource_history"
 
 commandlist="get head rdfhead ns diff count desc list split"
 
-docu_desc () { echo "outputs an N3 description of the given resource";}
+docu_desc () { echo "outputs a turtle description of the given resource";}
 docu_list () { echo "list resources which start with the given URI"; }
 docu_get () { echo "wgets rdf in xml to stdout (tries accept header)"; }
 docu_head () { echo "curls only the http header"; }
@@ -183,7 +183,7 @@ case "$command" in
     uri=`_expandQName $uri`
     tmpfile=`mktemp -q ./rdfsh-XXXX`
     $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | cwm --n3=q
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | rapper -q --input-uri file://$tmpfile -i ntriples -o turtle -
     rm $tmpfile
     _addToHistory $uri
 ;;
