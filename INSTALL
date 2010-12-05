@@ -1,7 +1,0 @@
-rdf.sh is a single bash shell script so installation is trivial ... :-)
-
-reqired tools
-- rasqal (sudo apt-get install rasqal-utils)
-- rapper (sudo apt-get install raptor-utils)
-- wget
-- curl
