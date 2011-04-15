@@ -1,21 +1,25 @@
 #!/bin/bash
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
-version="0.1"
+name="rdf.sh"
+version="0.2"
+home="https://bitbucket.org/seebi/rdf.sh/"
 this=`basename $0`
 thisexec=$0
 command="$1"
 
+curlcommand="curl -A ${name}/${version} -s -L"
+
 historyfile="$HOME/.resource_history"
 
-commandlist="get head rdfhead ns diff count desc list split"
+commandlist="get headn head ns diff count desc list split"
 
 docu_desc () { echo "outputs a turtle description of the given resource";}
 docu_list () { echo "list resources which start with the given URI"; }
-docu_get () { echo "wgets rdf in xml to stdout (tries accept header)"; }
-docu_head () { echo "curls only the http header"; }
-docu_rdfhead () { echo "curls only the http header but accepts only rdf"; }
-docu_ns () { echo "catch the namespace from prefix.cc"; }
+docu_get () { echo "curls rdf in xml to stdout (tries accept header)"; }
+docu_headn () { echo "curls only the http header"; }
+docu_head () { echo "curls only the http header but accepts only rdf"; }
+docu_ns () { echo "curls the namespace from prefix.cc"; }
 docu_diff () { echo "diff of two RDF files"; }
 docu_count () { echo "count triples using rapper"; }
 docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
@@ -23,12 +27,15 @@ docu_split () { echo "split an RDF file into pieces of max X triple and -optiona
 if [ "$command" == "" ]
 then
     echo "$this is a a multi-tool shell script for doing Semantic Web jobs on the command line."
-    echo "Version: $version"
-    echo "Syntax:" $this "<command>"
+    echo "Version:  $version"
+    echo "Homepage: $home"
+    echo ""
+    echo "Syntax: $this <command>"
     echo "(command is one of: $commandlist)"
     exit 1
 fi
 
+# for generating the autocompletion suggestions automatically
 if [ "$command" == "zshcomp" ]
 then
     #echo "$commandlist"
@@ -40,7 +47,6 @@ then
     echo ")"
     exit 1
 fi
-
 
 # takes an input string and checks if it is a valid qname
 _isQName ()
@@ -212,7 +218,7 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    wget -q -O - --header="Accept: application/rdf+xml" $uri
+    $curlcommand -H "Accept: application/rdf+xml" $uri
 
     # only when started by user (not by itself)
     if [ "$SHLVL" == "2" ]
@@ -221,7 +227,7 @@ case "$command" in
     fi
 ;;
 
-"head" )
+"headn" )
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -230,11 +236,11 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    curl -I -X HEAD $uri
+    $curlcommand -I -X HEAD $uri
     _addToHistory $uri
 ;;
 
-"rdfhead" )
+"head" )
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -243,7 +249,7 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    curl -I -X HEAD -H "Accept: application/rdf+xml" $uri
+    $curlcommand -I -X HEAD -H "Accept: application/rdf+xml" $uri
     _addToHistory $uri
 ;;
 
@@ -259,9 +265,9 @@ case "$command" in
     fi
     if [ "$suffix" == "" ]
     then
-        wget -O - -q http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1
+        $curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1
     else
-        wget -O - -q http://prefix.cc/$prefix.file.$suffix
+        $curlcommand http://prefix.cc/$prefix.file.$suffix
     fi
 ;;
 
@@ -277,7 +283,7 @@ case "$command" in
 
     if [ "$RDFSHDIFF" == "" ]
     then
-        for difftool in "diff" "meld" 
+        for difftool in "diff" "meld"
         do
             which $difftool >/dev/null
             if [ "$?" == "0" ]
@@ -330,7 +336,7 @@ case "$command" in
     tmpdir=`mktemp -d`
     rapper -i guess -q $file | split -a 5 -l $size - $tmpdir/
     echo "Input splitted into `ls -1 $tmpdir | wc -l` pieces of max. $size triples."
-    
+
     if [ "$todo" != "" ]
     then
         echo "Now executing '$todo' for every part (using %PART% as a placeholder):"
