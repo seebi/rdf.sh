@@ -8,16 +8,18 @@ rdf.sh is a single bash shell script so installation is trivial ... :-)
 
 ## Dependencies
 reqired tools currently are:
- * rasqal
- * rapper
- * curl
+
+  * roqet (from rasqal-utils)
+  * rapper (from raptor-utils or raptor2-utils)
+  * curl
 
 suggested tools are:
- * zsh (without the autocompletion, it is not the same)
+
+  * zsh (without the autocompletion, it is not the same)
 
 ## Files
 
- * changelog.md - version changelog
- * _rdf - zsh autocompletion file
- * rdf.sh - the script
- * README.md - this file
+  * changelog.md - version changelog
+  * _rdf - zsh autocompletion file
+  * rdf.sh - the script
+  * README.md - this file

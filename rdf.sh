@@ -189,7 +189,7 @@ case "$command" in
     uri=`_expandQName $uri`
     tmpfile=`mktemp -q ./rdfsh-XXXX`
     $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile | rapper -q --input-uri file://$tmpfile -i ntriples -o turtle -
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r turtle
     rm $tmpfile
     _addToHistory $uri
 ;;
