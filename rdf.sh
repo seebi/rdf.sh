@@ -267,7 +267,12 @@ case "$command" in
     then
         $curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1
     else
-        $curlcommand http://prefix.cc/$prefix.file.$suffix
+        if [ "$suffix" == "plain" ]
+        then
+            echo -n `$curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1`
+        else
+            $curlcommand http://prefix.cc/$prefix.file.$suffix
+        fi
     fi
 ;;
 
