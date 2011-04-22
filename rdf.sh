@@ -8,7 +8,7 @@ this=`basename $0`
 thisexec=$0
 command="$1"
 
-curlcommand="curl -A ${name}/${version} -s -L"
+curlcommand="curl --fail -A ${name}/${version} -s -L"
 
 historyfile="$HOME/.resource_history"
 
