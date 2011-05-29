@@ -3,7 +3,7 @@
 
 name="rdf.sh"
 version="0.2"
-home="https://bitbucket.org/seebi/rdf.sh/"
+home="https://github.com/seebi/rdf.sh"
 this=`basename $0`
 thisexec=$0
 command="$1"
