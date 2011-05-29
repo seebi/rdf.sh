@@ -9,6 +9,7 @@
  * mod: command rdfhead is now head (as an rdf tool, this should be the default)
  * fix: curl calls with --fail to avoid getting error pages
  * fix: uniq with sort -u now
+ * misc: moved home to github: https://github.com/seebi/rdf.sh
 
 ## 0.1
  * first version
