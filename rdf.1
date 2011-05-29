@@ -1,0 +1,136 @@
+.TH rdf.sh 1  "05/2011" "version 0.2" "USER COMMANDS"
+.SH NAME
+rdf.sh \- A multi-tool shell script for doing Semantic Web jobs on the command line.
+.SH SYNOPSIS
+.B rdf
+[subcommand]
+[option]
+.SH DESCRIPTION
+The idea of this tool is to provide a fast command line interface to day by day Semantic Web / RDF hacker related jobs.
+.PP
+This includes inspecting resources and namespaces, listing of schema elements and other tasks.
+.SS subcommands
+    count -- count triples using rapper
+    desc  -- outputs a turtle description of the given resource
+    diff  -- diff of two RDF files
+    get   -- curls rdf in xml to stdout (tries accept header)
+    head  -- curls only the http header but accepts only rdf
+    headn -- curls only the http header
+    list  -- list resources which start with the given URI
+    ns    -- curls the namespace from prefix.cc
+    split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
+.TP
+Each subcommand outputs a detailed help by using it without parameter:
+
+.B $ rdf count
+    Syntax: rdf count <file>
+    (count triples using rapper)
+
+.SH EXAMPLE
+.SS namespace lookup (ns)
+.TP
+rdf.sh allows you to quickly lookup namespaces from prefix.cc:
+
+.B $ rdf ns foaf
+    http://xmlns.com/foaf/0.1/
+.TP
+rdf.sh can also output prefix.cc syntax templates: 
+.B $ rdf ns skos sparql
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+    SELECT *
+    WHERE {
+      ?s ?p ?o .
+    }
+
+.B $ rdf ns ping n3
+    @prefix ping: <http://purl.org/net/pingback/> .
+.TP
+Note: As a result of this subcommand, all other rdf command can get qnames as parameters (e.g. foaf:Person or skos:Concept) which results in a namespace lookup ahead of the used command.
+.SS resource description (desc)
+.TP
+Describe a resource by querying for statements where the resource is the subject. This is extremly useful to fastly check schema details.
+
+.B $ rdf desc foaf:Person
+
+.B $ rdf desc skos:narrower
+
+.SS resource listings (list)
+.TP
+To get a quick overview of an unknown RDF schema, rdf.sh provides the `list` command which outputs a distinct list of subject resources of the fetched URI:
+
+.B $ rdf list geo:
+    http://www.w3.org/2003/01/geo/wgs84_pos#
+    http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing
+    http://www.w3.org/2003/01/geo/wgs84_pos#Point
+    http://www.w3.org/2003/01/geo/wgs84_pos#lat
+    http://www.w3.org/2003/01/geo/wgs84_pos#location
+    http://www.w3.org/2003/01/geo/wgs84_pos#long
+    http://www.w3.org/2003/01/geo/wgs84_pos#alt
+    http://www.w3.org/2003/01/geo/wgs84_pos#lat_long
+.TP
+You can also provide a starting sequence to constrain the output
+
+.B $ rdf list skos:C
+    http://www.w3.org/2004/02/skos/core#Concept
+    http://www.w3.org/2004/02/skos/core#ConceptScheme
+    http://www.w3.org/2004/02/skos/core#Collection
+    http://www.w3.org/2004/02/skos/core#changeNote
+    http://www.w3.org/2004/02/skos/core#closeMatch
+.TP
+Note: Here the $GREP_OPTIONS environment applies to the list. In my case, I have a --ignore-case in it, so e.g. skos:changeNote is listed as well.
+.TP
+This feature only works with schema documents which are available by fetching the namespace URI (optionally with linked data headers to be redirected to an RDF document). Nevertheless, you can use this command also on non schema resources as FOAF profiles and WebIDs:
+
+.B $ rdf list http://haschek.eye48.com/
+    http://haschek.eye48.com/haschek.rdf
+    http://haschek.eye48.com/
+    http://haschek.eye48.com/gelabb/
+.SS resources inspection (get, count, head and headn)
+
+.TP
+Fetch a resource via linked data and print it to stdout:
+
+.B $ rdf get http://sebastian.tramp.name >me.rdf
+.TP
+Count all statements of a resource (using rapper):
+
+.B $ rdf count http://sebastian.tramp.name
+    rapper: Parsing URI http://sebastian.tramp.name with parser guess
+    rapper: Parsing returned 58 triples
+.TP
+Inspect the header of a resource. Use `head` for header request with content negotiation suitable for linked data and `headn` for a normal header request as sent by browsers.
+
+.B $ rdf head http://sebastian.tramp.name
+    HTTP/1.1 302 Found
+    [...]
+    Location: http://sebastian.tramp.name/index.rdf
+    [...]
+
+.SH INSTALLATION
+.TP
+rdf.sh is a single bash shell script so installation is trivial ... :-) Just copy or link it to you path, e.g. with
+
+.B $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+.TP 
+Required tools currently are:
+  * roqet -- http://librdf.org/rasqal/roqet.html (from rasqal-utils)
+  * rapper -- http://librdf.org/raptor/rapper.html (from raptor-utils or raptor2-utils)
+  * curl -- http://curl.haxx.se/
+.TP
+Suggested tools are:
+  * zsh -- http://zsh.sourceforge.net/ (without the autocompletion, it is not the same)
+
+.SH FILES
+ changelog.md - version changelog
+ _rdf - zsh autocompletion file
+ rdf.sh - the script
+ README.md - this file
+
+.SH AUTHOR
+.SS Sebastian Tramp <mail@sebastian.tramp.name>
+.TP
+http://sebastian.tramp.name (WebID)
+.SH SEE ALSO
+https://github.com/seebi/rdf.sh
+
