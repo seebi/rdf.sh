@@ -16,6 +16,8 @@ rdf.sh currently provides these subcommands:
 * headn -- curls only the http header
 * list  -- list resources which start with the given URI
 * ns    -- curls the namespace from prefix.cc
+* nscollect  -- collects prefix declarations of a list of ttl/n3 files
+* nsdist     -- distributes prefix declarations from one file to a list of other ttl/n3 files
 * split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 
 ### namespace lookup (`ns`)
@@ -97,7 +99,7 @@ also on non schema resources as FOAF profiles and WebIDs:
     http://haschek.eye48.com/
     http://haschek.eye48.com/gelabb/
 
-### resources inspection (`get`, `count`, `head` and `headn`)
+### resource inspection (`get`, `count`, `head` and `headn`)
 
 Fetch a resource via linked data and print it to stdout:
 
@@ -119,6 +121,20 @@ header request as sent by browsers.
     Location: http://sebastian.tramp.name/index.rdf
     [...]
 
+### prefix distribution for data projects (`nscollect` and `nsdist`)
+
+Often I need to create a lot of n3/ttl files as a data project which consists
+of schema and instance resources. These projects are split over several files
+for a better handling and share a set if used namespaces.
+
+When introducing a new namespace to such projects, I need to add the `@prefix`
+line to each of the ttl files of this project.
+
+`rdf.sh` has two subcommands which handle this procedure:
+* `rdf nscollect` collects all prefixes from existing n3/ttl files in the
+  current directory and collect them in the file `prefixes.n3`
+* `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
+  and then add `prefixes.n3` on top of them.
 
 ## installation
 

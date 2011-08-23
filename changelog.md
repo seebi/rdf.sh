@@ -1,4 +1,6 @@
 # rdf.sh changlog
+## 0.3
+ * new commands: nscollect and nsdist
 
 ## 0.2
  * add: plain mode for ns command (for scripting)

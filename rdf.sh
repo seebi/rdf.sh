@@ -12,7 +12,7 @@ curlcommand="curl --fail -A ${name}/${version} -s -L"
 
 historyfile="$HOME/.resource_history"
 
-commandlist="get headn head ns diff count desc list split"
+commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
 docu_desc () { echo "outputs a turtle description of the given resource";}
 docu_list () { echo "list resources which start with the given URI"; }
@@ -23,6 +23,8 @@ docu_ns () { echo "curls the namespace from prefix.cc"; }
 docu_diff () { echo "diff of two RDF files"; }
 docu_count () { echo "count triples using rapper"; }
 docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
+docu_nscollect () { echo "collects prefix declarations of a list of ttl/n3 files";}
+docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 
 if [ "$command" == "" ]
 then
@@ -357,6 +359,71 @@ case "$command" in
     echo "The pieces are in $tmpdir ... "
 ;;
 
+"nscollect" )
+    prefixfile="$2"
+
+    if [ "$prefixfile" == "" ]
+    then
+        prefixfile="prefixes.n3"
+    fi
+
+    if [ -f "$prefixfile" ]
+    then
+        countBefore=`cat $prefixfile| wc -l`
+    else
+        countBefore=0
+    fi
+
+    files=`ls -1 *.n3 *.ttl 2>/dev/null | grep -v $prefixfile`
+    cat $files | grep "@prefix " | sort -u >$prefixfile
+    count=`cat $prefixfile| wc -l`
+    echo "$count prefixes collected in $prefixfile ($countBefore before)"
+    #for n3file in $files
+    #do
+    #done
+;;
+
+"nsdist" )
+    prefixfile="prefixes.n3"
+    if [ ! -f "$prefixfile" ]
+    then
+        echo "Syntax:" $this "$command <targetfiles>"
+        echo "(`docu_nsdist`)"
+        echo "I try to use $prefixfile as source but it is empty."
+        exit 1
+    fi
+
+    if [ "$2" == "" ]
+    then
+        files=`ls -1 *.n3 *.ttl 2>/dev/null | grep -v $prefixfile`
+    else
+        files=$@
+    fi
+
+    count=`cat $prefixfile| wc -l`
+    tmpfile=`mktemp -q ./rdfsh-XXXX`
+    for target in $files
+    do
+        if [ -f "$target" ]
+        then
+            before=`cat $target | grep "@prefix "  | wc -l`
+
+            cat $target | grep -v "@prefix " >$tmpfile
+            cat $prefixfile >$target
+            cat $tmpfile >>$target
+
+            after=`cat $target | grep "@prefix "  | wc -l`
+            let result=$after-$before
+            if [ "$result" -ge "0" ]
+            then
+                echo "$target: +$result prefix declarations"
+            else
+                echo "$target: $result prefix declarations"
+            fi
+        fi
+    done
+    rm $tmpfile
+;;
 
 #"validate" | "v" )
 #    file="$2"

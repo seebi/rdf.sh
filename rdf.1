@@ -1,4 +1,4 @@
-.TH rdf.sh 1  "05/2011" "version 0.2" "USER COMMANDS"
+.TH rdf.sh 1  "08/2011" "version 0.3" "USER COMMANDS"
 .SH NAME
 rdf.sh \- A multi-tool shell script for doing Semantic Web jobs on the command line.
 .SH SYNOPSIS
@@ -10,15 +10,17 @@ The idea of this tool is to provide a fast command line interface to day by day 
 .PP
 This includes inspecting resources and namespaces, listing of schema elements and other tasks.
 .SS subcommands
-    count -- count triples using rapper
-    desc  -- outputs a turtle description of the given resource
-    diff  -- diff of two RDF files
-    get   -- curls rdf in xml to stdout (tries accept header)
-    head  -- curls only the http header but accepts only rdf
-    headn -- curls only the http header
-    list  -- list resources which start with the given URI
-    ns    -- curls the namespace from prefix.cc
-    split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
+    count     -- count triples using rapper
+    desc      -- outputs a turtle description of the given resource
+    diff      -- diff of two RDF files
+    get       -- curls rdf in xml to stdout (tries accept header)
+    head      -- curls only the http header but accepts only rdf
+    headn     -- curls only the http header
+    list      -- list resources which start with the given URI
+    ns        -- curls the namespace from prefix.cc
+    nscollect -- collects prefix declarations of a list of ttl/n3 files
+    nsdist    -- distributes prefix declarations from one file to a list of other ttl/n3 files
+    split     -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 .TP
 Each subcommand outputs a detailed help by using it without parameter:
 
