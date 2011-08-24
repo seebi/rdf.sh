@@ -131,6 +131,7 @@ When introducing a new namespace to such projects, I need to add the `@prefix`
 line to each of the ttl files of this project.
 
 `rdf.sh` has two subcommands which handle this procedure:
+
 * `rdf nscollect` collects all prefixes from existing n3/ttl files in the
   current directory and collect them in the file `prefixes.n3`
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
