@@ -27,7 +27,12 @@ rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc
     $ rdf ns foaf
     http://xmlns.com/foaf/0.1/
 
-rdf.sh can also output prefix.cc syntax templates: 
+These namespace lookups are cached (typically
+`$HOME/.cache/rdf.sh/prefix.cache`) in order to avoid unneeded network
+traffic. As a result of this subcommand, all other rdf command can get
+qnames as parameters (e.g. `foaf:Person` or `skos:Concept`).
+
+rdf.sh can also output prefix.cc syntax templates (uncached): 
 
     $ rdf ns skos sparql
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -40,9 +45,6 @@ rdf.sh can also output prefix.cc syntax templates:
     $ rdf ns ping n3    
     @prefix ping: <http://purl.org/net/pingback/> .
 
-**Note:** As a result of this subcommand, all other rdf command can
-get qnames as parameters (e.g. `foaf:Person` or `skos:Concept`) which
-results in a namespace lookup ahead of the used command.
 
 ### resource description (`desc`)
 
