@@ -2,7 +2,7 @@
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 name="rdf.sh"
-version="0.2"
+version="0.3-dev"
 home="https://github.com/seebi/rdf.sh"
 this=`basename $0`
 thisexec=$0
@@ -10,21 +10,35 @@ command="$1"
 
 curlcommand="curl --fail -A ${name}/${version} -s -L"
 
-historyfile="$HOME/.resource_history"
+# rdf.sh uses proper XDG config and cache directories now
+if [ "$XDG_CONFIG_HOME" == "" ]
+then
+    XDG_CONFIG_HOME="$HOME/.config"
+fi
+if [ "$XDG_CACHE_HOME" == "" ]
+then
+    XDG_CACHE_HOME="$HOME/.cache"
+fi
+confdir="$XDG_CONFIG_HOME/rdf.sh"
+cachedir="$XDG_CACHE_HOME/rdf.sh"
+mkdir -p $confdir
+mkdir -p $cachedir
+historyfile="$cachedir/resource.history"
+touch $historyfile
 
 commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
-docu_desc () { echo "outputs a turtle description of the given resource";}
-docu_list () { echo "list resources which start with the given URI"; }
-docu_get () { echo "curls rdf in xml to stdout (tries accept header)"; }
-docu_headn () { echo "curls only the http header"; }
-docu_head () { echo "curls only the http header but accepts only rdf"; }
-docu_ns () { echo "curls the namespace from prefix.cc"; }
-docu_diff () { echo "diff of two RDF files"; }
-docu_count () { echo "count triples using rapper"; }
-docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
+docu_desc ()      { echo "outputs a turtle description of the given resource";}
+docu_list ()      { echo "list resources which start with the given URI"; }
+docu_get ()       { echo "curls rdf in xml to stdout (tries accept header)"; }
+docu_headn ()     { echo "curls only the http header"; }
+docu_head ()      { echo "curls only the http header but accepts only rdf"; }
+docu_ns ()        { echo "curls the namespace from prefix.cc"; }
+docu_diff ()      { echo "diff of two RDF files"; }
+docu_count ()     { echo "count triples using rapper"; }
+docu_split ()     { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 docu_nscollect () { echo "collects prefix declarations of a list of ttl/n3 files";}
-docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
+docu_nsdist ()    { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 
 if [ "$command" == "" ]
 then
