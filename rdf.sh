@@ -24,7 +24,7 @@ cachedir="$XDG_CACHE_HOME/rdf.sh"
 mkdir -p $confdir
 mkdir -p $cachedir
 historyfile="$cachedir/resource.history"
-touch $historyfile
+prefixcache="$cachedir/prefix.cache"
 
 commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
@@ -171,6 +171,64 @@ _expandQName ()
     fi
 }
 
+_getNamespaceFromPrefix ()
+{
+    prefix=$1
+    if [ "$prefix" == "" ]
+    then
+        echo "getNamespaceFromPrefix error: need a prefix parameter"
+        exit 1
+    fi
+    namespace=`_getPrefixFromCache $prefix`
+    if [ "$namespace" == "" ]
+    then
+        # no cache-hit, request it from prefix.cc
+        namespace=`$curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1`
+        if [ "$namespace" != "" ]
+        then
+            _addPrefixToCache $prefix "$namespace"
+        fi
+    fi
+    # output cache hit or curl output (maybe empty)
+    echo $namespace
+}
+
+# give a prefix and get a namespace or ""
+_getPrefixFromCache ()
+{
+    prefix=$1
+    if [ "$prefix" == "" ]
+    then
+        echo "getPrefixFromCache error: need a prefix parameter"
+        exit 1
+    fi
+    namespace=`cat $prefixcache | grep "^$prefix|" | cut -d "|" -f 2`
+    echo $namespace
+}
+
+# give a prefix + namespace and get a new cache entry
+_addPrefixToCache ()
+{
+    prefix=$1
+    if [ "$prefix" == "" ]
+    then
+        echo "addPrefixToCache error: need a prefix parameter"
+        exit 1
+    fi
+    namespace=$2
+    if [ "$namespace" == "" ]
+    then
+        echo "addPrefixToCache error: need a namespace parameter"
+        exit 1
+    fi
+    touch $prefixcache
+    existingNamespace=`_getPrefixFromCache $prefix`
+    if [ "$existingNamespace" == "" ]
+    then
+        echo "$prefix|$namespace" >>$prefixcache
+    fi
+}
+
 # add a resource to the .resource_history file
 _addToHistory ()
 {
@@ -191,6 +249,12 @@ _addToHistory ()
     sort -u $historyfile >$historyfile.tmp
     mv $historyfile.tmp $historyfile
 }
+
+
+
+###
+# the commands are executed with a big case statement
+###
 
 case "$command" in
 
@@ -281,20 +345,25 @@ case "$command" in
     fi
     if [ "$suffix" == "" ]
     then
-        $curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1
+        # this is a standard request as "rdf ns foaf"
+        namespace=`_getNamespaceFromPrefix $prefix`
+        echo $namespace
     else
         if [ "$suffix" == "plain" ]
         then
-            echo -n `$curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1`
+            # this is for vim integration, plain = without newline
+            namespace=`_getNamespaceFromPrefix $prefix`
+            echo -n $namespace
         else
+            # if a real suffix is given, we always fetch from prefix.cc
             $curlcommand http://prefix.cc/$prefix.file.$suffix
         fi
     fi
 ;;
 
 "diff" )
-	source1="$2"
-	source2="$3"
+    source1="$2"
+    source2="$3"
     difftool="$4"
 
     if [ "$difftool" != "" ]
