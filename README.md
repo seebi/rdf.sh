@@ -22,7 +22,7 @@ rdf.sh currently provides these subcommands:
 
 ### namespace lookup (`ns`)
 
-rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc):
+rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc) as well as locally defined prefixes:
 
     $ rdf ns foaf
     http://xmlns.com/foaf/0.1/
@@ -31,6 +31,13 @@ These namespace lookups are cached (typically
 `$HOME/.cache/rdf.sh/prefix.cache`) in order to avoid unneeded network
 traffic. As a result of this subcommand, all other rdf command can get
 qnames as parameters (e.g. `foaf:Person` or `skos:Concept`).
+
+To define you own lookup table, just add a line
+
+    prefix|namespace
+
+to `$HOME/.config/rdf.sh/prefix.local`. rdf.sh will use it as a priority
+lookup table which overwrites cache and prefix.cc lookup.
 
 rdf.sh can also output prefix.cc syntax templates (uncached): 
 

@@ -25,6 +25,8 @@ mkdir -p $confdir
 mkdir -p $cachedir
 historyfile="$cachedir/resource.history"
 prefixcache="$cachedir/prefix.cache"
+prefixlocal="$confdir/prefix.local"
+touch $prefixlocal
 
 commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
@@ -194,6 +196,7 @@ _getNamespaceFromPrefix ()
 }
 
 # give a prefix and get a namespace or ""
+# this function search in the cache as well the locally configured prefixes
 _getPrefixFromCache ()
 {
     prefix=$1
@@ -202,7 +205,7 @@ _getPrefixFromCache ()
         echo "getPrefixFromCache error: need a prefix parameter"
         exit 1
     fi
-    namespace=`cat $prefixcache | grep "^$prefix|" | cut -d "|" -f 2`
+    namespace=`cat $prefixlocal $prefixcache | grep "^$prefix|" | head -1 | cut -d "|" -f 2`
     echo $namespace
 }
 
