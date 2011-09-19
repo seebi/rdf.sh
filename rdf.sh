@@ -13,18 +13,6 @@ command="$1"
 curlcommand="curl --fail -A ${name}/${version} -s -L"
 
 
-docu_desc ()      { echo "outputs description of the given resource in a given format (default: turtle)";}
-docu_list ()      { echo "list resources which start with the given URI"; }
-docu_get ()       { echo "curls rdf in xml to stdout (tries accept header)"; }
-docu_headn ()     { echo "curls only the http header"; }
-docu_head ()      { echo "curls only the http header but accepts only rdf"; }
-docu_ns ()        { echo "curls the namespace from prefix.cc"; }
-docu_diff ()      { echo "diff of two RDF files"; }
-docu_ping ()      { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
-docu_count ()     { echo "count triples using rapper"; }
-docu_split ()     { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
-docu_nscollect () { echo "collects prefix declarations of a list of ttl/n3 files";}
-docu_nsdist ()    { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 
 ###
 # private functions
@@ -263,6 +251,7 @@ _isPingbackEnabled ()
 # the are executed by using the first parameter and get all parameters as options
 ###
 
+docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
 do_desc ()
 {
     uri="$2"
@@ -286,6 +275,7 @@ do_desc ()
 
 }
 
+docu_list () { echo "list resources which start with the given URI"; }
 do_list ()
 {
     uri="$2"
@@ -304,6 +294,7 @@ do_list ()
     rm $tmpfile
 }
 
+docu_get () { echo "curls rdf in xml to stdout (tries accept header)"; }
 do_get ()
 {
     uri="$2"
@@ -318,6 +309,7 @@ do_get ()
     _addToHistory $uri $historyfile
 }
 
+docu_headn () { echo "curls only the http header"; }
 do_headn ()
 {
     uri="$2"
@@ -332,6 +324,7 @@ do_headn ()
     _addToHistory $uri $historyfile
 }
 
+docu_head () { echo "curls only the http header but accepts only rdf"; }
 do_head ()
 {
     uri="$2"
@@ -346,6 +339,7 @@ do_head ()
     _addToHistory $uri $historyfile
 }
 
+docu_ns () { echo "curls the namespace from prefix.cc"; }
 do_ns ()
 {
     prefix="$2"
@@ -375,6 +369,7 @@ do_ns ()
     fi
 }
 
+docu_diff () { echo "diff of two RDF files"; }
 do_diff ()
 {
     source1="$2"
@@ -412,6 +407,7 @@ do_diff ()
     rm $dest1 $dest2
 }
 
+docu_count () { echo "count triples using rapper"; }
 do_count ()
 {
     file="$2"
@@ -424,6 +420,7 @@ do_count ()
     rapper -i guess --count $file
 }
 
+docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 do_split ()
 {
     file="$2"
@@ -459,6 +456,7 @@ do_split ()
     echo "The pieces are in $tmpdir ... "
 }
 
+docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files";}
 do_nscollect()
 {
     prefixfile="$2"
@@ -484,6 +482,7 @@ do_nscollect()
     #done
 }
 
+docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 do_nsdist ()
 {
     prefixfile="prefixes.n3"
@@ -527,6 +526,7 @@ do_nsdist ()
     rm $tmpfile
 }
 
+docu_ping () { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
 do_ping ()
 {
     pingsource="$2"
@@ -542,6 +542,24 @@ do_ping ()
     related=`_getRelatedResources $pingsource`
 }
 
+docu_help () { echo "outputs the manpage of $this"; }
+do_help ()
+{
+    realfile=`readlink $thisexec`
+    if [ "$realfile" == "" ]
+    then
+        # assume useage over "xxx/yyy/rdf.sh/rdf.sh help"
+        execdir=`dirname $thisexec`
+        manpage="$execdir/rdf.1"
+    else
+        # assume rdf.sh started as link and manpage is in same dir with script
+        execdir=`dirname $thisexec`
+        scriptdir=`dirname $realfile`
+        manpage="$execdir/$scriptdir/rdf.1"
+    fi
+    # try central manpage first, then try the guessed one
+    man rdf 2>/dev/null || man -l $manpage
+}
 
 ###
 # execute the command NOW :-)
@@ -598,13 +616,13 @@ then
     exit 1
 fi
 
-# now start the command
+# now start the sub - command
 # taken from http://stackoverflow.com/questions/1007538/
 if type do_$command >/dev/null 2>&1
 then
     do_$command $*
 else
-    echo "The command '$command' is unknown."
+    echo "$this: '$command' is not a rdf command. See '$this help'."
     exit 1
 fi
 
