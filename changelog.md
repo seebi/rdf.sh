@@ -1,6 +1,16 @@
 # rdf.sh changlog
 ## 0.3
- * new commands: nscollect and nsdist
+ * new command: help - outputs the manpage
+ * new command: nscollect - collects prefix declarations of a file list
+ * new command: nsdist - distributes prefix declarations to a file list
+ * new command: ping -ends a semantic pingback request
+ * use proper XDG config and caching directories
+ * add cache for namespace fetching (ns command)
+ * introduce a local user-generated priority lookup table for the ns command
+ * improve history creation
+ * add a second parameter format to the desc subcommand (default: turtle)
+ * refactoring towards maintainability
+ * new help screen with docu one-liners
 
 ## 0.2
  * add: plain mode for ns command (for scripting)
