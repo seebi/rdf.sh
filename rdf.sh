@@ -30,7 +30,7 @@ touch $prefixlocal
 
 commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
-docu_desc ()      { echo "outputs a turtle description of the given resource";}
+docu_desc ()      { echo "outputs description of the given resource in a given format (default: turtle)";}
 docu_list ()      { echo "list resources which start with the given URI"; }
 docu_get ()       { echo "curls rdf in xml to stdout (tries accept header)"; }
 docu_headn ()     { echo "curls only the http header"; }
@@ -279,16 +279,21 @@ case "$command" in
 
 "desc")
     uri="$2"
+    output="$3"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
+        echo "Syntax:" $this "$command <URI | Prefix:LocalPart> <format>"
         echo "(`docu_desc`)"
         exit 1
+    fi
+    if [ "$output" == "" ]
+    then
+        output="turtle"
     fi
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
     $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r turtle
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r $output
     rm $tmpfile
     _addToHistory $uri $historyfile
 ;;
