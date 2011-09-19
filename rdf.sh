@@ -242,18 +242,34 @@ _addToHistory ()
         exit 1
     fi
 
+    historyfile=$2
     if [ "$historyfile" == "" ]
     then
-        historyfile="$HOME/.resource_history"
+        echo "addToHistory error: need an historyfile as second parameter "
+        exit 1
     fi
-
     touch $historyfile
-    echo $resource >>$historyfile
-    sort -u $historyfile >$historyfile.tmp
-    mv $historyfile.tmp $historyfile
+
+    if [ "$noHistory" == "" ]
+    then
+        count=`grep $resource $historyfile | wc -l`
+        if [ "$count" != 0 ]
+        then
+            # f resource exists, remove it
+            sed -i "s|$resource||g" $historyfile
+            sed -i '/^$/d' $historyfile
+        fi
+        # add (or re-add) the resource at the end
+        echo $resource >>$historyfile
+    fi
 }
 
-
+# creates a tempfile and returns the filename
+_getTempFile ()
+{
+    tmpfile=`mktemp -q ./rdfsh-XXXX.tmp`
+    echo $tmpfile
+}
 
 ###
 # the commands are executed with a big case statement
@@ -270,11 +286,11 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    tmpfile=`mktemp -q ./rdfsh-XXXX`
+    tmpfile=`_getTempFile`
     $thisexec get $uri >$tmpfile
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r turtle
     rm $tmpfile
-    _addToHistory $uri
+    _addToHistory $uri $historyfile
 ;;
 
 "list" )
@@ -286,7 +302,9 @@ case "$command" in
         exit 1
     fi
     uri=`_expandQName $uri`
-    tmpfile=`mktemp -q ./rdfsh-XXXX`
+    tmpfile=`_getTempFile`
+    # turn history off for this internal call (dirty URIs)
+    export noHistory="true"
     $thisexec get $uri >$tmpfile
     roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
     rm $tmpfile
@@ -302,12 +320,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     $curlcommand -H "Accept: application/rdf+xml" $uri
-
-    # only when started by user (not by itself)
-    if [ "$SHLVL" == "2" ]
-    then
-        _addToHistory $uri
-    fi
+    _addToHistory $uri $historyfile
 ;;
 
 "headn" )
@@ -320,7 +333,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD $uri
-    _addToHistory $uri
+    _addToHistory $uri $historyfile
 ;;
 
 "head" )
@@ -333,7 +346,7 @@ case "$command" in
     fi
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD -H "Accept: application/rdf+xml" $uri
-    _addToHistory $uri
+    _addToHistory $uri $historyfile
 ;;
 
 "ns" )
