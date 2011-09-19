@@ -11,15 +11,17 @@ The idea of this tool is to provide a fast command line interface to day by day 
 This includes inspecting resources and namespaces, listing of schema elements and other tasks.
 .SS subcommands
     count     -- count triples using rapper
-    desc      -- outputs a turtle description of the given resource
+    desc      -- outputs description of the given resource in a given format (default: turtle)
     diff      -- diff of two RDF files
     get       -- curls rdf in xml to stdout (tries accept header)
     head      -- curls only the http header but accepts only rdf
     headn     -- curls only the http header
+    help      -- outputs the manpage of rdf
     list      -- list resources which start with the given URI
     ns        -- curls the namespace from prefix.cc
     nscollect -- collects prefix declarations of a list of ttl/n3 files
     nsdist    -- distributes prefix declarations from one file to a list of other ttl/n3 files
+    ping      -- sends a semantic pingback request from a source to a target or to all possible targets
     split     -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 .TP
 Each subcommand outputs a detailed help by using it without parameter:
@@ -124,17 +126,30 @@ Suggested tools are:
   * zsh -- http://zsh.sourceforge.net/ (without the autocompletion, it is not the same)
 
 .SH FILES
- changelog.md - version changelog
- _rdf - zsh autocompletion file
- rdf.sh - the script
- rdf.1 - this file
- $HOME/.cache/rdf.sh/prefix.cache - a cached namespace lookup table from prefix.cc
- $HOME/.config/rdf.sh/prefix.local - a user-generated local priority lookup table
+.B changelog.md
+version changelog
+
+.B _rdf
+zsh autocompletion file
+
+.B rdf.sh
+the script
+
+.B rdf.1
+this file
+
+.B $HOME/.cache/rdf.sh/prefix.cache
+cached namespace lookup table from prefix.cc
+
+.B $HOME/.config/rdf.sh/prefix.local
+user-generated local priority lookup table
 
 .SH AUTHOR
 .SS Sebastian Tramp <mail@sebastian.tramp.name>
 .TP
 http://sebastian.tramp.name (WebID)
 .SH SEE ALSO
-https://github.com/seebi/rdf.sh
+.SS https://github.com/seebi/rdf.sh
+.TP
+The main homepage at github
 
