@@ -1,34 +1,17 @@
 #!/bin/bash
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
+# application metadata
 name="rdf.sh"
 version="0.3-dev"
 home="https://github.com/seebi/rdf.sh"
+
+# basic application environment
 this=`basename $0`
 thisexec=$0
 command="$1"
-
 curlcommand="curl --fail -A ${name}/${version} -s -L"
 
-# rdf.sh uses proper XDG config and cache directories now
-if [ "$XDG_CONFIG_HOME" == "" ]
-then
-    XDG_CONFIG_HOME="$HOME/.config"
-fi
-if [ "$XDG_CACHE_HOME" == "" ]
-then
-    XDG_CACHE_HOME="$HOME/.cache"
-fi
-confdir="$XDG_CONFIG_HOME/rdf.sh"
-cachedir="$XDG_CACHE_HOME/rdf.sh"
-mkdir -p $confdir
-mkdir -p $cachedir
-historyfile="$cachedir/resource.history"
-prefixcache="$cachedir/prefix.cache"
-prefixlocal="$confdir/prefix.local"
-touch $prefixlocal
-
-commandlist="get headn head ns diff count desc list split nscollect nsdist"
 
 docu_desc ()      { echo "outputs description of the given resource in a given format (default: turtle)";}
 docu_list ()      { echo "list resources which start with the given URI"; }
@@ -37,34 +20,15 @@ docu_headn ()     { echo "curls only the http header"; }
 docu_head ()      { echo "curls only the http header but accepts only rdf"; }
 docu_ns ()        { echo "curls the namespace from prefix.cc"; }
 docu_diff ()      { echo "diff of two RDF files"; }
+docu_ping ()      { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
 docu_count ()     { echo "count triples using rapper"; }
 docu_split ()     { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 docu_nscollect () { echo "collects prefix declarations of a list of ttl/n3 files";}
 docu_nsdist ()    { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 
-if [ "$command" == "" ]
-then
-    echo "$this is a a multi-tool shell script for doing Semantic Web jobs on the command line."
-    echo "Version:  $version"
-    echo "Homepage: $home"
-    echo ""
-    echo "Syntax: $this <command>"
-    echo "(command is one of: $commandlist)"
-    exit 1
-fi
-
-# for generating the autocompletion suggestions automatically
-if [ "$command" == "zshcomp" ]
-then
-    #echo "$commandlist"
-    echo "("
-    for cmd in $commandlist
-    do
-        echo $cmd:\"`docu_$cmd`\"
-    done
-    echo ")"
-    exit 1
-fi
+###
+# private functions
+###
 
 # takes an input string and checks if it is a valid qname
 _isQName ()
@@ -271,13 +235,36 @@ _getTempFile ()
     echo $tmpfile
 }
 
+# tests a resource for beeing semantic pingback enabled
+_isPingbackEnabled ()
+{
+    resource=$1
+    if [ "$resource" == "" ]
+    then
+        echo "isPingbackEnabled error: need an resource parameter"
+        exit 1
+    fi
+    uri=`_expandQName $resource`
+
+    tryHead=`$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2`
+    if [ "$tryHead" == "" ]
+    then
+        tmpfile=`_getTempFile`
+        $thisexec get $uri >$tmpfile
+        roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r $output
+        rm $tmpfile
+        echo ""
+    fi
+}
+
+
 ###
-# the commands are executed with a big case statement
+# the "command" functions:
+# the are executed by using the first parameter and get all parameters as options
 ###
 
-case "$command" in
-
-"desc")
+do_desc ()
+{
     uri="$2"
     output="$3"
     if [ "$uri" == "" ]
@@ -296,9 +283,11 @@ case "$command" in
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r $output
     rm $tmpfile
     _addToHistory $uri $historyfile
-;;
 
-"list" )
+}
+
+do_list ()
+{
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -313,9 +302,10 @@ case "$command" in
     $thisexec get $uri >$tmpfile
     roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
     rm $tmpfile
-;;
+}
 
-"get")
+do_get ()
+{
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -326,9 +316,10 @@ case "$command" in
     uri=`_expandQName $uri`
     $curlcommand -H "Accept: application/rdf+xml" $uri
     _addToHistory $uri $historyfile
-;;
+}
 
-"headn" )
+do_headn ()
+{
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -339,9 +330,10 @@ case "$command" in
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD $uri
     _addToHistory $uri $historyfile
-;;
+}
 
-"head" )
+do_head ()
+{
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -352,9 +344,10 @@ case "$command" in
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD -H "Accept: application/rdf+xml" $uri
     _addToHistory $uri $historyfile
-;;
+}
 
-"ns" )
+do_ns ()
+{
     prefix="$2"
     suffix="$3"
     if [ "$prefix" == "" ]
@@ -380,9 +373,10 @@ case "$command" in
             $curlcommand http://prefix.cc/$prefix.file.$suffix
         fi
     fi
-;;
+}
 
-"diff" )
+do_diff ()
+{
     source1="$2"
     source2="$3"
     difftool="$4"
@@ -416,9 +410,10 @@ case "$command" in
     rapper $source2 | sort >$dest2
     $RDFSHDIFF $dest1 $dest2
     rm $dest1 $dest2
-;;
+}
 
-"count" )
+do_count ()
+{
     file="$2"
     if [ "$file" == "" ]
     then
@@ -427,9 +422,10 @@ case "$command" in
         exit 1
     fi
     rapper -i guess --count $file
-;;
+}
 
-"split" )
+do_split ()
+{
     file="$2"
     size="$3"
     todo="$4"
@@ -461,9 +457,10 @@ case "$command" in
     fi
 
     echo "The pieces are in $tmpdir ... "
-;;
+}
 
-"nscollect" )
+do_nscollect()
+{
     prefixfile="$2"
 
     if [ "$prefixfile" == "" ]
@@ -485,9 +482,10 @@ case "$command" in
     #for n3file in $files
     #do
     #done
-;;
+}
 
-"nsdist" )
+do_nsdist ()
+{
     prefixfile="prefixes.n3"
     if [ ! -f "$prefixfile" ]
     then
@@ -527,20 +525,86 @@ case "$command" in
         fi
     done
     rm $tmpfile
-;;
+}
 
-#"validate" | "v" )
-#    file="$2"
-#    if [ "$file" == "" ]
-#    then
-#        echo "Syntax:" $this "$command <file>"
-#        echo "(validates rdf/xml using http://www.w3.org/RDF/Validator/ARPServlet)"
-#        exit 1
-#    fi
-#    wget --post-file=post.rdf http://www.w3.org/RDF/Validator/ARPServlet -q -O - | html2text
-#;;
+do_ping ()
+{
+    pingsource="$2"
+    pingtarget="$3"
+    if [ "$pingsource" == "" ]
+    then
+        echo "Syntax:" $this "$command <pingsource> <pingtarget>"
+        echo "(`docu_ping`)"
+        exit 1
+    fi
+    pingsource=`_expandQName $pingsource`
+    _isPingbackEnabled $pingsource
+    related=`_getRelatedResources $pingsource`
+}
 
-* )
-    echo "Unknown command!"
-esac
+
+###
+# execute the command NOW :-)
+###
+
+# rdf.sh uses proper XDG config and cache directories now
+if [ "$XDG_CONFIG_HOME" == "" ]
+then
+    XDG_CONFIG_HOME="$HOME/.config"
+fi
+if [ "$XDG_CACHE_HOME" == "" ]
+then
+    XDG_CACHE_HOME="$HOME/.cache"
+fi
+confdir="$XDG_CONFIG_HOME/rdf.sh"
+cachedir="$XDG_CACHE_HOME/rdf.sh"
+mkdir -p $confdir
+mkdir -p $cachedir
+historyfile="$cachedir/resource.history"
+prefixcache="$cachedir/prefix.cache"
+prefixlocal="$confdir/prefix.local"
+touch $prefixlocal
+
+# taken from http://stackoverflow.com/questions/2630812/
+commandlist=`typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | sort`
+
+# if no command is given, present a basic help screen
+if [ "$command" == "" ]
+then
+    echo "$this is a a multi-tool shell script for doing Semantic Web jobs on the command line."
+    echo "Version:  $version"
+    echo "Homepage: $home"
+    echo ""
+    echo "Syntax: $this <command>"
+    echo ""
+    echo "Available commands are:"
+    for cmd in $commandlist
+    do
+        echo "  $cmd:" `docu_$cmd`
+    done
+    exit 1
+fi
+
+# for generating the autocompletion suggestions automatically
+if [ "$command" == "zshcomp" ]
+then
+    #echo "$commandlist"
+    echo "("
+    for cmd in $commandlist
+    do
+        echo $cmd:\"`docu_$cmd`\"
+    done
+    echo ")"
+    exit 1
+fi
+
+# now start the command
+# taken from http://stackoverflow.com/questions/1007538/
+if type do_$command >/dev/null 2>&1
+then
+    do_$command $*
+else
+    echo "The command '$command' is unknown."
+    exit 1
+fi
 
