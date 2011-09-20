@@ -9,15 +9,18 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 rdf.sh currently provides these subcommands:
 
 * count -- count triples using rapper
-* desc  -- outputs a turtle description of the given resource
-* diff  -- diff of two RDF files
-* get   -- curls rdf in xml to stdout (tries accept header)
-* head  -- curls only the http header but accepts only rdf
+* desc -- outputs description of the given resource in a given format (default: turtle)
+* diff -- diff of two RDF files
+* get -- curls rdf in xml to stdout (tries accept header)
+* head -- curls only the http header but accepts only rdf
 * headn -- curls only the http header
-* list  -- list resources which start with the given URI
-* ns    -- curls the namespace from prefix.cc
-* nscollect  -- collects prefix declarations of a list of ttl/n3 files
-* nsdist     -- distributes prefix declarations from one file to a list of other ttl/n3 files
+* help -- outputs the manpage of rdf.sh
+* list -- list resources which start with the given URI
+* ns -- curls the namespace from prefix.cc
+* nscollect -- collects prefix declarations of a list of ttl/n3 files
+* nsdist -- distributes prefix declarations from one file to a list of other ttl/n3 files
+* ping -- sends a semantic pingback request from a source to a target or to all possible targets
+* pingall -- sends a semantic pingback request to all targets of a source resource
 * split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 
 ### namespace lookup (`ns`)
@@ -145,6 +148,20 @@ line to each of the ttl files of this project.
   current directory and collect them in the file `prefixes.n3`
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
+
+### spinning the semantic web: semantic pingback
+
+With its `ping`/`pingall` commands, `rdf.sh` is a [Semantic
+Pingback](http://www.w3.org/wiki/Pingback) client with the following
+features:
+
+* Send a single pingback request from a source to a target resource
+  * Example: `rdf ping http://sebastian.tramp.name http://aksw.org/SebastianTramp`
+* Send a pingback request to all target resources of a source
+  * Example: `rdf pingall http://sebastian.tramp.name`
+* `rdf.sh` will do the following tests before sending a pingback request:
+  * Is the source resource related to the target resource?
+  * Is there a pingback server attached to the target resource?
 
 ## installation
 
