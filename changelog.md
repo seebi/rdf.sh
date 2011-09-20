@@ -3,7 +3,8 @@
  * new command: help - outputs the manpage
  * new command: nscollect - collects prefix declarations of a file list
  * new command: nsdist - distributes prefix declarations to a file list
- * new command: ping -ends a semantic pingback request
+ * new command: ping - sends a semantic pingback request (source -> target)
+ * new command: pingall - sends a semantic pingback request to all targets of a source
  * use proper XDG config and caching directories
  * add cache for namespace fetching (ns command)
  * introduce a local user-generated priority lookup table for the ns command

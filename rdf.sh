@@ -289,7 +289,7 @@ _sendPingback ()
     fi
 
     result=`$curlcommand $pbserver --data "source=$pbsource&target=$pbtarget"`
-    echo "server response: $result"
+    echo "$result"
 }
 
 ###
@@ -572,6 +572,43 @@ do_nsdist ()
     rm $tmpfile
 }
 
+docu_pingall () { echo "sends a semantic pingback request to all possible targets of a given resource"; }
+do_pingall ()
+{
+    pingsource="$2"
+
+    # check for ping source
+    if [ "$pingsource" == "" ]
+    then
+        echo "Syntax:" $this "$command <pingsource>"
+        echo "(`docu_ping`)"
+        exit 1
+    fi
+    pingsource=`_expandQName $pingsource`
+
+    # search for possible targets
+    pingtargets=`_getRelatedResources $pingsource`
+    if [ "$pingtargets" == "" ]
+    then
+        echo "Error: No targets available at $pingsource."
+        exit 1
+    fi
+
+    for target in $pingtargets
+    do
+        # look for a pingback server responsable for the target
+        pingserver=`_isPingbackEnabled $target`
+        if [ "$pingserver" == "" ]
+        then
+            echo "$target: No pingback server found."
+        else
+            # finally, do the ping
+            response=`_sendPingback $pingserver $pingsource $target | head -1`
+            echo "$target (response): $response"
+        fi
+    done
+}
+
 docu_ping () { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
 do_ping ()
 {
@@ -627,7 +664,8 @@ do_ping ()
     fi
 
     # finally, do the ping
-    _sendPingback $pingserver $pingsource $pingtargets
+    response=`_sendPingback $pingserver $pingsource $pingtargets`
+    echo "server response: $response"
 }
 
 docu_help () { echo "outputs the manpage of $this"; }
