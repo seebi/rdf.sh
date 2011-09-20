@@ -12,8 +12,6 @@ thisexec=$0
 command="$1"
 curlcommand="curl --fail -A ${name}/${version} -s -L"
 
-
-
 ###
 # private functions
 ###
@@ -223,7 +221,24 @@ _getTempFile ()
     echo $tmpfile
 }
 
-# tests a resource for beeing semantic pingback enabled
+# get all related resources
+_getRelatedResources ()
+{
+    resource=$1
+    if [ "$resource" == "" ]
+    then
+        echo "getRelatedResources error: need an resource parameter"
+        exit 1
+    fi
+    uri=`_expandQName $resource`
+
+    tmpfile=`_getTempFile`
+    $thisexec get $uri >$tmpfile
+    roqet -q -e "SELECT DISTINCT ?o {<$uri> ?property ?o. FILTER(isUri(?o))}" -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "^http"
+    rm $tmpfile
+}
+
+# returns the announced pingback URL or an empty string
 _isPingbackEnabled ()
 {
     resource=$1
@@ -234,17 +249,48 @@ _isPingbackEnabled ()
     fi
     uri=`_expandQName $resource`
 
-    tryHead=`$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2`
-    if [ "$tryHead" == "" ]
+    pingbackServer=`$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2`
+    #$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2
+    if [ "$pingbackServer" == "" ]
     then
         tmpfile=`_getTempFile`
         $thisexec get $uri >$tmpfile
-        roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r $output
+        pingbackServer=`roqet -q -e "SELECT ?o {<$uri> <http://purl.org/net/pingback/to> ?o}" -D $tmpfile 2>/dev/null | head -1 | cut -d "<" -f 2 | cut -d ">" -f 1`
         rm $tmpfile
-        echo ""
+    fi
+
+    # output server
+    if [ "$pingbackServer" != "" ]
+    then
+        echo $pingbackServer
     fi
 }
 
+# send a pingback to server $1 which connects the source $2 with the target $3
+_sendPingback ()
+{
+    pbserver=$1
+    if [ "$pbserver" == "" ]
+    then
+        echo "sendPingback error: need a pingback server URL as first parameter"
+        exit 1
+    fi
+    pbsource=$2
+    if [ "$pbsource" == "" ]
+    then
+        echo "sendPingback error: need a pingback source URL as second parameter"
+        exit 1
+    fi
+    pbtarget=$3
+    if [ "$pbtarget" == "" ]
+    then
+        echo "sendPingback error: need a pingback target URL as third parameter"
+        exit 1
+    fi
+
+    result=`$curlcommand $pbserver --data "source=$pbsource&target=$pbtarget"`
+    echo "server response: $result"
+}
 
 ###
 # the "command" functions:
@@ -530,7 +576,9 @@ docu_ping () { echo "sends a semantic pingback request from a source to a target
 do_ping ()
 {
     pingsource="$2"
-    pingtarget="$3"
+    pingtargets="$3"
+
+    # check for ping source
     if [ "$pingsource" == "" ]
     then
         echo "Syntax:" $this "$command <pingsource> <pingtarget>"
@@ -538,8 +586,48 @@ do_ping ()
         exit 1
     fi
     pingsource=`_expandQName $pingsource`
-    _isPingbackEnabled $pingsource
-    related=`_getRelatedResources $pingsource`
+
+    # check for ping target
+    if [ "$pingtargets" != "" ]
+    then
+        # target is given as parameter, so check
+        pingtargets=`_getRelatedResources $pingsource | grep "^$pingtargets$"`
+        if [ "$pingtargets" == "" ]
+        then
+            echo "Error: No link found."
+            exit 1
+        fi
+    else
+        # target not given as paremeter, so search for
+        pingtargets=`_getRelatedResources $pingsource`
+        if [ "$pingtargets" == "" ]
+        then
+            echo "Error: No targets available at all."
+            exit 1
+        fi
+    fi
+
+    count=`echo $pingtargets | wc -w`
+    if [ "$count" -ge 2 ]
+    then
+        echo "Please provide one of these ping target resources as a second parameter:"
+        for target in $pingtargets
+        do
+            echo "- $target"
+        done
+        exit 1
+    fi
+
+    # look for a pingback server responsable for the target
+    pingserver=`_isPingbackEnabled $pingtargets`
+    if [ "$pingserver" == "" ]
+    then
+        echo "Error: No pingback server found for $pingtargets"
+        exit 1
+    fi
+
+    # finally, do the ping
+    _sendPingback $pingserver $pingsource $pingtargets
 }
 
 docu_help () { echo "outputs the manpage of $this"; }
