@@ -216,8 +216,8 @@ _addToHistory ()
         if [ "$count" != 0 ]
         then
             # f resource exists, remove it
-            $sed -i "s|$resource||g" $historyfile
-            $sed -i '/^$/d' $historyfile
+            $sed "s|$resource||g" -i $historyfile
+            $sed '/^$/d' -i $historyfile
         fi
         # add (or re-add) the resource at the end
         echo $resource >>$historyfile
