@@ -3,7 +3,7 @@
 
 # application metadata
 name="rdf.sh"
-version="0.3-dev"
+version="0.3"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
@@ -11,6 +11,16 @@ this=`basename $0`
 thisexec=$0
 command="$1"
 curlcommand="curl --fail -A ${name}/${version} -s -L"
+
+### mac workarounds
+uname=`uname`
+if [ "$uname" == "Darwin" ]
+then
+    sed="sed -E"
+else
+    sed="sed"
+fi
+
 
 ###
 # private functions
@@ -206,8 +216,8 @@ _addToHistory ()
         if [ "$count" != 0 ]
         then
             # f resource exists, remove it
-            sed -i "s|$resource||g" $historyfile
-            sed -i '/^$/d' $historyfile
+            $sed -i "s|$resource||g" $historyfile
+            $sed -i '/^$/d' $historyfile
         fi
         # add (or re-add) the resource at the end
         echo $resource >>$historyfile
@@ -493,7 +503,7 @@ do_split ()
         for piece in `ls -1 $tmpdir`
         do
             cd $tmpdir
-            realtodo=`echo $todo | sed "s/%PART%/$piece/" `
+            realtodo=`echo $todo | $sed "s/%PART%/$piece/" `
             echo $realtodo
             $realtodo
         done
