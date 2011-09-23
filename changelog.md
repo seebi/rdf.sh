@@ -12,6 +12,7 @@
  * add a second parameter format to the desc subcommand (default: turtle)
  * refactoring towards maintainability
  * new help screen with docu one-liners
+ * Darwin workarounds
 
 ## 0.2
  * add: plain mode for ns command (for scripting)

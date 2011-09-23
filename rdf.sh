@@ -17,8 +17,10 @@ uname=`uname`
 if [ "$uname" == "Darwin" ]
 then
     sed="sed -E"
+    sedi="sed -i -E"
 else
     sed="sed"
+    sedi="sed -i"
 fi
 
 
@@ -216,8 +218,8 @@ _addToHistory ()
         if [ "$count" != 0 ]
         then
             # f resource exists, remove it
-            $sed "s|$resource||g" -i $historyfile
-            $sed '/^$/d' -i $historyfile
+            $sedi "s|$resource||g" $historyfile
+            $sedi '/^$/d' $historyfile
         fi
         # add (or re-add) the resource at the end
         echo $resource >>$historyfile
