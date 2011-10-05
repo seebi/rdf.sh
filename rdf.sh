@@ -3,7 +3,7 @@
 
 # application metadata
 name="rdf.sh"
-version="0.3"
+version="0.4 alpha"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
