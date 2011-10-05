@@ -459,8 +459,8 @@ do_diff ()
     fi
     dest1="/tmp/$RANDOM-`basename $source1`"
     dest2="/tmp/$RANDOM-`basename $source2`"
-    rapper $source1 | sort >$dest1
-    rapper $source2 | sort >$dest2
+    rapper -i guess $source1 | sort >$dest1
+    rapper -i guess $source2 | sort >$dest2
     $RDFSHDIFF $dest1 $dest2
     rm $dest1 $dest2
 }
