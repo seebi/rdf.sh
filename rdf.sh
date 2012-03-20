@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 # application metadata
@@ -326,11 +326,13 @@ do_desc ()
     fi
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
+    mv $tmpfile $tmpfile.rdf
+    tmpfile="$tmpfile.rdf"
     $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r $output
-    rm $tmpfile
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r turtle >$tmpfile.out
+    rapper -q -i turtle $tmpfile.out -o $output
+    rm $tmpfile $tmpfile.out
     _addToHistory $uri $historyfile
-
 }
 
 docu_list () { echo "list resources which start with the given URI"; }
