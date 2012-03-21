@@ -1,4 +1,10 @@
 # rdf.sh changlog
+## 0.4
+ * improve output of desc with prefixes wrong cache and config
+ * fix rapper call for diff command
+ * fix a wrong sed call
+ * fix some darwin related bugs
+
 ## 0.3
  * new command: help - outputs the manpage
  * new command: nscollect - collects prefix declarations of a file list
