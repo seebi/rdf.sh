@@ -143,7 +143,7 @@ _getNamespaceFromPrefix ()
         echo "getNamespaceFromPrefix error: need a prefix parameter"
         exit 1
     fi
-    namespace=`_getPrefixFromCache $prefix`
+    namespace=`_getNamespaceForPrefix $prefix`
     if [ "$namespace" == "" ]
     then
         # no cache-hit, request it from prefix.cc
@@ -157,9 +157,23 @@ _getNamespaceFromPrefix ()
     echo $namespace
 }
 
+# give a namespace and get a prefix or it
+# this function search in the cache as well the locally configured prefixes
+_getPrefixForNamespace ()
+{
+    namespace=$1
+    if [ "$namespace" == "" ]
+    then
+        echo "getPrefixFromCache error: need a namespace parameter"
+        exit 1
+    fi
+    prefix=`cat $prefixlocal $prefixcache | grep "$namespace" | head -1 | cut -d "|" -f 1`
+    echo $prefix
+}
+
 # give a prefix and get a namespace or ""
 # this function search in the cache as well the locally configured prefixes
-_getPrefixFromCache ()
+_getNamespaceForPrefix ()
 {
     prefix=$1
     if [ "$prefix" == "" ]
@@ -187,7 +201,7 @@ _addPrefixToCache ()
         exit 1
     fi
     touch $prefixcache
-    existingNamespace=`_getPrefixFromCache $prefix`
+    existingNamespace=`_getNamespaceForPrefix $prefix`
     if [ "$existingNamespace" == "" ]
     then
         echo "$prefix|$namespace" >>$prefixcache
@@ -329,8 +343,22 @@ do_desc ()
     mv $tmpfile $tmpfile.rdf
     tmpfile="$tmpfile.rdf"
     $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r turtle >$tmpfile.out
-    rapper -q -i turtle $tmpfile.out -o $output
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r ntriples >$tmpfile.out
+
+    # try to prepare the prefix definitions
+    #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
+    features=""
+    for namespace in `cat $prefixlocal $prefixcache| cut -d "|" -f 2`
+    do
+        namespaceCount=`grep -P "$namespace[a-zA-Z]+\>" $tmpfile.out | wc -l`
+        if [[ "$namespaceCount" -ge 1 ]]; then
+            prefix=`_getPrefixForNamespace $namespace`
+            #echo "Found $namespace -> $prefix"
+            features="$features -f xmlns:$prefix=\"$namespace\""
+        fi
+    done
+
+    rapper -q ${features} -i ntriples $tmpfile.out -o $output
     rm $tmpfile $tmpfile.out
     _addToHistory $uri $historyfile
 }
