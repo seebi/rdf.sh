@@ -63,14 +63,20 @@ subject. This is extremly useful to fastly check schema details.
 
     $ rdf desc foaf:Person
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-
-    <http://xmlns.com/foaf/0.1/Person> a <http://www.w3.org/2000/01/rdf-schema#Class>, <http://www.w3.org/2002/07/owl#Class> ;
-    <http://www.w3.org/2000/01/rdf-schema#comment> "A person." ;
-    <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://xmlns.com/foaf/0.1/> ;
-    <http://www.w3.org/2000/01/rdf-schema#label> "Person" ;
-    <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/10/swap/pim/contact#Person>, <http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing>, <http://xmlns.com/foaf/0.1/Agent> ;
-    <http://www.w3.org/2002/07/owl#disjointWith> <http://xmlns.com/foaf/0.1/Organization>, <http://xmlns.com/foaf/0.1/Project> ;
-    <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+    @prefix contact: <http://www.w3.org/2000/10/swap/pim/contact#> .
+    
+    foaf:Person
+        a rdfs:Class, owl:Class ;
+        rdfs:comment "A person." ;
+        rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
+        rdfs:label "Person" ;
+        rdfs:subClassOf contact:Person, geo:SpatialThing, foaf:Agent ;
+        owl:disjointWith foaf:Organization, foaf:Project ;
+        <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
 
 ### resource listings (`list`)
 
@@ -184,7 +190,10 @@ Suggested tools are:
 
 ### files
 
-  * `changelog.md` - version changelog
-  * `_rdf` - zsh autocompletion file
-  * `rdf.sh` - the script
   * `README.md` - this file
+  * `_rdf` - zsh autocompletion file
+  * `changelog.md` - version changelog
+  * `doap.ttl` - doap description of rdf.sh
+  * `rdf.1` - rdf.sh man page
+  * `rdf.sh` - the script
+
