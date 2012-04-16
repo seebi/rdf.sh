@@ -3,7 +3,7 @@
 
 # application metadata
 name="rdf.sh"
-version="0.4"
+version="0.4.1"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
@@ -750,6 +750,7 @@ historyfile="$cachedir/resource.history"
 prefixcache="$cachedir/prefix.cache"
 prefixlocal="$confdir/prefix.local"
 touch $prefixlocal
+touch $prefixcache
 
 # taken from http://stackoverflow.com/questions/2630812/
 commandlist=`typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | sort`
