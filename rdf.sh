@@ -28,9 +28,31 @@ fi
 # private functions
 ###
 
+# takes an input command name and checks for availability with which
+_checkTool ()
+{
+    tool=$1
+    if [ "$tool" == "" ]
+    then
+        echo "checkTool error: need an parameter"
+        exit 1
+    fi
+
+    for tool in $*
+    do
+        check=`which $tool 2>/dev/null >/dev/null`
+        if [ "$?" == "1" ]
+        then
+            echo "Error: you need '$tool' for this command."
+            exit 1
+        fi
+    done
+}
+
 # takes an input string and checks if it is a valid qname
 _isQName ()
 {
+    _checkTool cut
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -68,6 +90,7 @@ _isQName ()
 # takes a qname and outputs the prefix
 _getPrefix ()
 {
+    _checkTool cut
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -95,6 +118,7 @@ _getPrefix ()
 # takes a qname and outputs the LocalName
 _getLocalName ()
 {
+    _checkTool cut
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -137,6 +161,7 @@ _expandQName ()
 
 _getNamespaceFromPrefix ()
 {
+    _checkTool curl cut
     prefix=$1
     if [ "$prefix" == "" ]
     then
@@ -161,6 +186,7 @@ _getNamespaceFromPrefix ()
 # this function search in the cache as well the locally configured prefixes
 _getPrefixForNamespace ()
 {
+    _checkTool cat grep head cut
     namespace=$1
     if [ "$namespace" == "" ]
     then
@@ -175,6 +201,7 @@ _getPrefixForNamespace ()
 # this function search in the cache as well the locally configured prefixes
 _getNamespaceForPrefix ()
 {
+    _checkTool cat grep head cut
     prefix=$1
     if [ "$prefix" == "" ]
     then
@@ -211,6 +238,7 @@ _addPrefixToCache ()
 # add a resource to the .resource_history file
 _addToHistory ()
 {
+    _checkTool grep wc sed
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -243,6 +271,7 @@ _addToHistory ()
 # creates a tempfile and returns the filename
 _getTempFile ()
 {
+    _checkTool mktemp
     tmpfile=`mktemp -q ./rdfsh-XXXX.tmp`
     echo $tmpfile
 }
@@ -250,6 +279,7 @@ _getTempFile ()
 # get all related resources
 _getRelatedResources ()
 {
+    _checkTool roqet cut grep rm
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -267,6 +297,7 @@ _getRelatedResources ()
 # returns the announced pingback URL or an empty string
 _isPingbackEnabled ()
 {
+    _checkTool roqet head cut grep
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -326,6 +357,7 @@ _sendPingback ()
 docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
 do_desc ()
 {
+    _checkTool mv cat grep cut wc roqet rapper rm
     uri="$2"
     output="$3"
     if [ "$uri" == "" ]
@@ -366,6 +398,7 @@ do_desc ()
 docu_list () { echo "list resources which start with the given URI"; }
 do_list ()
 {
+    _checkTool roqet cut grep rm
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -385,6 +418,7 @@ do_list ()
 docu_get () { echo "curls rdf in xml to stdout (tries accept header)"; }
 do_get ()
 {
+    _checkTool curl
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -400,6 +434,7 @@ do_get ()
 docu_headn () { echo "curls only the http header"; }
 do_headn ()
 {
+    _checkTool curl
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -415,6 +450,7 @@ do_headn ()
 docu_head () { echo "curls only the http header but accepts only rdf"; }
 do_head ()
 {
+    _checkTool curl
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -430,6 +466,7 @@ do_head ()
 docu_ns () { echo "curls the namespace from prefix.cc"; }
 do_ns ()
 {
+    _checkTool curl
     prefix="$2"
     suffix="$3"
     if [ "$prefix" == "" ]
@@ -460,6 +497,7 @@ do_ns ()
 docu_diff () { echo "diff of two RDF files"; }
 do_diff ()
 {
+    _checkTool rapper rm sort
     source1="$2"
     source2="$3"
     difftool="$4"
@@ -467,18 +505,9 @@ do_diff ()
     if [ "$difftool" != "" ]
     then
         RDFSHDIFF=$difftool
-    fi
-
-    if [ "$RDFSHDIFF" == "" ]
-    then
-        for difftool in "diff" "meld"
-        do
-            which $difftool >/dev/null
-            if [ "$?" == "0" ]
-            then
-                RDFSHDIFF=$difftool
-            fi
-        done
+    else
+        _checkTool diff
+        RDFSHDIFF="diff"
     fi
 
     if [ "$source2" == "" ]
@@ -498,6 +527,7 @@ do_diff ()
 docu_count () { echo "count triples using rapper"; }
 do_count ()
 {
+    _checkTool rapper
     file="$2"
     if [ "$file" == "" ]
     then
@@ -511,6 +541,7 @@ do_count ()
 docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 do_split ()
 {
+    _checkTool rapper split wc sed
     file="$2"
     size="$3"
     todo="$4"
@@ -547,6 +578,7 @@ do_split ()
 docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files";}
 do_nscollect()
 {
+    _checkTool cat wc grep sort
     prefixfile="$2"
 
     if [ "$prefixfile" == "" ]
@@ -573,6 +605,7 @@ do_nscollect()
 docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 do_nsdist ()
 {
+    _checkTool grep mktemp wc
     prefixfile="prefixes.n3"
     if [ ! -f "$prefixfile" ]
     then
@@ -617,6 +650,7 @@ do_nsdist ()
 docu_pingall () { echo "sends a semantic pingback request to all possible targets of a given resource"; }
 do_pingall ()
 {
+    _checkTool head
     pingsource="$2"
 
     # check for ping source
@@ -654,6 +688,7 @@ do_pingall ()
 docu_ping () { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
 do_ping ()
 {
+    _checkTool grep wc
     pingsource="$2"
     pingtargets="$3"
 
@@ -713,6 +748,7 @@ do_ping ()
 docu_help () { echo "outputs the manpage of $this"; }
 do_help ()
 {
+    _checkTool man
     realfile=`readlink $thisexec`
     if [ "$realfile" == "" ]
     then
