@@ -1,4 +1,9 @@
 # rdf.sh changlog
+## 0.4.1
+ * improve documentation in README.md
+ * fix bug when prefix cache does not exists
+ * fix bug when roqet (or any other tool) is not available
+
 ## 0.4
  * improve output of desc with prefixes wrong cache and config
  * fix rapper call for diff command
