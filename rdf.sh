@@ -348,7 +348,7 @@ do_desc ()
     # try to prepare the prefix definitions
     #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
     features=""
-    for namespace in `cat $prefixlocal $prefixcache| cut -d "|" -f 2`
+    for namespace in `cat $prefixlocal $prefixcache| grep "|" | cut -d "|" -f 2`
     do
         namespaceCount=`grep -P "$namespace[a-zA-Z]+\>" $tmpfile.out | wc -l`
         if [[ "$namespaceCount" -ge 1 ]]; then
