@@ -2,8 +2,26 @@
 
 A multi-tool shell script for doing Semantic Web jobs on the command line.
 
+# contents
+
+* [usage / features](#usage-features)
+  * [overview](#overview)
+  * [namespace lookup](#nslookup)
+  * [resource description](#description)
+  * [resource listings](#listings)
+  * [resource inspection / debugging](#inspection)
+  * [prefix distribution for data projects](#prefixes)
+  * [spinning the semantic web: semantic pingback](#pingback)
+  * [autocompletion and resource history](#autocompletion)
+* [installation](#installation)
+  * [dependencies](#dependencies)
+  * [files](#files)
+
+
+<a name="usage-features"></a>
 ## usage / features
 
+<a name="overview"></a>
 ### overview
 
 rdf.sh currently provides these subcommands:
@@ -23,6 +41,7 @@ rdf.sh currently provides these subcommands:
 * pingall -- sends a semantic pingback request to all targets of a source resource
 * split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 
+<a name="nslookup"></a>
 ### namespace lookup (`ns`)
 
 rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc) as well as locally defined prefixes:
@@ -56,6 +75,7 @@ rdf.sh can also output prefix.cc syntax templates (uncached):
     @prefix ping: <http://purl.org/net/pingback/> .
 
 
+<a name="description"></a>
 ### resource description (`desc`)
 
 Describe a resource by querying for statements where the resource is the
@@ -78,6 +98,7 @@ subject. This is extremly useful to fastly check schema details.
         owl:disjointWith foaf:Organization, foaf:Project ;
         <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
 
+<a name="listings"></a>
 ### resource listings (`list`)
 
 To get a quick overview of an unknown RDF schema, rdf.sh provides the
@@ -117,6 +138,7 @@ also on non schema resources as FOAF profiles and WebIDs:
     http://haschek.eye48.com/
     http://haschek.eye48.com/gelabb/
 
+<a name="inspection"></a>
 ### resource inspection (`get`, `count`, `head` and `headn`)
 
 Fetch a resource via linked data and print it to stdout:
@@ -139,6 +161,7 @@ header request as sent by browsers.
     Location: http://sebastian.tramp.name/index.rdf
     [...]
 
+<a name="prefixes"></a>
 ### prefix distribution for data projects (`nscollect` and `nsdist`)
 
 Often I need to create a lot of n3/ttl files as a data project which consists
@@ -155,6 +178,7 @@ line to each of the ttl files of this project.
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
 
+<a name="pingback"></a>
 ### spinning the semantic web: semantic pingback
 
 With its `ping`/`pingall` commands, `rdf.sh` is a [Semantic
@@ -169,6 +193,34 @@ features:
   * Is the source resource related to the target resource?
   * Is there a pingback server attached to the target resource?
 
+<a name="autocompletion"></a>
+### autocompletion and resource history
+
+`rdf.sh` can be used with a 
+[zsh](http://en.wikipedia.org/wiki/Zsh)
+[command-line completion](http://en.wikipedia.org/wiki/Command-line_completion)
+function.
+This boosts the usability of  this tool to a new level!
+The completion features support for the base commands as well as for
+auto-completion of resources.
+These resources are taken from the resource history.
+The resource history is written to `$HOME/.cache/rdf.sh/resource.history`.
+
+When loaded, the completion function could be used in this way:
+
+    rdf de<tab> tramp<tab>
+
+This could result in the following commandline:
+
+    rdf desc http://sebastian.tramp.name
+
+Notes:
+
+* The substring matching feature of the zsh [completion system](http://linux.die.net/man/1/zshcompsys) should be turned on.
+  * e.g. with `zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'`
+* This assumes that at least one resource exists in the history which matches `.*tramp.*`
+
+<a name="installation"></a>
 ## installation
 
 rdf.sh is a single bash shell script so installation is trivial ... :-)
@@ -176,24 +228,34 @@ Just copy or link it to you path, e.g. with
 
     $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
 
+<a name="dependencies"></a>
 ### dependencies
 
 Required tools currently are:
 
-  * [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
-  * [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
-  * [curl](http://curl.haxx.se/)
+* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
+* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
+* [curl](http://curl.haxx.se/)
 
 Suggested tools are:
 
-  * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
+ * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
 
+<a name="files"></a>
 ### files
 
-  * `README.md` - this file
-  * `_rdf` - zsh autocompletion file
-  * `changelog.md` - version changelog
-  * `doap.ttl` - doap description of rdf.sh
-  * `rdf.1` - rdf.sh man page
-  * `rdf.sh` - the script
+These files are available in the repository:
+
+* `README.md` - this file
+* `_rdf` - zsh autocompletion file
+* `changelog.md` - version changelog
+* `doap.ttl` - doap description of rdf.sh
+* `rdf.1` - rdf.sh man page
+* `rdf.sh` - the script
+
+These files are used by the tools:
+
+* `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
+* `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
+* `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
 
