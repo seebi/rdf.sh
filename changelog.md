@@ -1,4 +1,9 @@
 # rdf.sh changlog
+
+## 0.5
+ * introduce support for working with other RDF representations
+ * allow adaption of accept header via environment 'RDFSH_ACCEPT_HEADER'
+
 ## 0.4.1
  * improve documentation in README.md
  * fix bug when prefix cache does not exists

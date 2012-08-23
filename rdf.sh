@@ -3,7 +3,7 @@
 
 # application metadata
 name="rdf.sh"
-version="0.4.1"
+version="0.5"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
@@ -11,6 +11,15 @@ this=`basename $0`
 thisexec=$0
 command="$1"
 curlcommand="curl --fail -A ${name}/${version} -s -L"
+
+
+if [ "$RDFSH_ACCEPT_HEADER" == "" ]
+then
+    mimetypes="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
+else
+    mimetypes="$RDFSH_ACCEPT_HEADER"
+    echo "Will use '$mimetypes' for content negotiation."
+fi
 
 ### mac workarounds
 uname=`uname`
@@ -425,7 +434,7 @@ do_get ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -H "Accept: application/rdf+xml,text/turtle,application/x-turtle" $uri
+    $curlcommand -H "Accept: $mimetypes" $uri
     _addToHistory $uri $historyfile
 }
 
@@ -473,7 +482,7 @@ do_head ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -I -X HEAD -H "Accept: application/rdf+xml" $uri
+    $curlcommand -I -X HEAD -H "Accept: $mimetypes" $uri
     _addToHistory $uri $historyfile
 }
 
