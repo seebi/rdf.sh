@@ -289,9 +289,9 @@ _getRelatedResources ()
     uri=`_expandQName $resource`
 
     tmpfile=`_getTempFile`
-    $thisexec get $uri >$tmpfile
-    roqet -q -e "SELECT DISTINCT ?o {<$uri> ?property ?o. FILTER(isUri(?o))}" -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "^http"
-    rm $tmpfile
+    $thisexec get-ntriples $uri >$tmpfile.nt
+    roqet -q -e "SELECT DISTINCT ?o {<$uri> ?property ?o. FILTER(isUri(?o))}" -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "^http"
+    rm $tmpfile $tmpfile.nt
 }
 
 # returns the announced pingback URL or an empty string
@@ -311,9 +311,9 @@ _isPingbackEnabled ()
     if [ "$pingbackServer" == "" ]
     then
         tmpfile=`_getTempFile`
-        $thisexec get $uri >$tmpfile
-        pingbackServer=`roqet -q -e "SELECT ?o {<$uri> <http://purl.org/net/pingback/to> ?o}" -D $tmpfile 2>/dev/null | head -1 | cut -d "<" -f 2 | cut -d ">" -f 1`
-        rm $tmpfile
+        $thisexec get-ntriples $uri >$tmpfile.nt
+        pingbackServer=`roqet -q -e "SELECT ?o {<$uri> <http://purl.org/net/pingback/to> ?o}" -D $tmpfile.nt 2>/dev/null | head -1 | cut -d "<" -f 2 | cut -d ">" -f 1`
+        rm $tmpfile $tmpfile.nt
     fi
 
     # output server
@@ -372,10 +372,8 @@ do_desc ()
     fi
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
-    mv $tmpfile $tmpfile.rdf
-    tmpfile="$tmpfile.rdf"
-    $thisexec get $uri >$tmpfile
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile -r ntriples >$tmpfile.out
+    $thisexec get-ntriples $uri >$tmpfile.nt
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile.nt -r ntriples >$tmpfile.out
 
     # try to prepare the prefix definitions
     #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
@@ -391,7 +389,7 @@ do_desc ()
     done
 
     rapper -q ${features} -i ntriples $tmpfile.out -o $output
-    rm $tmpfile $tmpfile.out
+    rm $tmpfile $tmpfile.out $tmpfile.nt
     _addToHistory $uri $historyfile
 }
 
@@ -410,12 +408,12 @@ do_list ()
     tmpfile=`_getTempFile`
     # turn history off for this internal call (dirty URIs)
     export noHistory="true"
-    $thisexec get $uri >$tmpfile
-    roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
-    rm $tmpfile
+    $thisexec get-ntriples $uri >$tmpfile.nt
+    roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
+    rm $tmpfile $tmpfile.nt
 }
 
-docu_get () { echo "curls rdf in xml to stdout (tries accept header)"; }
+docu_get () { echo "curls rdf in xml or turtle to stdout (tries accept header)"; }
 do_get ()
 {
     _checkTool curl
@@ -427,7 +425,23 @@ do_get ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -H "Accept: application/rdf+xml" $uri
+    $curlcommand -H "Accept: application/rdf+xml,text/turtle,application/x-turtle" $uri
+    _addToHistory $uri $historyfile
+}
+
+docu_get-ntriples () { echo "curls rdf and transforms to ntriples"; }
+do_get-ntriples ()
+{
+    _checkTool curl rapper
+    uri="$2"
+    if [ "$uri" == "" ]
+    then
+        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
+        echo "(`docu_get-ntriples`)"
+        exit 1
+    fi
+    uri=`_expandQName $uri`
+    $curlcommand -H "Accept: application/rdf+xml,text/turtle,application/x-turtle" $uri | rapper -q -i guess -o ntriples -I $uri -
     _addToHistory $uri $historyfile
 }
 
