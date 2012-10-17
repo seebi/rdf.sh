@@ -1,6 +1,12 @@
 # rdf.sh changlog
 
-## 0.5
+## Roadmap
+ * support syntax highlightning via pygmentize
+ * fix manpage issues on darwin
+ * brew recipt for easy installation
+ * use conditional get and cache of downloaded files
+
+## 0.5 (not released yet)
  * introduce support for working with other RDF representations
  * allow adaption of accept header via environment 'RDFSH_ACCEPT_HEADER'
 
