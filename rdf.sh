@@ -11,7 +11,7 @@ this=`basename $0`
 thisexec=$0
 command="$1"
 curlcommand="curl --fail -A ${name}/${version} -s -L"
-
+os=`uname -s | tr "[:upper:]" "[:lower:]"`
 
 if [ "$RDFSH_ACCEPT_HEADER" == "" ]
 then
@@ -785,7 +785,11 @@ do_help ()
         manpage="$execdir/$scriptdir/rdf.1"
     fi
     # try central manpage first, then try the guessed one
-    man rdf 2>/dev/null || man -l $manpage
+    if [[ "$os" == "darwin" ]]; then
+        man rdf 2>/dev/null || man $manpage
+    else
+        man rdf 2>/dev/null || man -l $manpage
+    fi
 }
 
 ###
