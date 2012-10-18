@@ -21,6 +21,19 @@ else
     echo "Will use '$mimetypes' for content negotiation."
 fi
 
+# check for actively suppressing the pygmentize highlighting
+if [ "$RDFSH_HIGHLIGHTING_SUPPRESS" == "true" ]
+then
+    highlight=""
+else
+    echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null
+    if [ "$?" == "0" ]; then
+        highlight="yes"
+    else
+        highlight=""
+    fi
+fi
+
 ### mac workarounds
 uname=`uname`
 if [ "$uname" == "Darwin" ]
@@ -366,7 +379,7 @@ _sendPingback ()
 docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
 do_desc ()
 {
-    _checkTool mv cat grep cut wc roqet rapper rm
+    _checkTool curl mv cat grep cut wc roqet rapper rm
     uri="$2"
     output="$3"
     if [ "$uri" == "" ]
@@ -397,8 +410,19 @@ do_desc ()
         fi
     done
 
-    rapper -q ${features} -i ntriples $tmpfile.out -o $output
-    rm $tmpfile $tmpfile.out $tmpfile.nt
+    rapper -q ${features} -i ntriples $tmpfile.out -o $output >$tmpfile.ttl
+
+    # if hightlight is enable, pipe it through pygmentize, otherwise just cat it
+    if [ "$highlight" == "yes" ]; then
+        cat $tmpfile.ttl | pygmentize -l turtle
+    else
+        cat $tmpfile.ttl
+    fi
+
+    # clean up
+    rm $tmpfile $tmpfile.out $tmpfile.nt $tmpfile.ttl
+
+    # add history
     _addToHistory $uri $historyfile
 }
 

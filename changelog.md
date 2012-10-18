@@ -1,19 +1,22 @@
 # rdf.sh changlog
 
 ## Roadmap
- * support syntax highlightning via pygmentize
- * brew recipt for easy installation
+ * brew receipt for easy installation
  * use conditional get and cache of downloaded files
 
-## 0.5 (not released yet)
+## 0.6 (not released yet)
+
+## 0.5
  * introduce support for working with other RDF representations
- * allow adaption of accept header via environment 'RDFSH_ACCEPT_HEADER'
- * fix manpage issues on darwin
+ * allow adoption of accept header via environment `RDFSH_ACCEPT_HEADER`
+ * fix man page issues on darwin
+ * support syntax highlighting via pygmentize with the turtle lexer
+ * introduce the `RDFSH_HIGHLIGHTING_SUPPRESS` environment variable
 
 ## 0.4.1
- * improve documentation in README.md
+ * improve documentation in `README.md`
  * fix bug when prefix cache does not exists
- * fix bug when roqet (or any other tool) is not available
+ * fix bug when `roqet` (or any other tool) is not available
 
 ## 0.4
  * improve output of desc with prefixes wrong cache and config

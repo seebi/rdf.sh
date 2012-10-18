@@ -8,6 +8,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [overview](#overview)
   * [namespace lookup](#nslookup)
   * [resource description](#description)
+  * [syntax highlighting](#highlighting)
   * [resource listings](#listings)
   * [resource inspection / debugging](#inspection)
   * [prefix distribution for data projects](#prefixes)
@@ -97,6 +98,25 @@ subject. This is extremly useful to fastly check schema details.
         rdfs:subClassOf contact:Person, geo:SpatialThing, foaf:Agent ;
         owl:disjointWith foaf:Organization, foaf:Project ;
         <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+
+<a name="highlighting"></a>
+### syntax highlighting
+
+rdf.sh supports the highlighted output of turtle with
+[pygmentize](http://pygments.org/) and a proper
+[turtle lexer](https://github.com/gniezen/n3pygments). If everything is
+available (`pygmentize -l turtle` does not throw an error), then it will look
+like this.
+
+<img src="./Screenshot.png" />
+
+If you do not want syntax highlighting for some reason, you can disable it by
+setting the shell environment variable `RDFSH_HIGHLIGHTING_SUPPRESS` to `true`
+e.g with
+
+    export RDFSH_HIGHLIGHTING_SUPPRESS=true
+
+before you start `rdf.sh`.
 
 <a name="listings"></a>
 ### resource listings (`list`)
