@@ -108,7 +108,7 @@ rdf.sh supports the highlighted output of turtle with
 available (`pygmentize -l turtle` does not throw an error), then it will look
 like this.
 
-<img src="./Screenshot.png" />
+<img src="https://raw.github.com/seebi/rdf.sh/master/Screenshot.png" />
 
 If you do not want syntax highlighting for some reason, you can disable it by
 setting the shell environment variable `RDFSH_HIGHLIGHTING_SUPPRESS` to `true`
