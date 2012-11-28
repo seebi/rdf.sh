@@ -243,10 +243,26 @@ Notes:
 <a name="installation"></a>
 ## installation
 
+### manually
+
 rdf.sh is a single bash shell script so installation is trivial ... :-)
 Just copy or link it to you path, e.g. with
 
     $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+
+### debian / ubuntu
+
+You can download a debian package from the [download
+section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
+the following commands:
+
+    $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
+    $ sudo apt-get -f install
+
+The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
+run will install all dependencies as well as `rdf`.
+
+Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 
 <a name="dependencies"></a>
 ### dependencies
@@ -272,6 +288,7 @@ These files are available in the repository:
 * `doap.ttl` - doap description of rdf.sh
 * `rdf.1` - rdf.sh man page
 * `rdf.sh` - the script
+* `Screenshot.png` - a screeny of rdf.sh in action
 
 These files are used by the tools:
 
