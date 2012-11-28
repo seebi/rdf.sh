@@ -1,0 +1,31 @@
+Source: rdf.sh
+Section: misc
+Priority: extra
+Architecture: all
+Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.3
+Homepage: https://github.com/seebi/rdf.sh
+Vcs-Git: git://github.com/seebi/rdf.sh.git
+Vcs-Browser: https://github.com/seebi/rdf.sh
+
+Package: rdf.sh
+Architecture: all
+Depends: coreutils, grep, sed, man-db, bash, zsh, raptor2-utils, rasqal-utils, curl, ${misc:Depends}
+Description: multi-tool for doing Semantic Web jobs on the command line
+ rdf.sh currently provides these subcommands:
+ - count -- count triples using rapper
+ - desc -- outputs description of the given resource
+ - diff -- diff of two RDF files
+ - get -- curls rdf in xml to stdout (tries accept header)
+ - head -- curls only the http header but accepts only rdf
+ - headn -- curls only the http header
+ - help -- outputs the manpage of rdf.sh
+ - list -- list resources which start with the given URI
+ - ns -- curls the namespace from prefix.cc
+ - nscollect -- collects prefix declarations of a list of ttl/n3 files
+ - nsdist -- distributes prefix declarations from a file to a list of files
+ - ping -- sends a semantic pingback request
+ - pingall -- sends a semantic pingback request to all targets of a source
+ - split -- split an RDF file into pieces of max X triple
+

@@ -1,0 +1,34 @@
+This work was packaged for Debian by:
+
+    Sebastian Tramp <tramp@informatik.uni-leipzig.de> on Tue, 13 Jul 2012 15:37:27 +0100
+
+It was downloaded from:
+
+    <https://github.com/seebi/rdf.sh/tags>
+
+Upstream Author(s):
+
+    Sebastian Tramp
+
+Copyright:
+
+    <Copyright (C) 2012 Sebastian Tramp>
+
+License:
+
+   This package is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License version 2 as
+   published by the Free Software Foundation.
+
+   On Debian systems, the complete text of the GNU General
+   Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+The Debian packaging is:
+
+    Copyright (C) 2012 Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+

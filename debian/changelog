@@ -1,0 +1,6 @@
+rdf.sh (0.5) lod2; urgency=low
+
+  * intitial version of the multi-tool shell script for doing Semantic Web
+    jobs on the command line
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Wed, 28 Nov 2012 14:17:25 +0100
