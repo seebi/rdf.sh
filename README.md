@@ -14,7 +14,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [prefix distribution for data projects](#prefixes)
   * [spinning the semantic web: semantic pingback](#pingback)
   * [autocompletion and resource history](#autocompletion)
-* [installation](#installation)
+* [installation (manually, debian/ubuntu/, brew based)](#installation)
 
 
 <a name="usage-features"></a>
@@ -261,6 +261,15 @@ The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
 run will install all dependencies as well as `rdf`.
 
 Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
+
+### brew based
+
+You can install 'rdf.sh' by using the provided recipe:
+
+    brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+
+Currently, only the manpage and the script will be installed (if you know, how
+to provide zsh functions in brew, please write a mail).
 
 <a name="dependencies"></a>
 ### dependencies
