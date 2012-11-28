@@ -1,6 +1,6 @@
 require 'formula'
 
-class Rdf < Formula
+class RdfSh < Formula
   homepage 'https://github.com/seebi/rdf.sh'
   url 'https://github.com/seebi/rdf.sh/archive/v0.5.tar.gz'
   version '0.5'
