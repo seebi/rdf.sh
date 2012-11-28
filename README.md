@@ -15,8 +15,6 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [spinning the semantic web: semantic pingback](#pingback)
   * [autocompletion and resource history](#autocompletion)
 * [installation](#installation)
-  * [dependencies](#dependencies)
-  * [files](#files)
 
 
 <a name="usage-features"></a>
