@@ -97,6 +97,14 @@ subject. This is extremly useful to fastly check schema details.
         owl:disjointWith foaf:Organization, foaf:Project ;
         <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
 
+In addition to the textual representation, you can calculate a color for visual
+resource representation with the `color` command:
+
+    ∴ rdf color http://sebastian.tramp.name
+    #2024e9
+
+Refer to the [cold webpage](http://cold.aksw.org) for more information :-)
+
 <a name="highlighting"></a>
 ### syntax highlighting
 

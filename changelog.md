@@ -5,6 +5,8 @@
  * use conditional get and cache of downloaded files
 
 ## 0.6 (not released yet)
+ * new command: color - get a color value for a resource URI :)
+ * add a brew recipt
 
 ## 0.5
  * introduce support for working with other RDF representations

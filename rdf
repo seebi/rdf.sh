@@ -3,7 +3,7 @@
 
 # application metadata
 name="rdf.sh"
-version="0.5"
+version="0.6"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
@@ -232,6 +232,20 @@ _getNamespaceForPrefix ()
     fi
     namespace=`cat $prefixlocal $prefixcache | grep "^$prefix|" | head -1 | cut -d "|" -f 2`
     echo $namespace
+}
+
+# calculate a color for a resource URI (http://cold.aksw.org)
+_getColorForResource()
+{
+    _checkTool md5 cut
+    resource=$1
+    if [ "$resource" == "" ]
+    then
+        echo "getColorForResource error: need a resource parameter"
+        exit 1
+    fi
+    color="#`echo -n $resource | md5 | cut -c 27-`"
+    echo $color
 }
 
 # give a prefix + namespace and get a new cache entry
@@ -569,6 +583,19 @@ do_diff ()
     rapper -i guess $source2 | sort >$dest2
     $RDFSHDIFF $dest1 $dest2
     rm $dest1 $dest2
+}
+
+docu_color () { echo "get a html color for a resource URI"; }
+do_color ()
+{
+    uri="$2"
+    if [ "$uri" == "" ]
+    then
+        echo "Syntax:" $this "$command <uri>"
+        echo "(`docu_color`)"
+        exit 1
+    fi
+    _getColorForResource $uri
 }
 
 docu_count () { echo "count triples using rapper"; }
