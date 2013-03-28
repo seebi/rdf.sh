@@ -25,19 +25,22 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 rdf.sh currently provides these subcommands:
 
+* color -- get a html color for a resource URI
 * count -- count triples using rapper
 * desc -- outputs description of the given resource in a given format (default: turtle)
 * diff -- diff of two RDF files
-* get -- curls rdf in xml to stdout (tries accept header)
+* get -- curls rdf in xml or turtle to stdout (tries accept header)
+* get-ntriples -- curls rdf and transforms to ntriples
 * head -- curls only the http header but accepts only rdf
 * headn -- curls only the http header
-* help -- outputs the manpage of rdf.sh
+* help -- outputs the manpage of rdf
 * list -- list resources which start with the given URI
 * ns -- curls the namespace from prefix.cc
 * nscollect -- collects prefix declarations of a list of ttl/n3 files
 * nsdist -- distributes prefix declarations from one file to a list of other ttl/n3 files
 * ping -- sends a semantic pingback request from a source to a target or to all possible targets
-* pingall -- sends a semantic pingback request to all targets of a source resource
+* pingall -- sends a semantic pingback request to all possible targets of a given resource
+* put -- replaces an existing linked data resource via LDP
 * split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
 
 <a name="nslookup"></a>
