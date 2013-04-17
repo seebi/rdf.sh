@@ -7,6 +7,7 @@
 ## 0.6 (not released yet)
  * new command: color - get a color value for a resource URI :)
  * add a brew recipt
+ * fix issue with macosx ancient sed command (zsh completion)
 
 ## 0.5
  * introduce support for working with other RDF representations

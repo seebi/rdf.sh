@@ -8,7 +8,7 @@ _rdfshInputFile () {
 _rdfshResourceHistory () {
     typeset -a rhistory
     local resource
-    tail $HOME/.cache/rdf.sh/resource.history 2> /dev/null | sed 's/:/\\\\:/' | while read resource
+    tail $HOME/.cache/rdf.sh/resource.history 2> /dev/null | sed -e 's/:/\\\\:/' | while read resource
     do
         rhistory+=(${resource/ #    [0-9]#:*})
     done
