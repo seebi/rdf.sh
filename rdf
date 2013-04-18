@@ -10,6 +10,7 @@ home="https://github.com/seebi/rdf.sh"
 this=`basename $0`
 thisexec=$0
 command="$1"
+# TODO: add and use -w %{http_code} for better error detection
 curlcommand="curl --fail -A ${name}/${version} -s -L"
 os=`uname -s | tr "[:upper:]" "[:lower:]"`
 
@@ -107,6 +108,30 @@ _isQName ()
             return
         fi
     fi
+}
+
+# try to prepare the prefix definitions
+_getFeatures()
+{
+    file=$1
+    if [ "$file" == "" ]
+    then
+        echo "fetFeatures error: need an parameter"
+        exit 1
+    fi
+
+    #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
+    features=""
+    for namespace in `cat $prefixlocal $prefixcache| grep "|" | cut -d "|" -f 2`
+    do
+        namespaceCount=`grep -P "$namespace[a-zA-Z]+\>" $file | wc -l`
+        if [[ "$namespaceCount" -ge 1 ]]; then
+            prefix=`_getPrefixForNamespace $namespace`
+            #echo "Found $namespace -> $prefix"
+            features="$features -f xmlns:$prefix=\"$namespace\""
+        fi
+    done
+    echo $features
 }
 
 # takes a qname and outputs the prefix
@@ -391,6 +416,71 @@ _sendPingback ()
 # the are executed by using the first parameter and get all parameters as options
 ###
 
+docu_edit () { echo "edit the content of an existing linked data resource via LDP (GET + PUT)";}
+do_edit ()
+{
+    _checkTool curl rapper rm cp
+    uri="$2"
+    if [ "$uri" == "" ]
+    then
+        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
+        echo "(`docu_edit`)"
+        exit 1
+    fi
+    uri=`_expandQName $uri`
+    doEditTmpfile=`_getTempFile`
+
+    $thisexec get-ntriples $uri >${doEditTmpfile}
+    features=`_getFeatures ${doEditTmpfile}`
+    cat ${doEditTmpfile} | rapper -q ${features} -i ntriples -o turtle -I $uri - >"${doEditTmpfile}.ttl"
+    $EDITOR $doEditTmpfile.ttl
+    $thisexec put $uri $doEditTmpfile.ttl
+
+    # clean up
+    rm $doEditTmpfile $doEditTmpfile.ttl
+
+    # add history
+    _addToHistory $uri $historyfile
+}
+
+
+docu_put () { echo "replaces an existing linked data resource via LDP";}
+do_put ()
+{
+    _checkTool curl rapper rm
+    uri="$2"
+    filename="$3"
+    if [ "$filename" == "" ]
+    then
+        echo "Syntax:" $this "$command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
+        echo "(`docu_put`)"
+        exit 1
+    fi
+    uri=`_expandQName $uri`
+
+    # perform the HTTP request
+    $curlcommand -X PUT $uri --data @$filename -H "Content-Type:text/turtle"
+
+    # add history
+    _addToHistory $uri $historyfile
+}
+
+docu_delete () { echo "deletes an existing linked data resource via LDP";}
+do_delete ()
+{
+    _checkTool curl
+    uri="$2"
+    if [ "$uri" == "" ]
+    then
+        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
+        echo "(`docu_delete`)"
+        exit 1
+    fi
+    uri=`_expandQName $uri`
+    $curlcommand -X DELETE $uri
+    _addToHistory $uri $historyfile
+}
+
 docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
 do_desc ()
 {
@@ -412,18 +502,7 @@ do_desc ()
     $thisexec get-ntriples $uri >$tmpfile.nt
     roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile.nt -r ntriples >$tmpfile.out
 
-    # try to prepare the prefix definitions
-    #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
-    features=""
-    for namespace in `cat $prefixlocal $prefixcache| grep "|" | cut -d "|" -f 2`
-    do
-        namespaceCount=`grep -P "$namespace[a-zA-Z]+\>" $tmpfile.out | wc -l`
-        if [[ "$namespaceCount" -ge 1 ]]; then
-            prefix=`_getPrefixForNamespace $namespace`
-            #echo "Found $namespace -> $prefix"
-            features="$features -f xmlns:$prefix=\"$namespace\""
-        fi
-    done
+    features=`_getFeatures $tmpfile.out`
 
     rapper -q ${features} -i ntriples $tmpfile.out -o $output >$tmpfile.ttl
 
@@ -489,7 +568,7 @@ do_get-ntriples ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -H "Accept: application/rdf+xml,text/turtle,application/x-turtle" $uri | rapper -q -i guess -o ntriples -I $uri -
+    $curlcommand -H "Accept: $mimetypes" $uri | rapper -q -i guess -o ntriples -I $uri -
     _addToHistory $uri $historyfile
 }
 

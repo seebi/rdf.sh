@@ -27,8 +27,10 @@ rdf.sh currently provides these subcommands:
 
 * color -- get a html color for a resource URI
 * count -- count triples using rapper
+* delete -- deletes an existing linked data resource via LDP
 * desc -- outputs description of the given resource in a given format (default: turtle)
 * diff -- diff of two RDF files
+* edit -- edit the content of an existing linked data resource via LDP
 * get -- curls rdf in xml or turtle to stdout (tries accept header)
 * get-ntriples -- curls rdf and transforms to ntriples
 * head -- curls only the http header but accepts only rdf
