@@ -1,13 +1,15 @@
 # rdf.sh changlog
 
 ## Roadmap
- * brew receipt for easy installation
  * use conditional get and cache of downloaded files
 
 ## 0.6 (not released yet)
  * new command: color - get a color value for a resource URI :)
+ * new commands: delete, put and edit (linked data platform commands)
  * add a brew recipt
+ * add debian package build directory
  * fix issue with macosx ancient sed command (zsh completion)
+ * fix different auto-completion issues
 
 ## 0.5
  * introduce support for working with other RDF representations
