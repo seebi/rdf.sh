@@ -308,8 +308,9 @@ _addToHistory ()
 _getTempFile ()
 {
     _checkTool mktemp
-    tmpfile=`mktemp -q ./rdfsh-XXXX.tmp`
-    echo $tmpfile
+    tmpfile=`mktemp -q ./rdfsh-XXXX`
+    mv $tmpfile $tmpfile.tmp
+    echo $tmpfile.tmp
 }
 
 # get all related resources
