@@ -8,6 +8,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [overview](#overview)
   * [namespace lookup](#nslookup)
   * [resource description](#description)
+  * [linked data platform client](#ldp)
   * [syntax highlighting](#highlighting)
   * [resource listings](#listings)
   * [resource inspection / debugging](#inspection)
@@ -109,6 +110,37 @@ resource representation with the `color` command:
     #2024e9
 
 Refer to the [cold webpage](http://cold.aksw.org) for more information :-)
+
+
+<a name="ldp"></a>
+### linked data platform client
+
+The [Linked Data Platform](http://www.w3.org/TR/ldp/) describe a read-write
+Linked Data architecture, based on HTTP access to web resources that describe
+their state using the RDF data model. rdf.sh supports
+[DELETE](http://www.w3.org/TR/ldp/#http-delete),
+[PUT](http://www.w3.org/TR/ldp/#http-put) and edit (GET, followed by an edit
+command, followed by a PUT request)
+of Linked Data Platform Resources (LDPRs).
+
+```
+Syntax: rdf put <URI | Prefix:LocalPart> <path/to/your/file.rdf>
+(replaces an existing linked data resource via LDP)
+```
+
+```
+Syntax: rdf delete <URI | Prefix:LocalPart>
+(deletes an existing linked data resource via LDP)
+```
+
+```
+Syntax: rdf edit <URI | Prefix:LocalPart>
+(edit the content of an existing linked data resource via LDP (GET + PUT))
+```
+
+The edit command uses the `EDITOR` variable to start the editor of your choice
+with a prepared turtle file.
+
 
 <a name="highlighting"></a>
 ### syntax highlighting
