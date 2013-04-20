@@ -10,16 +10,50 @@ home="https://github.com/seebi/rdf.sh"
 this=`basename $0`
 thisexec=$0
 command="$1"
-# TODO: add and use -w %{http_code} for better error detection
-curlcommand="curl --fail -A ${name}/${version} -s -L"
 os=`uname -s | tr "[:upper:]" "[:lower:]"`
+
+# rdf.sh uses proper XDG config and cache directories now
+if [ "$XDG_CONFIG_HOME" == "" ]
+then
+    XDG_CONFIG_HOME="$HOME/.config"
+fi
+if [ "$XDG_CACHE_HOME" == "" ]
+then
+    XDG_CACHE_HOME="$HOME/.cache"
+fi
+confdir="$XDG_CONFIG_HOME/rdf.sh"
+cachedir="$XDG_CACHE_HOME/rdf.sh"
+mkdir -p $confdir
+mkdir -p $cachedir
+
+configfile="$confdir/rc"
+historyfile="$cachedir/resource.history"
+prefixcache="$cachedir/prefix.cache"
+prefixlocal="$confdir/prefix.local"
+touch $prefixlocal
+touch $prefixcache
+
+# load config variables or create empty resource configuration
+if [ -r "$configfile" ]
+then
+    source $configfile
+else
+    touch $configfile
+fi
+
+# TODO: add and use -w %{http_code} for better error detection
+if [ "$RDFSH_CURLOPTIONS_ADDITONS" == "" ]
+then
+    curlcommand="curl --fail -A ${name}/${version} -s -L $RDFSH_CURLOPTIONS_ADDITONS"
+else
+    curlcommand="curl --fail -A ${name}/${version} -s -L"
+fi
 
 if [ "$RDFSH_ACCEPT_HEADER" == "" ]
 then
     mimetypes="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
 else
     mimetypes="$RDFSH_ACCEPT_HEADER"
-    echo "Will use '$mimetypes' for content negotiation."
 fi
 
 # check for actively suppressing the pygmentize highlighting
@@ -927,24 +961,6 @@ do_help ()
 # execute the command NOW :-)
 ###
 
-# rdf.sh uses proper XDG config and cache directories now
-if [ "$XDG_CONFIG_HOME" == "" ]
-then
-    XDG_CONFIG_HOME="$HOME/.config"
-fi
-if [ "$XDG_CACHE_HOME" == "" ]
-then
-    XDG_CACHE_HOME="$HOME/.cache"
-fi
-confdir="$XDG_CONFIG_HOME/rdf.sh"
-cachedir="$XDG_CACHE_HOME/rdf.sh"
-mkdir -p $confdir
-mkdir -p $cachedir
-historyfile="$cachedir/resource.history"
-prefixcache="$cachedir/prefix.cache"
-prefixlocal="$confdir/prefix.local"
-touch $prefixlocal
-touch $prefixcache
 
 # taken from http://stackoverflow.com/questions/2630812/
 commandlist=`typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | sort`

@@ -1,0 +1,12 @@
+# this file can be copied to you rdf.sh config directory
+# (e.g. to $HOME/.config/rdf.sh/rc) and is imported on each run
+
+# which accept header should be used for requests
+#RDFSH_ACCEPT_HEADER="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
+
+# suppress highlightning? (true or false)
+#RDFSH_HIGHLIGHTING_SUPPRESS="true"
+
+### add some additional curl options:
+# allow webid authentification and ignores ssl server cert errors
+#RDFSH_CURLOPTIONS_ADDITONS="-E $HOME/.webid.pem --insecure"

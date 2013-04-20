@@ -6,6 +6,8 @@
 ## 0.6 (not released yet)
  * new command: color - get a color value for a resource URI :)
  * new commands: delete, put and edit (linked data platform commands)
+ * add support for local configuration options
+ * add support for WebID requests
  * add a brew recipt
  * add debian package build directory
  * fix issue with macosx ancient sed command (zsh completion)

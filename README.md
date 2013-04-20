@@ -9,6 +9,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [namespace lookup](#nslookup)
   * [resource description](#description)
   * [linked data platform client](#ldp)
+  * [WebID requests](#webid)
   * [syntax highlighting](#highlighting)
   * [resource listings](#listings)
   * [resource inspection / debugging](#inspection)
@@ -16,7 +17,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [spinning the semantic web: semantic pingback](#pingback)
   * [autocompletion and resource history](#autocompletion)
 * [installation (manually, debian/ubuntu/, brew based)](#installation)
-
+* [configuration](#configuration)
 
 <a name="usage-features"></a>
 ## usage / features
@@ -141,6 +142,21 @@ Syntax: rdf edit <URI | Prefix:LocalPart>
 The edit command uses the `EDITOR` variable to start the editor of your choice
 with a prepared turtle file.
 
+<a name="webid"></a>
+### WebID requests
+
+In order to request ressources with your WebID client certificate, you need to
+setup the rdf.sh `rc` file (see configuration section).
+Curl allows for using client certs with the
+[-E parameter](http://curl.haxx.se/docs/manpage.html#-E), which needs a
+[pem](https://en.wikipedia.org/wiki/X.509#Certificate_filename_extensions) file
+with your private key AND the certificate.
+
+To use your proper created WebID pem file, just add this to your rc file:
+
+```
+RDFSH_CURLOPTIONS_ADDITONS="-E $HOME/path/to/your/webid.pem"
+```
 
 <a name="highlighting"></a>
 ### syntax highlighting
@@ -341,10 +357,27 @@ These files are available in the repository:
 * `rdf.1` - rdf.sh man page
 * `rdf.sh` - the script
 * `Screenshot.png` - a screeny of rdf.sh in action
+* `example.rc` - an example config file which can be copied
 
-These files are used by the tools:
+These files are used by rdf.sh:
 
 * `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
 * `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
 * `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
+* `$HOME/.config/rdf.sh/rc` - config file
 
+rdf.sh follows the
+[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+in order to allow different cache and config directories.
+
+<a name="configuration"></a>
+## configuration
+
+rdf.sh imports `$HOME/.config/rdf.sh/rc` at the beginning of each execution so
+this is the place to setup personal configuration options such as
+
+* WebID support
+* syntax highlighting suppression
+* setup of preferred accept headers
+
+Please have a look at the [example rc file](https://github.com/seebi/rdf.sh/blob/master/example.rc).
