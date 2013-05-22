@@ -3,7 +3,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://sebastian.tramp.name/Projects/rdf.sh> a :Project;
-    <http://purl.org/dc/terms/updated> "2011-10-05T17:52:26Z"^^xsd:dateTime;
+    <http://purl.org/dc/terms/updated> "2013-05-05T17:52:26Z"^^xsd:dateTime;
          :description "A multi-tool shell script for doing Semantic Web jobs on the command line.";
          :developer <http://sebastian.tramp.name>;
          :download-page <https://github.com/seebi/rdf.sh/archives/master>;
