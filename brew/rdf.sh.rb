@@ -4,7 +4,7 @@ class RdfSh < Formula
   homepage 'https://github.com/seebi/rdf.sh'
   url 'https://github.com/seebi/rdf.sh/archive/v0.6.tar.gz'
   version '0.6'
-  sha1 'cf327f45e17d83cd18282ffa5a3932a6'
+  sha1 'c47ae7b72850808cc2811a2389c04a7c335f1509'
 
   depends_on 'raptor'
   depends_on 'rasqal'
