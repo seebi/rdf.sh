@@ -2,8 +2,11 @@
 
 ## Roadmap
  * use conditional get and cache of downloaded files
+ * document password retrieval for webid keystore
 
-## 0.6 (not released yet)
+## 0.7 (not released yet)
+
+## 0.6
  * new command: color - get a color value for a resource URI :)
  * new commands: delete, put and edit (linked data platform commands)
  * add support for local configuration options

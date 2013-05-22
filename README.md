@@ -141,6 +141,10 @@ Syntax: rdf edit <URI | Prefix:LocalPart>
 
 The edit command uses the `EDITOR` variable to start the editor of your choice
 with a prepared turtle file.
+You can change the content of that file (add or remove triple) and you can use
+any prefix you've already declared via config or which is cached.
+Used prefix declarations are added automatically afterwards and the file is the
+PUTted to the server.
 
 <a name="webid"></a>
 ### WebID requests
