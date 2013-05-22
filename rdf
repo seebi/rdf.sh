@@ -241,6 +241,26 @@ _expandQName ()
     fi
 }
 
+# takes a turtle file location and looks for missing prefix declarations
+# outputs a prefix declaration list
+# Note: currently, ALL cached and configured prefixes are listed
+_getUndeclaredPrefixes ()
+{
+    file=$1
+    if [ "$file" == "" ]
+    then
+        echo "getUndeclaredPrefixes error: need a file location parameter"
+        exit 1
+    fi
+    prefixes=""
+    for nsline in `cat $prefixlocal $prefixcache| grep "|"`
+    do
+        namespace=`echo $nsline | cut -d "|" -f 2`
+        prefix=`echo $nsline | cut -d "|" -f 1`
+        echo "@prefix $prefix: <$namespace> ."
+    done
+}
+
 _getNamespaceFromPrefix ()
 {
     _checkTool curl cut
@@ -469,6 +489,14 @@ do_edit ()
     features=`_getFeatures ${doEditTmpfile}`
     cat ${doEditTmpfile} | rapper -q ${features} -i ntriples -o turtle -I $uri - >"${doEditTmpfile}.ttl"
     $EDITOR $doEditTmpfile.ttl
+
+    # look for missing prefixes and add them at the beginning
+    addedPrefixDeclarations=`_getUndeclaredPrefixes $doEditTmpfile.ttl`
+    echo $addedPrefixDeclarations >$doEditTmpfile.ttl.tmp
+    cat $doEditTmpfile.ttl >>$doEditTmpfile.ttl.tmp
+    mv $doEditTmpfile.ttl.tmp $doEditTmpfile.ttl
+
+    # put the new resource
     $thisexec put $uri $doEditTmpfile.ttl
 
     # clean up
@@ -482,7 +510,7 @@ do_edit ()
 docu_put () { echo "replaces an existing linked data resource via LDP";}
 do_put ()
 {
-    _checkTool curl rapper rm
+    _checkTool curl
     uri="$2"
     filename="$3"
     if [ "$filename" == "" ]
