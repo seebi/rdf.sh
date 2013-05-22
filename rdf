@@ -44,9 +44,9 @@ fi
 # TODO: add and use -w %{http_code} for better error detection
 if [ "$RDFSH_CURLOPTIONS_ADDITONS" == "" ]
 then
-    curlcommand="curl --fail -A ${name}/${version} -s -L $RDFSH_CURLOPTIONS_ADDITONS"
+    curlcommand="curl -A ${name}/${version} -s -L $RDFSH_CURLOPTIONS_ADDITONS"
 else
-    curlcommand="curl --fail -A ${name}/${version} -s -L"
+    curlcommand="curl -A ${name}/${version} -s -L"
 fi
 
 if [ "$RDFSH_ACCEPT_HEADER" == "" ]
