@@ -15,9 +15,12 @@ Depends: coreutils, grep, sed, man-db, bash, zsh, raptor2-utils, rasqal-utils, c
 Description: multi-tool for doing Semantic Web jobs on the command line
  rdf.sh currently provides these subcommands:
  - count -- count triples using rapper
+ - delete -- deletes an existing linked data resource via LDP
  - desc -- outputs description of the given resource
  - diff -- diff of two RDF files
+ - edit -- edit the content of an existing linked data resource via LDP (GET + PUT)
  - get -- curls rdf in xml to stdout (tries accept header)
+ - get-ntriples -- curls rdf and transforms to ntriples
  - head -- curls only the http header but accepts only rdf
  - headn -- curls only the http header
  - help -- outputs the manpage of rdf.sh
@@ -27,5 +30,6 @@ Description: multi-tool for doing Semantic Web jobs on the command line
  - nsdist -- distributes prefix declarations from a file to a list of files
  - ping -- sends a semantic pingback request
  - pingall -- sends a semantic pingback request to all targets of a source
+ - put -- replaces an existing linked data resource via LDP
  - split -- split an RDF file into pieces of max X triple
 

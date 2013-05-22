@@ -11,7 +11,7 @@
  * new commands: delete, put and edit (linked data platform commands)
  * add support for local configuration options
  * add support for WebID requests
- * add a brew recipt
+ * add a brew recipe
  * add debian package build directory
  * fix issue with macosx ancient sed command (zsh completion)
  * fix different auto-completion issues

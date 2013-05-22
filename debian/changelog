@@ -1,3 +1,16 @@
+rdf.sh (0.6) lod2; urgency=low
+
+  * new command: color - get a color value for a resource URI :)
+  * new commands: delete, put and edit (linked data platform commands)
+  * add support for local configuration options
+  * add support for WebID requests
+  * add a brew recipe
+  * add debian package build directory
+  * fix issue with macosx ancient sed command (zsh completion)
+  * fix different auto-completion issues
+
+ -- Sebastian Tramp <tramp@informatik.uni-leipzig.de>  Wed, 22 May 2013 17:01:59 +0200
+
 rdf.sh (0.5) lod2; urgency=low
 
   * intitial version of the multi-tool shell script for doing Semantic Web

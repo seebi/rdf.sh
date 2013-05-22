@@ -5,3 +5,4 @@ rdf.1           usr/share/man/man1
 rdf             usr/bin
 README.md       usr/share/doc/rdf.sh
 Screenshot.png  usr/share/doc/rdf.sh
+example.rc      usr/share/doc/rdf.sh
