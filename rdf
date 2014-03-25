@@ -698,7 +698,7 @@ do_ns ()
     fi
 }
 
-docu_diff () { echo "diff of two RDF files"; }
+docu_diff () { echo "diff of triples from two RDF files"; }
 do_diff ()
 {
     _checkTool rapper rm sort
@@ -728,6 +728,36 @@ do_diff ()
     rm $dest1 $dest2
 }
 
+docu_distinctdiff () { echo "diff of all distinct triples from two RDF files"; }
+do_distinctdiff ()
+{
+    _checkTool rapper rm sort
+    source1="$2"
+    source2="$3"
+    difftool="$4"
+
+    if [ "$difftool" != "" ]
+    then
+        RDFSHDIFF=$difftool
+    else
+        _checkTool diff
+        RDFSHDIFF="diff"
+    fi
+
+    if [ "$source2" == "" ]
+    then
+        echo "Syntax:" $this "$command <rdf-file-1> <rdf-file-2>"
+        echo "(`docu_diff`)"
+        exit 1
+    fi
+    dest1="/tmp/$RANDOM-`basename $source1`"
+    dest2="/tmp/$RANDOM-`basename $source2`"
+    rapper -i guess $source1 | sort | uniq >$dest1
+    rapper -i guess $source2 | sort | uniq >$dest2
+    $RDFSHDIFF $dest1 $dest2
+    rm $dest1 $dest2
+}
+
 docu_color () { echo "get a html color for a resource URI"; }
 do_color ()
 {
@@ -753,6 +783,24 @@ do_count ()
         exit 1
     fi
     rapper -i guess --count $file
+}
+
+docu_distinctcount () { echo "count distinct triples using rapper"; }
+do_distinctcount ()
+{
+    _checkTool rapper wc sort uniq
+    file="$2"
+    if [ "$file" == "" ]
+    then
+        echo "Syntax:" $this "$command <file>"
+        echo "(`docu_count`)"
+        exit 1
+    fi
+    tmpfile="/tmp/$RANDOM-`basename $file`"
+    rapper -i guess $file 2>/dev/null | sort | uniq >$tmpfile
+    count=`cat $tmpfile| wc -l`
+    echo $count
+    rm $tmpfile
 }
 
 docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
