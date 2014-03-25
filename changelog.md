@@ -5,6 +5,8 @@
  * document password retrieval for webid keystore
 
 ## 0.7 (not released yet)
+ * new command: distinctcount - count only distinct triples
+ * new command: distinctdiff - show only diff between distinct triples
 
 ## 0.6
  * new command: color - get a color value for a resource URI :)
