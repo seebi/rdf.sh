@@ -5,6 +5,7 @@
  * document password retrieval for webid keystore
 
 ## 0.7 (not released yet)
+ * fix issue with md5 command on debian
 
 ## 0.6
  * new command: color - get a color value for a resource URI :)
