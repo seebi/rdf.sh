@@ -752,8 +752,8 @@ do_distinctdiff ()
     fi
     dest1="/tmp/$RANDOM-`basename $source1`"
     dest2="/tmp/$RANDOM-`basename $source2`"
-    rapper -i guess $source1 | sort | uniq >$dest1
-    rapper -i guess $source2 | sort | uniq >$dest2
+    rapper -i guess $source1 | sort -u >$dest1
+    rapper -i guess $source2 | sort -u >$dest2
     $RDFSHDIFF $dest1 $dest2
     rm $dest1 $dest2
 }
@@ -788,7 +788,7 @@ do_count ()
 docu_distinctcount () { echo "count distinct triples using rapper"; }
 do_distinctcount ()
 {
-    _checkTool rapper wc sort uniq
+    _checkTool rapper wc sort
     file="$2"
     if [ "$file" == "" ]
     then
@@ -797,7 +797,7 @@ do_distinctcount ()
         exit 1
     fi
     tmpfile="/tmp/$RANDOM-`basename $file`"
-    rapper -i guess $file 2>/dev/null | sort | uniq >$tmpfile
+    rapper -i guess $file 2>/dev/null | sort -u >$tmpfile
     count=`cat $tmpfile| wc -l`
     echo $count
     rm $tmpfile
