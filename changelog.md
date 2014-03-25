@@ -3,6 +3,7 @@
 ## Roadmap
  * use conditional get and cache of downloaded files
  * document password retrieval for webid keystore
+ * add a distinct option instead of new commands
 
 ## 0.7 (not released yet)
  * new command: distinctcount - count only distinct triples
