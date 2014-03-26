@@ -317,14 +317,34 @@ _getNamespaceForPrefix ()
 # calculate a color for a resource URI (http://cold.aksw.org)
 _getColorForResource()
 {
-    _checkTool md5 cut
+    _checkTool cut
+
+    if [ "$md5tool" != "" ]
+    then
+        RDFSHMD5=$difftool
+    else
+        check=`which md5 2>/dev/null >/dev/null`
+        if [ "$?" == "0" ]
+        then
+            RDFSHMD5="md5"
+        else
+            check=`which md5sum 2>/dev/null >/dev/null`
+            if [ "$?" == "0" ]
+            then
+                RDFSHMD5="md5sum"
+            else
+                echo "Error: you need 'md5' or 'md5sum' for this command."
+            exit 1
+            fi
+        fi
+    fi
     resource=$1
     if [ "$resource" == "" ]
     then
         echo "getColorForResource error: need a resource parameter"
         exit 1
     fi
-    color="#`echo -n $resource | md5 | cut -c 27-`"
+    color="#`echo -n $resource | $RDFSHMD5 | cut -c 27-`"
     echo $color
 }
 

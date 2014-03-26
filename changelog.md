@@ -8,6 +8,7 @@
 ## 0.7 (not released yet)
  * new command: distinctcount - count only distinct triples
  * new command: distinctdiff - show only diff between distinct triples
+ * fix issue with md5 command on debian
 
 ## 0.6
  * new command: color - get a color value for a resource URI :)
