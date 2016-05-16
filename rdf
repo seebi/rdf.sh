@@ -151,13 +151,13 @@ _getFeatures()
     file=$1
     if [ "$file" == "" ]
     then
-        echo "fetFeatures error: need an parameter"
+        echo "getFeatures error: need an parameter"
         exit 1
     fi
 
     #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
     features=""
-    for namespace in `cat $prefixlocal $prefixcache| grep "|" | cut -d "|" -f 2`
+    for namespace in `cat $prefixlocal $prefixcache| grep "|" | grep -v "?" | cut -d "|" -f 2`
     do
         namespaceCount=`grep -E "$namespace[a-zA-Z]+\>" $file | wc -l`
         if [[ "$namespaceCount" -ge 1 ]]; then
