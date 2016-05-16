@@ -908,7 +908,7 @@ do_nsdist ()
     fi
 
     count=`cat $prefixfile| wc -l`
-    tmpfile=`mktemp -q ./rdfsh-XXXX`
+    tmpfile=`_getTempFile`
     for target in $files
     do
         if [ -f "$target" ]
@@ -1028,6 +1028,22 @@ do_ping ()
     # finally, do the ping
     response=`_sendPingback $pingserver $pingsource $pingtargets`
     echo "server response: $response"
+}
+
+docu_turtleize() { echo "outputs an RDF file in turtle, using as much as possible prefix declarations"; }
+do_turtleize ()
+{
+    _checkTool rapper
+    file="$2"
+    if [ "$file" == "" ]
+    then
+        echo "Syntax:" $this "$command <file>"
+        echo "(`docu_format`)"
+        exit 1
+    fi
+
+    features=`_getFeatures $file`
+    rapper -q ${features} -i guess -o turtle $file
 }
 
 docu_help () { echo "outputs the manpage of $this"; }

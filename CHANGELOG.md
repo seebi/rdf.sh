@@ -6,8 +6,9 @@
 * document password retrieval for webid keystore
 * add a distinct option instead of new commands
 
-## 0.7.0 (May 2016)
+## 0.7.0 (not released yet)
 
+* new command: turtleize - outputs an RDF file in turtle, using as much as possible prefix declarations 
 * new command: distinctcount - count only distinct triples
 * new command: distinctdiff - show only diff between distinct triples
 * fix for current roqet version which does not support ntriples output anymore

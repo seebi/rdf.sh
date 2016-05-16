@@ -13,6 +13,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
   * [syntax highlighting](#highlighting)
   * [resource listings](#listings)
   * [resource inspection / debugging](#inspection)
+  * [re-format RDF files in turtle](#turtleize)
   * [prefix distribution for data projects](#prefixes)
   * [spinning the semantic web: semantic pingback](#pingback)
   * [autocompletion and resource history](#autocompletion)
@@ -262,6 +263,18 @@ line to each of the ttl files of this project.
   current directory and collect them in the file `prefixes.n3`
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
+
+<a name="turtleize"></a>
+### re-format RDF files in turtle (`turtleize`)
+
+Working with RDF files often requires to convert and reformat different files.
+With `rdf turtleize`, its easy to get RDF files in turtle plus they are nicely
+formatted because all needed prefix declarations are added.
+
+turtleize uses rapper and tries to detect all namespaces which are cached in
+your `prefix.cache` file, as well as which a defined in the `prefix.local` file.
+
+To turtleize your current buffer in vim for example, you can do a `:%! rdf turtleize %`.
 
 <a name="pingback"></a>
 ### spinning the semantic web: semantic pingback
