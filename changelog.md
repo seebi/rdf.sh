@@ -13,6 +13,7 @@
 * fix for current roqet version which does not support ntriples output anymore
 * fix issue with md5 command on debian
 * fix error with some namespaces which have ? in it
+* fix namespace detection for local names with special chars (e.g. vs:term_status)
 * Remove dependency to uniq command
 
 ## 0.6 (May 2013)

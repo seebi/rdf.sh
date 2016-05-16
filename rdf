@@ -159,10 +159,10 @@ _getFeatures()
     features=""
     for namespace in `cat $prefixlocal $prefixcache| grep "|" | grep -v "?" | cut -d "|" -f 2`
     do
-        namespaceCount=`grep -E "$namespace[a-zA-Z]+\>" $file | wc -l`
+        namespaceCount=`grep -E "$namespace[^>]+\>" $file | wc -l`
         if [[ "$namespaceCount" -ge 1 ]]; then
             prefix=`_getPrefixForNamespace $namespace`
-            #echo "Found $namespace -> $prefix"
+            # echo "Found $namespace -> $prefix" >&2
             features="$features -f xmlns:$prefix=\"$namespace\""
         fi
     done
