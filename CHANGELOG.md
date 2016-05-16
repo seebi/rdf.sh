@@ -15,6 +15,7 @@
 * fix issue with md5 command on debian
 * fix error with some namespaces which have ? in it
 * fix namespace detection for local names with special chars (e.g. vs:term_status)
+* fix zsh completion (allow *.ttl files as RDF files)
 * Remove dependency to uniq command
 
 ## 0.6 (May 2013)

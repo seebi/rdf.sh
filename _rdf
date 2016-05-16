@@ -2,7 +2,7 @@
 
 _rdfshInputFile () {
     local expl
-    _wanted files expl 'RDF File' _files -g '*.(#i)(rdf|n3|nt|owl|tt)(.)'
+    _wanted files expl 'RDF File' _files -g '*.(#i)(rdf|n3|nt|owl|ttl)(.)'
 }
 
 _rdfshResourceHistory () {
