@@ -1,20 +1,21 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix : <http://usefulinc.com/ns/doap#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix dct: <http://purl.org/dc/terms/>.
-@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
 
-<http://sebastian.tramp.name/Projects/rdf.sh> a :Project;
-    dct:updated "2016-05-16T16:35:00Z"^^xsd:dateTime;
-    :description "A multi-tool shell script for doing Semantic Web jobs on the command line.";
-    :developer <http://sebastian.tramp.name>;
-    :download-page <https://github.com/seebi/rdf.sh/releases>;
-    :homepage <https://github.com/seebi/rdf.sh/>;
-    :programming-language "Shell";
+<http://sebastian.tramp.name>
+    a foaf:Person ;
+    rdfs:label "Sebastian Tramp" .
+
+<http://sebastian.tramp.name/Projects/rdf.sh>
+    dct:updated "2016-05-16T16:35:00Z"^^xsd:dateTime ;
+    :description "A multi-tool shell script for doing Semantic Web jobs on the command line." ;
+    :developer <http://sebastian.tramp.name> ;
+    :download-page <https://github.com/seebi/rdf.sh/releases> ;
+    :homepage <https://github.com/seebi/rdf.sh/> ;
     :name "rdf.sh" ;
-.
-
-<http://sebastian.tramp.name> a foaf:Person;
-    rdfs:label "Sebastian Tramp";
-.
+    :programming-language "Shell" ;
+    a :Project .
 
