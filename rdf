@@ -583,7 +583,7 @@ do_desc ()
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
     $thisexec get-ntriples $uri >$tmpfile.nt
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile.nt -r ntriples >$tmpfile.out
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile.nt -r turtle | rapper -i turtle -o ntriples -q - "$uri" >$tmpfile.out
 
     features=`_getFeatures $tmpfile.out`
 
