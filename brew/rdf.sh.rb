@@ -1,10 +1,12 @@
 require 'formula'
 
 class RdfSh < Formula
+  desc 'A multi-tool shell script for doing Semantic Web jobs on the command line'
   homepage 'https://github.com/seebi/rdf.sh'
-  url 'https://github.com/seebi/rdf.sh/archive/v0.6.tar.gz'
-  version '0.6'
-  sha1 'c47ae7b72850808cc2811a2389c04a7c335f1509'
+  url 'https://github.com/seebi/rdf.sh/archive/v0.7.0.tar.gz'
+  head 'https://github.com/seebi/rdf.sh.git'
+  version '0.7.0'
+  sha256 '3210042265082092540e698202f6aa1a7dadefff97924c23ea9e2da18a8fa94b'
 
   depends_on 'raptor'
   depends_on 'rasqal'
@@ -13,7 +15,7 @@ class RdfSh < Formula
   def install
     bin.install('rdf' => 'rdf')
     man1.install('rdf.1')
-    # todo: how to install zsh autocompletion?
+    zsh_completion.install '_rdf'
   end
 
   def test
