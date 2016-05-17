@@ -398,5 +398,7 @@ this is the place to setup personal configuration options such as
 * WebID support
 * syntax highlighting suppression
 * setup of preferred accept headers
+* setup of alternate ntriples fetch program such as any23's rover (see [this feature request](https://github.com/seebi/rdf.sh/issues/8) for background infos)
 
 Please have a look at the [example rc file](https://github.com/seebi/rdf.sh/blob/master/example.rc).
+

@@ -1,12 +1,18 @@
-# this file can be copied to you rdf.sh config directory
+# this file can be copied to your rdf.sh configuration directory
 # (e.g. to $HOME/.config/rdf.sh/rc) and is imported on each run
 
 # which accept header should be used for requests
 #RDFSH_ACCEPT_HEADER="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
 
-# suppress highlightning? (true or false)
+# suppress highlighting? (true or false)
 #RDFSH_HIGHLIGHTING_SUPPRESS="true"
 
 ### add some additional curl options:
-# allow webid authentification and ignores ssl server cert errors
+# allow webid authentication and ignores ssl server cert errors
 #RDFSH_CURLOPTIONS_ADDITONS="-E $HOME/.webid.pem --insecure"
+
+# allow for overriding the default ntriples curl fetch command
+# the command needs to ouput ntriples to stdout, stderr is suppressed
+# the command takes one parameter (the URL of the resource)
+RDFSH_HTTPGETNTRIPLES_COMMAND="any23 rover -t -f ntriples"
+

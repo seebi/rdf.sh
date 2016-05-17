@@ -56,19 +56,6 @@ else
     mimetypes="$RDFSH_ACCEPT_HEADER"
 fi
 
-# check for actively suppressing the pygmentize highlighting
-if [ "$RDFSH_HIGHLIGHTING_SUPPRESS" == "true" ]
-then
-    highlight=""
-else
-    echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null
-    if [ "$?" == "0" ]; then
-        highlight="yes"
-    else
-        highlight=""
-    fi
-fi
-
 ### mac workarounds
 uname=`uname`
 if [ "$uname" == "Darwin" ]
@@ -85,7 +72,50 @@ fi
 # private functions
 ###
 
-# takes an input command name and checks for availability with which
+# outputs a given input turtle file
+_outputTurtle ()
+{
+    turtleFile=$1
+    if [ "$turtleFile" == "" ]
+    then
+        echo "_outputTurtle error: need an parameter"
+        exit 1
+    fi
+
+    # check for actively suppressing the pygmentize highlighting
+    if [ "$RDFSH_HIGHLIGHTING_SUPPRESS" == "true" ]
+    then
+        cat $turtleFile
+    else
+        # if hightlight is enable, try to pipe it through pygmentize, otherwise just cat it
+        echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null
+        if [ "$?" == "0" ]; then
+            cat $tmpfile.ttl | pygmentize -l turtle
+        else
+            cat $turtleFile
+        fi
+    fi
+}
+
+# fetches an URL as ntriples and outputs it to stdout
+_httpGetNtriples ()
+{
+    url=$1
+    if [ "$url" == "" ]
+    then
+        echo "_httpGetNtriples error: need an parameter"
+        exit 1
+    fi
+
+    if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
+    then
+        $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url -
+    else
+        $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null
+    fi
+}
+
+# takes an input command name and checks for availability
 _checkTool ()
 {
     tool=$1
@@ -426,7 +456,7 @@ _getRelatedResources ()
     uri=`_expandQName $resource`
 
     tmpfile=`_getTempFile`
-    $thisexec get-ntriples $uri >$tmpfile.nt
+    _httpGetNtriples $uri >$tmpfile.nt
     roqet -q -e "SELECT DISTINCT ?o {<$uri> ?property ?o. FILTER(isUri(?o))}" -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "^http"
     rm $tmpfile $tmpfile.nt
 }
@@ -448,7 +478,7 @@ _isPingbackEnabled ()
     if [ "$pingbackServer" == "" ]
     then
         tmpfile=`_getTempFile`
-        $thisexec get-ntriples $uri >$tmpfile.nt
+        _httpGetNtriples $uri >$tmpfile.nt
         pingbackServer=`roqet -q -e "SELECT ?o {<$uri> <http://purl.org/net/pingback/to> ?o}" -D $tmpfile.nt 2>/dev/null | head -1 | cut -d "<" -f 2 | cut -d ">" -f 1`
         rm $tmpfile $tmpfile.nt
     fi
@@ -505,7 +535,7 @@ do_edit ()
     uri=`_expandQName $uri`
     doEditTmpfile=`_getTempFile`
 
-    $thisexec get-ntriples $uri >${doEditTmpfile}
+    _httpGetNtriples $uri >${doEditTmpfile}
     features=`_getFeatures ${doEditTmpfile}`
     cat ${doEditTmpfile} | rapper -q ${features} -i ntriples -o turtle -I $uri - >"${doEditTmpfile}.ttl"
     $EDITOR $doEditTmpfile.ttl
@@ -582,22 +612,17 @@ do_desc ()
     fi
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
-    $thisexec get-ntriples $uri >$tmpfile.nt
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile.nt -r turtle | rapper -i turtle -o ntriples -q - "$uri" >$tmpfile.out
+    _httpGetNtriples $uri >$tmpfile
 
-    features=`_getFeatures $tmpfile.out`
+    # fetches only triples with URI as subject (output is turtle)
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile >$tmpfile.out
 
-    rapper -q ${features} -i ntriples $tmpfile.out -o $output >$tmpfile.ttl
-
-    # if hightlight is enable, pipe it through pygmentize, otherwise just cat it
-    if [ "$highlight" == "yes" ]; then
-        cat $tmpfile.ttl | pygmentize -l turtle
-    else
-        cat $tmpfile.ttl
-    fi
+    # reformat and output turtle file
+    $thisexec turtleize $tmpfile.out >$tmpfile.ttl
+    _outputTurtle $tmpfile.ttl
 
     # clean up
-    rm $tmpfile $tmpfile.out $tmpfile.nt $tmpfile.ttl
+    rm -f $tmpfile $tmpfile.out $tmpfile.ttl
 
     # add history
     _addToHistory $uri $historyfile
@@ -616,14 +641,12 @@ do_list ()
     fi
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
-    # turn history off for this internal call (dirty URIs)
-    export noHistory="true"
-    $thisexec get-ntriples $uri >$tmpfile.nt
+    _httpGetNtriples $uri >$tmpfile.nt
     roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
     rm $tmpfile $tmpfile.nt
 }
 
-docu_get () { echo "curls rdf in xml or turtle to stdout (tries accept header)"; }
+docu_get () { echo "fetches an URL as RDF to stdout (tries accept header)"; }
 do_get ()
 {
     _checkTool curl
@@ -635,7 +658,10 @@ do_get ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -H "Accept: $mimetypes" $uri
+    tmpfile=`_getTempFile`
+    _httpGetNtriples $uri >$tmpfile.nt
+    $thisexec turtleize $tmpfile.nt
+    rm $tmpfile $tmpfile.nt
     _addToHistory $uri $historyfile
 }
 
@@ -651,7 +677,7 @@ do_get-ntriples ()
         exit 1
     fi
     uri=`_expandQName $uri`
-    $curlcommand -H "Accept: $mimetypes" $uri | rapper -q -i guess -o ntriples -I $uri -
+    _httpGetNtriples $uri
     _addToHistory $uri $historyfile
 }
 
