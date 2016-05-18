@@ -97,11 +97,39 @@ _outputTurtle ()
     fi
 }
 
+# output the md5 sum of a given string
+_md5sum ()
+{
+    local string check md5sumexec
+
+    string=$1
+    if [ "$string" == "" ]
+    then
+        echo "_md5sum error: need an parameter"
+        exit 1
+    fi
+
+    check=`which md5 2>/dev/null >/dev/null`
+    if [ "$?" == "0" ]
+    then
+        md5sumexec="md5"
+    else
+        check=`which md5sum 2>/dev/null >/dev/null`
+        if [ "$?" == "0" ]
+        then
+            md5sumexec="md5sum"
+        else
+            echo "Error: you need 'md5' or 'md5sum' for this command."
+            exit 1
+        fi
+    fi
+
+    echo -n $string | $md5sumexec | cut -d " " -f 1
+}
+
 _cachePopulateFile ()
 {
     local url file cachefile
-
-    _checkTool md5sum
 
     url=$1
     file=$2
@@ -113,9 +141,9 @@ _cachePopulateFile ()
 
     if [ "$RDFSH_CACHE_POPULATE" == "true" ];
     then
-        cachefile=url-`echo "$url" | md5sum | cut -d " " -f 1`.nt
+        cachefile=url-`_md5sum $url`.nt
         cp $file $cachedir/$cachefile
-        # echo "$cachefile|$url" >>$cachedir/hashes
+        #echo "$cachefile|$url" >>$cachedir/hashes
     fi
 
 }
@@ -132,6 +160,11 @@ _httpGetNtriples ()
         echo "_httpGetNtriples error: need an parameter"
         exit 1
     fi
+
+    # if [ "$RDFSH_CACHE_USE" == "true" ];
+    # then
+        
+    # fi
 
     tmpfile=`_getTempFile`
     if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
@@ -405,37 +438,18 @@ _getNamespaceForPrefix ()
 # calculate a color for a resource URI (http://cold.aksw.org)
 _getColorForResource()
 {
-    local RDFSHMD5 check resource color
+    local uri
 
     _checkTool cut
 
-    if [ "$md5tool" != "" ]
-    then
-        RDFSHMD5=$difftool
-    else
-        check=`which md5 2>/dev/null >/dev/null`
-        if [ "$?" == "0" ]
-        then
-            RDFSHMD5="md5"
-        else
-            check=`which md5sum 2>/dev/null >/dev/null`
-            if [ "$?" == "0" ]
-            then
-                RDFSHMD5="md5sum"
-            else
-                echo "Error: you need 'md5' or 'md5sum' for this command."
-            exit 1
-            fi
-        fi
-    fi
-    resource=$1
-    if [ "$resource" == "" ]
+    uri=$1
+    if [ "$uri" == "" ]
     then
         echo "getColorForResource error: need a resource parameter"
         exit 1
     fi
-    color="#`echo -n $resource | $RDFSHMD5 | cut -c 27-`"
-    echo $color
+
+    echo "#`_md5sum $uri | cut -c 27-`"
 }
 
 # give a prefix + namespace and get a new cache entry
