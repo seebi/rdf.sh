@@ -129,7 +129,7 @@ _md5sum ()
 
 _cachePopulateFile ()
 {
-    local url file cachefile
+    local url file count cachefile
 
     url=$1
     file=$2
@@ -141,18 +141,44 @@ _cachePopulateFile ()
 
     if [ "$RDFSH_CACHE_POPULATE" == "true" ];
     then
-        cachefile=url-`_md5sum $url`.nt
-        cp $file $cachedir/$cachefile
-        #echo "$cachefile|$url" >>$cachedir/hashes
+        count=`wc -l $file | cut -d " " -f 1`
+        if [ "$count" != 0 ]
+        then
+            cachefile=url-`_md5sum $url`.nt
+            cp $file $cachedir/$cachefile
+            #echo "$cachefile|$url" >>$cachedir/hashes
+        fi
+    fi
+}
+
+_cacheGetPath ()
+{
+    local url cachefile
+
+    url=$1
+    if [ "$url" == "" ]
+    then
+        echo "_cacheGetPath error: need one parameter"
+        exit 1
     fi
 
+    if [ "$RDFSH_CACHE_USE" == "true" ];
+    then
+        cachefile=url-`_md5sum $url`.nt
+        if [ -r "$cachedir/$cachefile" ];
+        then
+            echo $cachedir/$cachefile
+        fi
+    else
+        echo ""
+    fi
 }
 
 # fetches an URL as ntriples and outputs it to stdout
 # caches the fetched ntriples documents optionally
 _httpGetNtriples ()
 {
-    local url tmpfile
+    local url tmpfile cachePath
 
     url=$1
     if [ "$url" == "" ]
@@ -161,22 +187,25 @@ _httpGetNtriples ()
         exit 1
     fi
 
-    # if [ "$RDFSH_CACHE_USE" == "true" ];
-    # then
-        
-    # fi
-
-    tmpfile=`_getTempFile`
-    if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
+    cachePath=`_cacheGetPath $url`
+    if [ "$cachePath" != "" ];
     then
-        $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url - >$tmpfile
+        # cache hit
+        cat $cachePath
     else
-        $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null >$tmpfile
-    fi
+        # cache miss
+        tmpfile=`_getTempFile`
+        if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
+        then
+            $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url - >$tmpfile
+        else
+            $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null >$tmpfile
+        fi
 
-    cat $tmpfile
-    _cachePopulateFile $url $tmpfile
-    rm -f $tmpfile
+        cat $tmpfile
+        _cachePopulateFile $url $tmpfile
+        rm -f $tmpfile
+    fi
 }
 
 # takes an input command name and checks for availability
