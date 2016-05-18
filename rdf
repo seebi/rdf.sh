@@ -72,7 +72,7 @@ fi
 # private functions
 ###
 
-# outputs a given input turtle file
+# outputs a given input turtle file (highlighted or not)
 _outputTurtle ()
 {
     turtleFile=$1
@@ -90,16 +90,42 @@ _outputTurtle ()
         # if hightlight is enable, try to pipe it through pygmentize, otherwise just cat it
         echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null
         if [ "$?" == "0" ]; then
-            cat $tmpfile.ttl | pygmentize -l turtle
+            cat $turtleFile | pygmentize -l turtle
         else
             cat $turtleFile
         fi
     fi
 }
 
+_cachePopulateFile ()
+{
+    local url file cachefile
+
+    _checkTool md5sum
+
+    url=$1
+    file=$2
+    if [ "$file" == "" ]
+    then
+        echo "_cachePopulateFile error: need two parameters $url and $file"
+        exit 1
+    fi
+
+    if [ "$RDFSH_CACHE_POPULATE" == "true" ];
+    then
+        cachefile=url-`echo "$url" | md5sum | cut -d " " -f 1`.nt
+        cp $file $cachedir/$cachefile
+        # echo "$cachefile|$url" >>$cachedir/hashes
+    fi
+
+}
+
 # fetches an URL as ntriples and outputs it to stdout
+# caches the fetched ntriples documents optionally
 _httpGetNtriples ()
 {
+    local url tmpfile
+
     url=$1
     if [ "$url" == "" ]
     then
@@ -107,17 +133,24 @@ _httpGetNtriples ()
         exit 1
     fi
 
+    tmpfile=`_getTempFile`
     if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
     then
-        $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url -
+        $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url - >$tmpfile
     else
-        $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null
+        $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null >$tmpfile
     fi
+
+    cat $tmpfile
+    _cachePopulateFile $url $tmpfile
+    rm -f $tmpfile
 }
 
 # takes an input command name and checks for availability
 _checkTool ()
 {
+    local tool check
+
     tool=$1
     if [ "$tool" == "" ]
     then
@@ -139,7 +172,10 @@ _checkTool ()
 # takes an input string and checks if it is a valid qname
 _isQName ()
 {
+    local qname LocalPart Prefix
+
     _checkTool cut
+
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -177,7 +213,10 @@ _isQName ()
 # try to prepare the prefix definitions
 _getFeatures()
 {
+    local file features namespaceCount prefix
+
     _checkTool grep
+
     file=$1
     if [ "$file" == "" ]
     then
@@ -202,7 +241,10 @@ _getFeatures()
 # takes a qname and outputs the prefix
 _getPrefix ()
 {
+    local qname LocalPart Prefix
+
     _checkTool cut
+
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -230,7 +272,10 @@ _getPrefix ()
 # takes a qname and outputs the LocalName
 _getLocalName ()
 {
+    local qname LocalPart Prefix
+
     _checkTool cut
+
     qname=$1
     if [ "$qname" == "" ]
     then
@@ -258,6 +303,8 @@ _getLocalName ()
 # takes an input qname or URI and outputs the expanded full URI (if it is a qname)
 _expandQName ()
 {
+    local input isQName prefix localName namespace
+
     input=$1
     isQName=`_isQName $input`
     if [ "$isQName" == "true" ]
@@ -276,6 +323,8 @@ _expandQName ()
 # Note: currently, ALL cached and configured prefixes are listed
 _getUndeclaredPrefixes ()
 {
+    local file prefixes namespace prefix
+
     file=$1
     if [ "$file" == "" ]
     then
@@ -293,7 +342,10 @@ _getUndeclaredPrefixes ()
 
 _getNamespaceFromPrefix ()
 {
+    local prefix namespace
+
     _checkTool curl cut
+
     prefix=$1
     if [ "$prefix" == "" ]
     then
@@ -318,7 +370,10 @@ _getNamespaceFromPrefix ()
 # this function search in the cache as well the locally configured prefixes
 _getPrefixForNamespace ()
 {
+    local namespace prefix
+
     _checkTool cat grep head cut
+
     namespace=$1
     if [ "$namespace" == "" ]
     then
@@ -333,7 +388,10 @@ _getPrefixForNamespace ()
 # this function search in the cache as well the locally configured prefixes
 _getNamespaceForPrefix ()
 {
+    local prefix namespace
+
     _checkTool cat grep head cut
+
     prefix=$1
     if [ "$prefix" == "" ]
     then
@@ -347,6 +405,8 @@ _getNamespaceForPrefix ()
 # calculate a color for a resource URI (http://cold.aksw.org)
 _getColorForResource()
 {
+    local RDFSHMD5 check resource color
+
     _checkTool cut
 
     if [ "$md5tool" != "" ]
@@ -381,6 +441,8 @@ _getColorForResource()
 # give a prefix + namespace and get a new cache entry
 _addPrefixToCache ()
 {
+    local prefix namespace existingNamespace
+
     prefix=$1
     if [ "$prefix" == "" ]
     then
@@ -404,7 +466,10 @@ _addPrefixToCache ()
 # add a resource to the .resource_history file
 _addToHistory ()
 {
+    local resource historyfile count
+
     _checkTool grep wc sed
+
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -437,7 +502,10 @@ _addToHistory ()
 # creates a tempfile and returns the filename
 _getTempFile ()
 {
+    local tmpfile
+
     _checkTool mktemp
+
     tmpfile=`mktemp -q ./rdfsh-XXXX`
     mv $tmpfile $tmpfile.tmp
     echo $tmpfile.tmp
@@ -446,7 +514,10 @@ _getTempFile ()
 # get all related resources
 _getRelatedResources ()
 {
+    local resource uri tmpfile
+
     _checkTool roqet cut grep rm
+
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -464,7 +535,10 @@ _getRelatedResources ()
 # returns the announced pingback URL or an empty string
 _isPingbackEnabled ()
 {
+    local resource pingbackServer tmpfile
+
     _checkTool roqet head cut grep
+
     resource=$1
     if [ "$resource" == "" ]
     then
@@ -493,6 +567,8 @@ _isPingbackEnabled ()
 # send a pingback to server $1 which connects the source $2 with the target $3
 _sendPingback ()
 {
+    local pbserver pbsource pbtarget result
+
     pbserver=$1
     if [ "$pbserver" == "" ]
     then
@@ -524,7 +600,10 @@ _sendPingback ()
 docu_edit () { echo "edit the content of an existing linked data resource via LDP (GET + PUT)";}
 do_edit ()
 {
+    local uri doEditTmpfile features addedPrefixDeclarations
+
     _checkTool curl rapper rm cp
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -560,7 +639,10 @@ do_edit ()
 docu_put () { echo "replaces an existing linked data resource via LDP";}
 do_put ()
 {
+    local uri filename
+
     _checkTool curl
+
     uri="$2"
     filename="$3"
     if [ "$filename" == "" ]
@@ -581,7 +663,10 @@ do_put ()
 docu_delete () { echo "deletes an existing linked data resource via LDP";}
 do_delete ()
 {
+    local uri
+
     _checkTool curl
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -597,7 +682,10 @@ do_delete ()
 docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
 do_desc ()
 {
+    local uri output tmpfile
+
     _checkTool curl mv cat grep cut wc roqet rapper rm
+
     uri="$2"
     output="$3"
     if [ "$uri" == "" ]
@@ -631,7 +719,10 @@ do_desc ()
 docu_list () { echo "list resources which start with the given URI"; }
 do_list ()
 {
+    local uri tmpfile
+
     _checkTool roqet cut grep rm
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -649,7 +740,8 @@ do_list ()
 docu_get () { echo "fetches an URL as RDF to stdout (tries accept header)"; }
 do_get ()
 {
-    _checkTool curl
+    local uri tmpfile
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -657,6 +749,7 @@ do_get ()
         echo "(`docu_get`)"
         exit 1
     fi
+
     uri=`_expandQName $uri`
     tmpfile=`_getTempFile`
     _httpGetNtriples $uri >$tmpfile.nt
@@ -668,7 +761,8 @@ do_get ()
 docu_get-ntriples () { echo "curls rdf and transforms to ntriples"; }
 do_get-ntriples ()
 {
-    _checkTool curl rapper
+    local uri
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -676,6 +770,7 @@ do_get-ntriples ()
         echo "(`docu_get-ntriples`)"
         exit 1
     fi
+
     uri=`_expandQName $uri`
     _httpGetNtriples $uri
     _addToHistory $uri $historyfile
@@ -684,7 +779,10 @@ do_get-ntriples ()
 docu_headn () { echo "curls only the http header"; }
 do_headn ()
 {
+    local uri
+
     _checkTool curl
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -692,6 +790,7 @@ do_headn ()
         echo "(`docu_head`)"
         exit 1
     fi
+
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD $uri
     _addToHistory $uri $historyfile
@@ -700,7 +799,10 @@ do_headn ()
 docu_head () { echo "curls only the http header but accepts only rdf"; }
 do_head ()
 {
+    local uri
+
     _checkTool curl
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -708,6 +810,7 @@ do_head ()
         echo "(`docu_rdfhead`)"
         exit 1
     fi
+
     uri=`_expandQName $uri`
     $curlcommand -I -X HEAD -H "Accept: $mimetypes" $uri
     _addToHistory $uri $historyfile
@@ -716,7 +819,10 @@ do_head ()
 docu_ns () { echo "curls the namespace from prefix.cc"; }
 do_ns ()
 {
+    local prefix suffix namespace
+
     _checkTool curl
+
     prefix="$2"
     suffix="$3"
     if [ "$prefix" == "" ]
@@ -747,7 +853,10 @@ do_ns ()
 docu_diff () { echo "diff of triples from two RDF files"; }
 do_diff ()
 {
+    local source1 source2 difftool RDFSHDIFF dest1 dest2
+
     _checkTool rapper rm sort
+
     source1="$2"
     source2="$3"
     difftool="$4"
@@ -777,7 +886,10 @@ do_diff ()
 docu_distinctdiff () { echo "diff of all distinct triples from two RDF files"; }
 do_distinctdiff ()
 {
+    local source1 source2 difftool RDFSHDIFF dest1 dest2
+
     _checkTool rapper rm sort
+
     source1="$2"
     source2="$3"
     difftool="$4"
@@ -807,6 +919,8 @@ do_distinctdiff ()
 docu_color () { echo "get a html color for a resource URI"; }
 do_color ()
 {
+    local uri
+
     uri="$2"
     if [ "$uri" == "" ]
     then
@@ -814,13 +928,17 @@ do_color ()
         echo "(`docu_color`)"
         exit 1
     fi
+
     _getColorForResource $uri
 }
 
 docu_count () { echo "count triples using rapper"; }
 do_count ()
 {
+    local file
+
     _checkTool rapper
+
     file="$2"
     if [ "$file" == "" ]
     then
@@ -828,13 +946,17 @@ do_count ()
         echo "(`docu_count`)"
         exit 1
     fi
+
     rapper -i guess --count $file
 }
 
 docu_distinctcount () { echo "count distinct triples using rapper"; }
 do_distinctcount ()
 {
+    local file tmpfile count
+
     _checkTool rapper wc sort
+
     file="$2"
     if [ "$file" == "" ]
     then
@@ -852,7 +974,10 @@ do_distinctcount ()
 docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
 do_split ()
 {
+    local file size todo tmpdir realtodo
+
     _checkTool rapper split wc sed
+
     file="$2"
     size="$3"
     todo="$4"
@@ -889,7 +1014,10 @@ do_split ()
 docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files";}
 do_nscollect()
 {
+    local prefixfile countBefore files count
+
     _checkTool cat wc grep sort
+
     prefixfile="$2"
 
     if [ "$prefixfile" == "" ]
@@ -916,7 +1044,10 @@ do_nscollect()
 docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 do_nsdist ()
 {
+    local prefixfile files count tmpfile before after result
+
     _checkTool grep mktemp wc
+
     prefixfile="prefixes.n3"
     if [ ! -f "$prefixfile" ]
     then
@@ -961,10 +1092,11 @@ do_nsdist ()
 docu_pingall () { echo "sends a semantic pingback request to all possible targets of a given resource"; }
 do_pingall ()
 {
-    _checkTool head
-    pingsource="$2"
+    local pingsource pingtargets pingserver response
 
-    # check for ping source
+    _checkTool head
+
+    pingsource="$2"
     if [ "$pingsource" == "" ]
     then
         echo "Syntax:" $this "$command <pingsource>"
@@ -999,11 +1131,12 @@ do_pingall ()
 docu_ping () { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
 do_ping ()
 {
+    local pingsource pingtargets count pingserver response
+
     _checkTool grep wc
+
     pingsource="$2"
     pingtargets="$3"
-
-    # check for ping source
     if [ "$pingsource" == "" ]
     then
         echo "Syntax:" $this "$command <pingsource> <pingtarget>"
@@ -1059,7 +1192,10 @@ do_ping ()
 docu_turtleize() { echo "outputs an RDF file in turtle, using as much as possible prefix declarations"; }
 do_turtleize ()
 {
+    local file features
+
     _checkTool rapper
+
     file="$2"
     if [ "$file" == "" ]
     then
@@ -1075,7 +1211,10 @@ do_turtleize ()
 docu_help () { echo "outputs the manpage of $this"; }
 do_help ()
 {
+    local realfile execdir manpage scriptdir
+
     _checkTool man
+
     realfile=`readlink $thisexec`
     if [ "$realfile" == "" ]
     then
@@ -1143,4 +1282,3 @@ else
     echo "$this: '$command' is not a rdf command. See '$this help'."
     exit 1
 fi
-

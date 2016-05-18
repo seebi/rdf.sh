@@ -16,3 +16,12 @@
 # the command takes one parameter (the URL of the resource)
 RDFSH_HTTPGETNTRIPLES_COMMAND="any23 rover -t -f ntriples"
 
+# try to use the cached ntriple models
+RDFSH_CACHE_USE="true"
+
+# populate a cache of retrieved ntriple models
+RDFSH_CACHE_POPULATE="true"
+
+# use a git repository for caching
+RDFSH_CACHE_VERSION="true"
+
