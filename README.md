@@ -4,21 +4,93 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 # contents
 
-* [usage / features](#usage-features)
-  * [overview](#overview)
-  * [namespace lookup](#nslookup)
-  * [resource description](#description)
-  * [linked data platform client](#ldp)
-  * [WebID requests](#webid)
-  * [syntax highlighting](#highlighting)
-  * [resource listings](#listings)
-  * [resource inspection / debugging](#inspection)
-  * [re-format RDF files in turtle](#turtleize)
-  * [prefix distribution for data projects](#prefixes)
-  * [spinning the semantic web: semantic pingback](#pingback)
-  * [autocompletion and resource history](#autocompletion)
 * [installation (manually, debian/ubuntu/, brew based)](#installation)
 * [configuration](#configuration)
+* [usage / features](#usage-features)
+    * [overview](#overview)
+    * [namespace lookup](#nslookup)
+    * [resource description](#description)
+    * [linked data platform client](#ldp)
+    * [WebID requests](#webid)
+    * [syntax highlighting](#highlighting)
+    * [resource listings](#listings)
+    * [resource inspection / debugging](#inspection)
+    * [re-format RDF files in turtle](#turtleize)
+    * [prefix distribution for data projects](#prefixes)
+    * [spinning the semantic web: semantic pingback](#pingback)
+    * [autocompletion and resource history](#autocompletion)
+
+<a name="installation"></a>
+## installation
+
+### manually
+
+rdf.sh is a single bash shell script so installation is trivial ... :-)
+Just copy or link it to you path, e.g. with
+
+    $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+
+### debian / ubuntu
+
+You can download a debian package from the [download
+section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
+the following commands:
+
+    $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
+    $ sudo apt-get -f install
+
+The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
+run will install all dependencies as well as `rdf`.
+
+Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
+
+### brew based
+
+You can install 'rdf.sh' by using the provided recipe:
+
+    brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+
+Currently, only the manpage and the script will be installed (if you know, how
+to provide zsh functions in brew, please write a mail).
+
+<a name="dependencies"></a>
+### dependencies
+
+Required tools currently are:
+
+* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
+* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
+* [curl](http://curl.haxx.se/)
+
+Suggested tools are:
+
+ * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
+
+<a name="files"></a>
+### files
+
+These files are available in the repository:
+
+* `README.md` - this file
+* `_rdf` - zsh autocompletion file
+* `changelog.md` - version changelog
+* `doap.ttl` - doap description of rdf.sh
+* `rdf.1` - rdf.sh man page
+* `rdf.sh` - the script
+* `Screenshot.png` - a screeny of rdf.sh in action
+* `example.rc` - an example config file which can be copied
+
+These files are used by rdf.sh:
+
+* `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
+* `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
+* `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
+* `$HOME/.config/rdf.sh/rc` - config file
+
+rdf.sh follows the
+[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+in order to allow different cache and config directories.
+
 
 <a name="usage-features"></a>
 ## usage / features
@@ -317,77 +389,6 @@ Notes:
 * The substring matching feature of the zsh [completion system](http://linux.die.net/man/1/zshcompsys) should be turned on.
   * e.g. with `zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'`
 * This assumes that at least one resource exists in the history which matches `.*tramp.*`
-
-<a name="installation"></a>
-## installation
-
-### manually
-
-rdf.sh is a single bash shell script so installation is trivial ... :-)
-Just copy or link it to you path, e.g. with
-
-    $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
-
-### debian / ubuntu
-
-You can download a debian package from the [download
-section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
-the following commands:
-
-    $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
-    $ sudo apt-get -f install
-
-The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
-run will install all dependencies as well as `rdf`.
-
-Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
-
-### brew based
-
-You can install 'rdf.sh' by using the provided recipe:
-
-    brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
-
-Currently, only the manpage and the script will be installed (if you know, how
-to provide zsh functions in brew, please write a mail).
-
-<a name="dependencies"></a>
-### dependencies
-
-Required tools currently are:
-
-* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
-* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
-* [curl](http://curl.haxx.se/)
-
-Suggested tools are:
-
- * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
-
-<a name="files"></a>
-### files
-
-These files are available in the repository:
-
-* `README.md` - this file
-* `_rdf` - zsh autocompletion file
-* `changelog.md` - version changelog
-* `doap.ttl` - doap description of rdf.sh
-* `rdf.1` - rdf.sh man page
-* `rdf.sh` - the script
-* `Screenshot.png` - a screeny of rdf.sh in action
-* `example.rc` - an example config file which can be copied
-
-These files are used by rdf.sh:
-
-* `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
-* `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
-* `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
-* `$HOME/.config/rdf.sh/rc` - config file
-
-rdf.sh follows the
-[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
-in order to allow different cache and config directories.
 
 <a name="configuration"></a>
 ## configuration
