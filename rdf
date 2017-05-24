@@ -49,6 +49,11 @@ else
     curlcommand="curl -A ${name}/${version} -s -L"
 fi
 
+curlArgs=(-A "'$name/$version'" -s -L)
+if [ "$TOKEN" != "" ]; then
+    curlArgs+=(-H "'Authorization: Bearer ${TOKEN}'")
+fi
+
 if [ "$RDFSH_ACCEPT_HEADER" == "" ]
 then
     mimetypes="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
@@ -71,6 +76,21 @@ fi
 ###
 # private functions
 ###
+
+# https://stackoverflow.com/questions/38015239/
+# urlencode a string
+_urlencodepipe() {
+    local LANG=C; local c;
+    while IFS= read -r c; do
+        case $c in [a-zA-Z0-9.~_-]) printf "$c"; continue ;; esac
+        printf "$c" | od -An -tx1 | tr ' ' % | tr -d '\n'
+    done <<EOF
+$(fold -w1)
+EOF
+  echo
+}
+_urlencode() { printf "$*" | _urlencodepipe ;}
+
 
 # outputs a given input turtle file (highlighted or not)
 _outputTurtle ()
@@ -1249,6 +1269,99 @@ do_turtleize ()
 
     features=`_getFeatures $file`
     rapper -q ${features} -i guess -o turtle $file
+}
+
+docu_gsp-put() { echo "delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
+do_gsp-put ()
+{
+    local sourceFile graphUri storeUrl args
+
+    graphUri="$2"
+    sourceFile="$3"
+    if [ "$sourceFile" == "" ]
+    then
+        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>"
+        echo "($(docu_gsp-put))"
+        exit 1
+    fi
+    graphUri=$(_expandQName "$graphUri")
+
+    args=("${curlArgs[@]}")
+    args+=(-X PUT)
+    args+=(-H "'Content-Type:text/turtle'")
+    storeUrl="$4"
+    if [ "$storeUrl" == "" ]
+    then
+        # try to get $graphUri (direct graph identification)
+        storeUrl="$graphUri"
+    else
+        # try to get $graphUri via $storeUrl (indirect graph identification)
+        storeUrl=$(_expandQName "$storeUrl")
+        encodedGraphUri=$(_urlencode "$graphUri")
+        storeUrl="$storeUrl?graph=$encodedGraphUri"
+    fi
+    args+=(--data-binary @$sourceFile "$storeUrl")
+    echo curl "${args[*]}"
+    eval curl "${args[*]}"
+}
+
+docu_gsp-delete() { echo "delete a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
+do_gsp-delete ()
+{
+    local graphUri storeUrl args
+
+    graphUri="$2"
+    if [ "$graphUri" == "" ]
+    then
+        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
+        echo "($(docu_gsp-delete))"
+        exit 1
+    fi
+    graphUri=$(_expandQName "$graphUri")
+
+    args=("${curlArgs[@]}")
+    args+=(-X DELETE)
+    storeUrl="$3"
+    if [ "$storeUrl" == "" ]
+    then
+        # try to get $graphUri (direct graph identification)
+        storeUrl="$graphUri"
+        args+=("$storeUrl")
+    else
+        # try to get $graphUri via $storeUrl (indirect graph identification)
+        storeUrl=$(_expandQName "$storeUrl")
+        args+=(-G --data-urlencode "'graph=$graphUri'" "$storeUrl")
+    fi
+    eval curl "${args[*]}"
+}
+
+docu_gsp-get() { echo "get a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
+do_gsp-get ()
+{
+    local graphUri storeUrl args
+
+    graphUri="$2"
+    if [ "$graphUri" == "" ]
+    then
+        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
+        echo "($(docu_gsp-get))"
+        exit 1
+    fi
+    graphUri=$(_expandQName "$graphUri")
+
+    args=("${curlArgs[@]}")
+    args+=(-G)
+    storeUrl="$3"
+    if [ "$storeUrl" == "" ]
+    then
+        # try to get $graphUri (direct graph identification)
+        storeUrl="$graphUri"
+        args+=("$storeUrl")
+    else
+        # try to get $graphUri via $storeUrl (indirect graph identification)
+        args+=(--data-urlencode "'graph=$graphUri'" "$storeUrl")
+    fi
+    eval curl "${args[*]}"
 }
 
 docu_help () { echo "outputs the manpage of $this"; }

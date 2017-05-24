@@ -9,6 +9,9 @@
 ## 0.8.0 (unpublished)
 
 * allow to override the standard ntriples fetch command with alternatives such as any23's rover CLI
+* new commend: gsp-delete - delete a graph via SPARQL 1.1 Graph Store HTTP Protocol
+* new command: gsp-get -- get a graph via SPARQL 1.1 Graph Store HTTP Protocol
+* new command: gsp-put - delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol
 
 ## 0.7.0 (May 2016)
 
