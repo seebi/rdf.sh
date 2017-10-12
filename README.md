@@ -60,6 +60,10 @@ You can install `rdf.sh` by using the provided docker image:
 
     docker pull seebi/rdf.sh
 
+After that, you can e.g. run this command:
+
+    docker run -i -t --rm seebi/rdf.sh rdf desc foaf:Person
+
 <a name="dependencies"></a>
 ### dependencies
 
