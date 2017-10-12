@@ -10,6 +10,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
     * [overview](#overview)
     * [namespace lookup](#nslookup)
     * [resource description](#description)
+    * [SPARQL graph store protocol](#gsp)
     * [linked data platform client](#ldp)
     * [WebID requests](#webid)
     * [syntax highlighting](#highlighting)
@@ -46,12 +47,18 @@ Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 
 ### brew based
 
-You can install 'rdf.sh' by using the provided recipe:
+You can install `rdf.sh` by using the provided recipe:
 
     brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
 
 Currently, only the manpage and the script will be installed (if you know, how
 to provide zsh functions in brew, please write a mail).
+
+### docker based
+
+You can install `rdf.sh` by using the provided docker image:
+
+    docker pull seebi/rdf.sh
 
 <a name="dependencies"></a>
 ### dependencies
@@ -186,6 +193,30 @@ resource representation with the `color` command:
     #2024e9
 
 Refer to the [cold webpage](http://cold.aksw.org) for more information :-)
+
+<a name="gsp"></a>
+### SPARQL graph store protocol client
+
+The [SPARQL 1.1 Graph Store HTTP Protocol](https://www.w3.org/TR/sparql11-http-rdf-update/) describes the use of HTTP operations for the purpose of managing a collection of RDF graphs.
+rdf.sh supports the following commands in order to manipulate graphs:
+
+```
+Syntax: rdf gsp-get <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
+(get a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+```
+Syntax: rdf gsp-put <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>
+(delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+```
+Syntax: rdf gsp-delete <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
+(delete a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+If the store URL **is not given**, the [Direct Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#direct-graph-identification) is assumed, which means the store URL is taken as the graph URL.
+If the store URL **is given**, [Indirect Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification) is used.
 
 
 <a name="ldp"></a>
