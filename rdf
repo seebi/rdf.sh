@@ -1,16 +1,26 @@
 #!/usr/bin/env bash
 # @(#) A multi-tool shell script for doing Semantic Web jobs on the command line.
+# shellcheck disable=SC1090
+
+# Use the unofficial bash strict mode: http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail; export FS=$'\n\t'
+
+BASH_MAJOR_VERSION=$(echo "${BASH_VERSION}" | cut -d "." -f 1)
+if [ "$BASH_MAJOR_VERSION" != "4" ]; then
+    echo "Error: $(basename "${0}") needs a bash major version 4."
+    exit 1
+fi
 
 # application metadata
 name="rdf.sh"
-version="0.7.1"
+version="SNAPSHOT"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
-this=`basename $0`
+this=$(basename "$0")
 thisexec=$0
-command="$1"
-os=`uname -s | tr "[:upper:]" "[:lower:]"`
+command="${1:-}"
+os=$(uname -s | tr "[:upper:]" "[:lower:]")
 
 # rdf.sh uses proper XDG config and cache directories now
 if [ "$XDG_CONFIG_HOME" == "" ]
@@ -23,22 +33,22 @@ then
 fi
 confdir="$XDG_CONFIG_HOME/rdf.sh"
 cachedir="$XDG_CACHE_HOME/rdf.sh"
-mkdir -p $confdir
-mkdir -p $cachedir
+mkdir -p "$confdir"
+mkdir -p "$cachedir"
 
 configfile="$confdir/rc"
 historyfile="$cachedir/resource.history"
 prefixcache="$cachedir/prefix.cache"
 prefixlocal="$confdir/prefix.local"
-touch $prefixlocal
-touch $prefixcache
+touch "$prefixlocal"
+touch "$prefixcache"
 
 # load config variables or create empty resource configuration
 if [ -r "$configfile" ]
 then
-    source $configfile
+    source "$configfile"
 else
-    touch $configfile
+    touch "$configfile"
 fi
 
 # TODO: add and use -w %{http_code} for better error detection
@@ -50,11 +60,11 @@ else
 fi
 
 curlArgs=(-A "'$name/$version'" -s -L)
-if [ "$TOKEN" != "" ]; then
+if [ "${TOKEN:-}" != "" ]; then
     curlArgs+=(-H "'Authorization: Bearer ${TOKEN}'")
 fi
 
-if [ "$RDFSH_ACCEPT_HEADER" == "" ]
+if [ "${RDFSH_ACCEPT_HEADER:-}" == "" ]
 then
     mimetypes="text/turtle; q=1.0, application/x-turtle; q=0.9, text/n3; q=0.8, application/rdf+xml; q=0.5, text/plain; q=0.1"
 else
@@ -62,13 +72,11 @@ else
 fi
 
 ### mac workarounds
-uname=`uname`
+uname=$(uname)
 if [ "$uname" == "Darwin" ]
 then
-    sed="sed -E"
     sedi="sed -i -E"
 else
-    sed="sed"
     sedi="sed -i"
 fi
 
@@ -82,15 +90,17 @@ fi
 _urlencodepipe() {
     local LANG=C; local c;
     while IFS= read -r c; do
-        case $c in [a-zA-Z0-9.~_-]) printf "$c"; continue ;; esac
-        printf "$c" | od -An -tx1 | tr ' ' % | tr -d '\n'
+        case $c in [a-zA-Z0-9.~_-]) printf "%s" "$c"; continue ;; esac
+        printf "%s" "$c" | od -An -tx1 | tr ' ' % | tr -d '\n'
     done <<EOF
 $(fold -w1)
 EOF
   echo
 }
-_urlencode() { printf "$*" | _urlencodepipe ;}
-
+# use urlencodepipe and wrap it to a normal command
+_urlencode() {
+    printf "%s" "$*" | _urlencodepipe
+}
 
 # outputs a given input turtle file (highlighted or not)
 _outputTurtle ()
@@ -103,16 +113,15 @@ _outputTurtle ()
     fi
 
     # check for actively suppressing the pygmentize highlighting
-    if [ "$RDFSH_HIGHLIGHTING_SUPPRESS" == "true" ]
+    if [ "${RDFSH_HIGHLIGHTING_SUPPRESS:-}" == "true" ]
     then
-        cat $turtleFile
+        cat "$turtleFile"
     else
         # if hightlight is enable, try to pipe it through pygmentize, otherwise just cat it
-        echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null
-        if [ "$?" == "0" ]; then
-            cat $turtleFile | pygmentize -l turtle
+        if echo 'ttt'| pygmentize -l turtle 2>/dev/null >/dev/null; then
+            pygmentize -l turtle "$turtleFile"
         else
-            cat $turtleFile
+            cat "$turtleFile"
         fi
     fi
 }
@@ -120,7 +129,7 @@ _outputTurtle ()
 # output the md5 sum of a given string
 _md5sum ()
 {
-    local string check md5sumexec
+    local string md5sumexec
 
     string=$1
     if [ "$string" == "" ]
@@ -129,14 +138,10 @@ _md5sum ()
         exit 1
     fi
 
-    check=`which md5 2>/dev/null >/dev/null`
-    if [ "$?" == "0" ]
-    then
+    if which md5 2>/dev/null >/dev/null; then
         md5sumexec="md5"
     else
-        check=`which md5sum 2>/dev/null >/dev/null`
-        if [ "$?" == "0" ]
-        then
+        if which md5sum 2>/dev/null >/dev/null; then
             md5sumexec="md5sum"
         else
             echo "Error: you need 'md5' or 'md5sum' for this command."
@@ -144,7 +149,7 @@ _md5sum ()
         fi
     fi
 
-    echo -n $string | $md5sumexec | cut -d " " -f 1
+    echo -n "$string" | $md5sumexec | cut -d " " -f 1
 }
 
 _cachePopulateFile ()
@@ -159,14 +164,13 @@ _cachePopulateFile ()
         exit 1
     fi
 
-    if [ "$RDFSH_CACHE_POPULATE" == "true" ];
+    if [ "${RDFSH_CACHE_POPULATE:-}" == "true" ];
     then
-        count=`wc -l $file | cut -d " " -f 1`
+        count=$(wc -l "$file" | cut -d " " -f 1)
         if [ "$count" != 0 ]
         then
-            cachefile=url-`_md5sum $url`.nt
-            cp $file $cachedir/$cachefile
-            #echo "$cachefile|$url" >>$cachedir/hashes
+            cachefile=url-$(_md5sum "$url").nt
+            cp "$file" "$cachedir/$cachefile"
         fi
     fi
 }
@@ -184,10 +188,10 @@ _cacheGetPath ()
 
     if [ "$RDFSH_CACHE_USE" == "true" ];
     then
-        cachefile=url-`_md5sum $url`.nt
+        cachefile=url-$(_md5sum "$url").nt
         if [ -r "$cachedir/$cachefile" ];
         then
-            echo $cachedir/$cachefile
+            echo "$cachedir/$cachefile"
         fi
     else
         echo ""
@@ -207,31 +211,31 @@ _httpGetNtriples ()
         exit 1
     fi
 
-    cachePath=`_cacheGetPath $url`
+    cachePath=$(_cacheGetPath "$url")
     if [ "$cachePath" != "" ];
     then
         # cache hit
-        cat $cachePath
+        cat "$cachePath"
     else
         # cache miss
-        tmpfile=`_getTempFile`
-        if [ "$RDFSH_HTTPGETNTRIPLES_COMMAND" == "" ]
+        tmpfile=$(_getTempFile)
+        if [ "${RDFSH_HTTPGETNTRIPLES_COMMAND:-}" == "" ]
         then
-            $curlcommand -H "Accept: $mimetypes" $url | rapper -q -i guess -o ntriples -I $url - >$tmpfile
+            $curlcommand -H "Accept: $mimetypes" "$url" | rapper -q -i guess -o ntriples -I "$url" - 2>/dev/null >"$tmpfile" || true
         else
-            $RDFSH_HTTPGETNTRIPLES_COMMAND $url 2>/dev/null >$tmpfile
+            $RDFSH_HTTPGETNTRIPLES_COMMAND "$url" 2>/dev/null >"$tmpfile" || true
         fi
 
-        cat $tmpfile
-        _cachePopulateFile $url $tmpfile
-        rm -f $tmpfile
+        cat "$tmpfile"
+        _cachePopulateFile "$url" "$tmpfile"
+        rm -f "$tmpfile"
     fi
 }
 
 # takes an input command name and checks for availability
 _checkTool ()
 {
-    local tool check
+    local tool
 
     tool=$1
     if [ "$tool" == "" ]
@@ -240,11 +244,9 @@ _checkTool ()
         exit 1
     fi
 
-    for tool in $*
+    for tool in "$@"
     do
-        check=`which $tool 2>/dev/null >/dev/null`
-        if [ "$?" == "1" ]
-        then
+        if ! which "$tool" 2>/dev/null >/dev/null; then
             echo "Error: you need '$tool' for this command."
             exit 1
         fi
@@ -265,13 +267,13 @@ _isQName ()
         exit 1
     fi
 
-    LocalPart=`echo $qname | cut -d ":" -f 2`
+    LocalPart=$(echo "$qname" | cut -d ":" -f 2)
     if [ "$qname" == "$LocalPart" ]
     then
         echo "false"
         return
     else
-        Prefix=`echo $qname | cut -d ":" -f 1`
+        Prefix=$(echo "$qname" | cut -d ":" -f 1)
 
         # this is ugly ... here we distinguish between uris and qnames
         case "$Prefix" in
@@ -308,16 +310,16 @@ _getFeatures()
 
     #features='-f xmlns:foaf="http://xmlns.com/foaf/0.1/" -f xmlns:site="http://ns.ontowiki.net/SysOnt/Site/"'
     features=""
-    for namespace in `cat $prefixlocal $prefixcache| grep "|" | grep -v "?" | cut -d "|" -f 2`
+    # shellcheck disable=SC2013
+    for namespace in $(cat "$prefixlocal" "$prefixcache" | grep "|" | grep -v "?" | cut -d "|" -f 2)
     do
-        namespaceCount=`grep -E "$namespace[^>]+\>" $file | wc -l`
+        namespaceCount=$(grep -c -E "$namespace[^>]+\>" "$file")
         if [[ "$namespaceCount" -ge 1 ]]; then
-            prefix=`_getPrefixForNamespace $namespace`
-            # echo "Found $namespace -> $prefix" >&2
+            prefix=$(_getPrefixForNamespace "$namespace")
             features="$features -f xmlns:$prefix=\"$namespace\""
         fi
     done
-    echo $features
+    echo "$features"
 }
 
 # takes a qname and outputs the prefix
@@ -334,19 +336,19 @@ _getPrefix ()
         exit 1
     fi
 
-    LocalPart=`echo $qname | cut -d ":" -f 2`
+    LocalPart=$(echo "$qname" | cut -d ":" -f 2)
     if [ "$qname" == "$LocalPart" ]
     then
         echo "getPrefix error: $qname is not a valid qname"
         exit 1
     else
-        Prefix=`echo $qname | cut -d ":" -f 1`
+        Prefix=$(echo "$qname" | cut -d ":" -f 1)
         if [ "$qname" != "$Prefix:$LocalPart" ]
         then
-        echo "getPrefix error: $qname is not a valid qname"
-        exit 1
+            echo "getPrefix error: $qname is not a valid qname"
+            exit 1
         else
-            echo $Prefix
+            echo "$Prefix"
         fi
     fi
 }
@@ -365,19 +367,19 @@ _getLocalName ()
         exit 1
     fi
 
-    LocalPart=`echo $qname | cut -d ":" -f 2`
+    LocalPart=$(echo "$qname" | cut -d ":" -f 2)
     if [ "$qname" == "$LocalPart" ]
     then
         echo "getLocalName error: $qname is not a valid qname"
         exit 1
     else
-        Prefix=`echo $qname | cut -d ":" -f 1`
+        Prefix=$(echo "$qname" | cut -d ":" -f 1)
         if [ "$qname" != "$Prefix:$LocalPart" ]
         then
         echo "getLocalName error: $qname is not a valid qname"
         exit 1
         else
-            echo $LocalPart
+            echo "$LocalPart"
         fi
     fi
 }
@@ -388,15 +390,15 @@ _expandQName ()
     local input isQName prefix localName namespace
 
     input=$1
-    isQName=`_isQName $input`
+    isQName=$(_isQName "$input")
     if [ "$isQName" == "true" ]
     then
-        prefix=`_getPrefix $input`
-        localName=`_getLocalName $input`
-        namespace=`$thisexec ns $prefix`
-        echo $namespace$localName
+        prefix=$(_getPrefix "$input")
+        localName=$(_getLocalName "$input")
+        namespace=$($thisexec ns "$prefix")
+        echo "$namespace$localName"
     else
-        echo $input
+        echo "$input"
     fi
 }
 
@@ -405,7 +407,7 @@ _expandQName ()
 # Note: currently, ALL cached and configured prefixes are listed
 _getUndeclaredPrefixes ()
 {
-    local file prefixes namespace prefix
+    local file namespace prefix
 
     file=$1
     if [ "$file" == "" ]
@@ -413,11 +415,11 @@ _getUndeclaredPrefixes ()
         echo "getUndeclaredPrefixes error: need a file location parameter"
         exit 1
     fi
-    prefixes=""
-    for nsline in `cat $prefixlocal $prefixcache| grep "|"`
+    # shellcheck disable=SC2013
+    for nsline in $(cat "$prefixlocal" "$prefixcache" | grep "|")
     do
-        namespace=`echo $nsline | cut -d "|" -f 2`
-        prefix=`echo $nsline | cut -d "|" -f 1`
+        namespace=$(echo "$nsline" | cut -d "|" -f 2)
+        prefix=$(echo "$nsline" | cut -d "|" -f 1)
         echo "@prefix $prefix: <$namespace> ."
     done
 }
@@ -434,18 +436,18 @@ _getNamespaceFromPrefix ()
         echo "getNamespaceFromPrefix error: need a prefix parameter"
         exit 1
     fi
-    namespace=`_getNamespaceForPrefix $prefix`
+    namespace=$(_getNamespaceForPrefix "$prefix")
     if [ "$namespace" == "" ]
     then
         # no cache-hit, request it from prefix.cc
-        namespace=`$curlcommand http://prefix.cc/$prefix.file.n3 | cut -d "<" -f 2 | cut -d ">" -f 1`
+        namespace=$($curlcommand "http://prefix.cc/$prefix.file.n3" | cut -d "<" -f 2 | cut -d ">" -f 1)
         if [ "$namespace" != "" ]
         then
-            _addPrefixToCache $prefix "$namespace"
+            _addPrefixToCache "$prefix" "$namespace"
         fi
     fi
     # output cache hit or curl output (maybe empty)
-    echo $namespace
+    echo "$namespace"
 }
 
 # give a namespace and get a prefix or it
@@ -462,8 +464,8 @@ _getPrefixForNamespace ()
         echo "getPrefixFromCache error: need a namespace parameter"
         exit 1
     fi
-    prefix=`cat $prefixlocal $prefixcache | grep "$namespace" | head -1 | cut -d "|" -f 1`
-    echo $prefix
+    prefix=$(cat "$prefixlocal" "$prefixcache" | grep "$namespace" | head -1 | cut -d "|" -f 1)
+    echo "$prefix"
 }
 
 # give a prefix and get a namespace or ""
@@ -480,8 +482,8 @@ _getNamespaceForPrefix ()
         echo "getPrefixFromCache error: need a prefix parameter"
         exit 1
     fi
-    namespace=`cat $prefixlocal $prefixcache | grep "^$prefix|" | head -1 | cut -d "|" -f 2`
-    echo $namespace
+    namespace=$(cat "$prefixlocal" "$prefixcache" | grep "^$prefix|" | head -1 | cut -d "|" -f 2)
+    echo "$namespace"
 }
 
 # calculate a color for a resource URI (http://cold.aksw.org)
@@ -498,7 +500,7 @@ _getColorForResource()
         exit 1
     fi
 
-    echo "#`_md5sum $uri | cut -c 27-`"
+    echo "#$(_md5sum "$uri" | cut -c 27-)"
 }
 
 # give a prefix + namespace and get a new cache entry
@@ -518,11 +520,11 @@ _addPrefixToCache ()
         echo "addPrefixToCache error: need a namespace parameter"
         exit 1
     fi
-    touch $prefixcache
-    existingNamespace=`_getNamespaceForPrefix $prefix`
+    touch "$prefixcache"
+    existingNamespace=$(_getNamespaceForPrefix "$prefix")
     if [ "$existingNamespace" == "" ]
     then
-        echo "$prefix|$namespace" >>$prefixcache
+        echo "$prefix|$namespace" >>"$prefixcache"
     fi
 }
 
@@ -546,20 +548,17 @@ _addToHistory ()
         echo "addToHistory error: need an historyfile as second parameter "
         exit 1
     fi
-    touch $historyfile
+    touch "$historyfile"
 
-    if [ "$noHistory" == "" ]
+    count=$(grep -c "$resource" "$historyfile")
+    if [ "$count" != 0 ]
     then
-        count=`grep $resource $historyfile | wc -l`
-        if [ "$count" != 0 ]
-        then
-            # f resource exists, remove it
-            $sedi "s|$resource||g" $historyfile
-            $sedi '/^$/d' $historyfile
-        fi
-        # add (or re-add) the resource at the end
-        echo $resource >>$historyfile
+        # f resource exists, remove it
+        $sedi "s|$resource||g" "$historyfile"
+        $sedi '/^$/d' "$historyfile"
     fi
+    # add (or re-add) the resource at the end
+    echo "$resource" >>"$historyfile"
 }
 
 # creates a tempfile and returns the filename
@@ -569,96 +568,50 @@ _getTempFile ()
 
     _checkTool mktemp
 
-    tmpfile=`mktemp -q ./rdfsh-XXXX`
-    mv $tmpfile $tmpfile.tmp
-    echo $tmpfile.tmp
+    tmpfile=$(mktemp -q ./rdfsh-XXXX)
+    mv "$tmpfile" "$tmpfile.tmp"
+    echo "$tmpfile.tmp"
 }
 
-# get all related resources
-_getRelatedResources ()
-{
-    local resource uri tmpfile
-
-    _checkTool roqet cut grep rm
-
-    resource=$1
-    if [ "$resource" == "" ]
-    then
-        echo "getRelatedResources error: need an resource parameter"
-        exit 1
-    fi
-    uri=`_expandQName $resource`
-
-    tmpfile=`_getTempFile`
-    _httpGetNtriples $uri >$tmpfile.nt
-    roqet -q -e "SELECT DISTINCT ?o {<$uri> ?property ?o. FILTER(isUri(?o))}" -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "^http"
-    rm $tmpfile $tmpfile.nt
-}
-
-# returns the announced pingback URL or an empty string
-_isPingbackEnabled ()
-{
-    local resource pingbackServer tmpfile
-
-    _checkTool roqet head cut grep
-
-    resource=$1
-    if [ "$resource" == "" ]
-    then
-        echo "isPingbackEnabled error: need an resource parameter"
-        exit 1
-    fi
-    uri=`_expandQName $resource`
-
-    pingbackServer=`$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2`
-    #$thisexec head $uri | grep X-Pingback: | cut -d " " -f 2
-    if [ "$pingbackServer" == "" ]
-    then
-        tmpfile=`_getTempFile`
-        _httpGetNtriples $uri >$tmpfile.nt
-        pingbackServer=`roqet -q -e "SELECT ?o {<$uri> <http://purl.org/net/pingback/to> ?o}" -D $tmpfile.nt 2>/dev/null | head -1 | cut -d "<" -f 2 | cut -d ">" -f 1`
-        rm $tmpfile $tmpfile.nt
-    fi
-
-    # output server
-    if [ "$pingbackServer" != "" ]
-    then
-        echo $pingbackServer
-    fi
-}
-
-# send a pingback to server $1 which connects the source $2 with the target $3
-_sendPingback ()
-{
-    local pbserver pbsource pbtarget result
-
-    pbserver=$1
-    if [ "$pbserver" == "" ]
-    then
-        echo "sendPingback error: need a pingback server URL as first parameter"
-        exit 1
-    fi
-    pbsource=$2
-    if [ "$pbsource" == "" ]
-    then
-        echo "sendPingback error: need a pingback source URL as second parameter"
-        exit 1
-    fi
-    pbtarget=$3
-    if [ "$pbtarget" == "" ]
-    then
-        echo "sendPingback error: need a pingback target URL as third parameter"
-        exit 1
-    fi
-
-    result=`$curlcommand $pbserver --data "source=$pbsource&target=$pbtarget"`
-    echo "$result"
-}
 
 ###
 # the "command" functions:
 # the are executed by using the first parameter and get all parameters as options
 ###
+
+docu_ns () { echo "curls the namespace from prefix.cc"; }
+do_ns ()
+{
+    local prefix suffix namespace
+
+    _checkTool curl
+
+    prefix="$2"
+    suffix="${3:-}"
+    if [ "$prefix" == "" ]
+    then
+        echo "Syntax:" "$this" "$command <prefix> <suffix>"
+        echo "($(docu_ns))"
+        echo " suffix can be n3, rdfa, sparql, ...)"
+        exit 1
+    fi
+    if [ "$suffix" == "" ]
+    then
+        # this is a standard request as "rdf ns foaf"
+        namespace=$(_getNamespaceFromPrefix "$prefix")
+        echo "$namespace"
+    else
+        if [ "$suffix" == "plain" ]
+        then
+            # this is for vim integration, plain = without newline
+            namespace=$(_getNamespaceFromPrefix "$prefix")
+            echo -n "$namespace"
+        else
+            # if a real suffix is given, we always fetch from prefix.cc
+            $curlcommand "http://prefix.cc/$prefix.file.$suffix"
+        fi
+    fi
+}
 
 docu_edit () { echo "edit the content of an existing linked data resource via LDP (GET + PUT)";}
 do_edit ()
@@ -670,34 +623,34 @@ do_edit ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_edit`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_edit))"
         exit 1
     fi
-    uri=`_expandQName $uri`
-    doEditTmpfile=`_getTempFile`
+    uri=$(_expandQName "$uri")
+    doEditTmpfile=$(_getTempFile)
 
-    _httpGetNtriples $uri >${doEditTmpfile}
-    features=`_getFeatures ${doEditTmpfile}`
-    cat ${doEditTmpfile} | rapper -q ${features} -i ntriples -o turtle -I $uri - >"${doEditTmpfile}.ttl"
-    $EDITOR $doEditTmpfile.ttl
+    _httpGetNtriples "$uri" >"${doEditTmpfile}"
+    features=$(_getFeatures "${doEditTmpfile}")
+    # shellcheck disable=SC2086
+    rapper -q ${features} -i ntriples -o turtle -I "$uri" "${doEditTmpfile}" >"${doEditTmpfile}.ttl" || true
+    $EDITOR "$doEditTmpfile.ttl"
 
     # look for missing prefixes and add them at the beginning
-    addedPrefixDeclarations=`_getUndeclaredPrefixes $doEditTmpfile.ttl`
-    echo $addedPrefixDeclarations >$doEditTmpfile.ttl.tmp
-    cat $doEditTmpfile.ttl >>$doEditTmpfile.ttl.tmp
-    mv $doEditTmpfile.ttl.tmp $doEditTmpfile.ttl
+    addedPrefixDeclarations=$(_getUndeclaredPrefixes "$doEditTmpfile.ttl")
+    echo "$addedPrefixDeclarations" >"$doEditTmpfile.ttl.tmp"
+    cat "$doEditTmpfile.ttl" >>"$doEditTmpfile.ttl.tmp"
+    mv "$doEditTmpfile.ttl.tmp" "$doEditTmpfile.ttl"
 
     # put the new resource
-    $thisexec put $uri $doEditTmpfile.ttl
+    $thisexec put "$uri" "$doEditTmpfile.ttl"
 
     # clean up
-    rm $doEditTmpfile $doEditTmpfile.ttl
+    rm "$doEditTmpfile" "$doEditTmpfile.ttl"
 
     # add history
-    _addToHistory $uri $historyfile
+    _addToHistory "$uri" "$historyfile"
 }
-
 
 docu_put () { echo "replaces an existing linked data resource via LDP";}
 do_put ()
@@ -710,17 +663,17 @@ do_put ()
     filename="$3"
     if [ "$filename" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
-        echo "(`docu_put`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
+        echo "($(docu_put))"
         exit 1
     fi
-    uri=`_expandQName $uri`
+    uri=$(_expandQName "$uri")
 
     # perform the HTTP request
-    $curlcommand -X PUT $uri --data @$filename -H "Content-Type:text/turtle"
+    $curlcommand -X PUT "$uri" --data "@$filename" -H "Content-Type:text/turtle"
 
     # add history
-    _addToHistory $uri $historyfile
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_delete () { echo "deletes an existing linked data resource via LDP";}
@@ -733,13 +686,13 @@ do_delete ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_delete`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_delete))"
         exit 1
     fi
-    uri=`_expandQName $uri`
-    $curlcommand -X DELETE $uri
-    _addToHistory $uri $historyfile
+    uri=$(_expandQName "$uri")
+    $curlcommand -X DELETE "$uri"
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_desc () { echo "outputs description of the given resource in a given format (default: turtle)";}
@@ -750,33 +703,33 @@ do_desc ()
     _checkTool curl mv cat grep cut wc roqet rapper rm
 
     uri="$2"
-    output="$3"
+    output="${3:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart> <format>"
-        echo "(`docu_desc`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart> <format>"
+        echo "($(docu_desc))"
         exit 1
     fi
     if [ "$output" == "" ]
     then
         output="turtle"
     fi
-    uri=`_expandQName $uri`
-    tmpfile=`_getTempFile`
-    _httpGetNtriples $uri >$tmpfile
+    uri=$(_expandQName "$uri")
+    tmpfile=$(_getTempFile)
+    _httpGetNtriples "$uri" >"$tmpfile"
 
     # fetches only triples with URI as subject (output is turtle)
-    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D $tmpfile >$tmpfile.out
+    roqet -q -e "CONSTRUCT {<$uri> ?p ?o} WHERE {<$uri> ?p ?o}" -D "$tmpfile" >"$tmpfile.out" 2>/dev/null || true
 
     # reformat and output turtle file
-    $thisexec turtleize $tmpfile.out >$tmpfile.ttl
-    _outputTurtle $tmpfile.ttl
+    $thisexec turtleize "$tmpfile.out" >"$tmpfile.ttl"
+    _outputTurtle "$tmpfile.ttl"
 
     # clean up
-    rm -f $tmpfile $tmpfile.out $tmpfile.ttl
+    rm -f "$tmpfile" "$tmpfile.out" "$tmpfile.ttl"
 
     # add history
-    _addToHistory $uri $historyfile
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_list () { echo "list resources which start with the given URI"; }
@@ -789,15 +742,15 @@ do_list ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_list`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_list))"
         exit 1
     fi
-    uri=`_expandQName $uri`
-    tmpfile=`_getTempFile`
-    _httpGetNtriples $uri >$tmpfile.nt
-    roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D $tmpfile.nt 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep $uri
-    rm $tmpfile $tmpfile.nt
+    uri=$(_expandQName "$uri")
+    tmpfile=$(_getTempFile)
+    _httpGetNtriples "$uri" >"$tmpfile.nt"
+    roqet -q -e "SELECT DISTINCT ?s WHERE {?s ?p ?o. FILTER isURI(?s) } " -D "$tmpfile.nt" 2>/dev/null | cut -d "<" -f 2 | cut -d ">" -f 1 | grep "$uri" || true
+    rm -f "$tmpfile" "$tmpfile.nt"
 }
 
 docu_get () { echo "fetches an URL as RDF to stdout (tries accept header)"; }
@@ -808,17 +761,17 @@ do_get ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_get`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_get))"
         exit 1
     fi
 
-    uri=`_expandQName $uri`
-    tmpfile=`_getTempFile`
-    _httpGetNtriples $uri >$tmpfile.nt
-    $thisexec turtleize $tmpfile.nt
-    rm $tmpfile $tmpfile.nt
-    _addToHistory $uri $historyfile
+    uri=$(_expandQName "$uri")
+    tmpfile=$(_getTempFile)
+    _httpGetNtriples "$uri" >"$tmpfile.nt"
+    $thisexec turtleize "$tmpfile.nt"
+    rm "$tmpfile" "$tmpfile.nt"
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_get-ntriples () { echo "curls rdf and transforms to ntriples"; }
@@ -829,14 +782,14 @@ do_get-ntriples ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_get-ntriples`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_get-ntriples))"
         exit 1
     fi
 
-    uri=`_expandQName $uri`
-    _httpGetNtriples $uri
-    _addToHistory $uri $historyfile
+    uri=$(_expandQName "$uri")
+    _httpGetNtriples "$uri"
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_headn () { echo "curls only the http header"; }
@@ -849,14 +802,14 @@ do_headn ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_head`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_head))"
         exit 1
     fi
 
-    uri=`_expandQName $uri`
-    $curlcommand -I -X HEAD $uri
-    _addToHistory $uri $historyfile
+    uri=$(_expandQName "$uri")
+    $curlcommand -I -X HEAD "$uri"
+    _addToHistory "$uri" "$historyfile"
 }
 
 docu_head () { echo "curls only the http header but accepts only rdf"; }
@@ -869,60 +822,26 @@ do_head ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <URI | Prefix:LocalPart>"
-        echo "(`docu_rdfhead`)"
+        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
+        echo "($(docu_rdfhead))"
         exit 1
     fi
 
-    uri=`_expandQName $uri`
-    $curlcommand -I -X HEAD -H "Accept: $mimetypes" $uri
-    _addToHistory $uri $historyfile
+    uri=$(_expandQName "$uri")
+    $curlcommand -I -X HEAD -H "Accept: $mimetypes" "$uri"
+    _addToHistory "$uri" "$historyfile"
 }
 
-docu_ns () { echo "curls the namespace from prefix.cc"; }
-do_ns ()
-{
-    local prefix suffix namespace
-
-    _checkTool curl
-
-    prefix="$2"
-    suffix="$3"
-    if [ "$prefix" == "" ]
-    then
-        echo "Syntax:" $this "$command <prefix> <suffix>"
-        echo "(`docu_ns`)"
-        echo " suffix can be n3, rdfa, sparql, ...)"
-        exit 1
-    fi
-    if [ "$suffix" == "" ]
-    then
-        # this is a standard request as "rdf ns foaf"
-        namespace=`_getNamespaceFromPrefix $prefix`
-        echo $namespace
-    else
-        if [ "$suffix" == "plain" ]
-        then
-            # this is for vim integration, plain = without newline
-            namespace=`_getNamespaceFromPrefix $prefix`
-            echo -n $namespace
-        else
-            # if a real suffix is given, we always fetch from prefix.cc
-            $curlcommand http://prefix.cc/$prefix.file.$suffix
-        fi
-    fi
-}
-
-docu_diff () { echo "diff of triples from two RDF files"; }
+docu_diff () { echo "diff of all triples from two RDF files"; }
 do_diff ()
 {
     local source1 source2 difftool RDFSHDIFF dest1 dest2
 
     _checkTool rapper rm sort
 
-    source1="$2"
-    source2="$3"
-    difftool="$4"
+    source1="${2:-}"
+    source2="${3:-}"
+    difftool="${4:-}"
 
     if [ "$difftool" != "" ]
     then
@@ -934,49 +853,16 @@ do_diff ()
 
     if [ "$source2" == "" ]
     then
-        echo "Syntax:" $this "$command <rdf-file-1> <rdf-file-2>"
-        echo "(`docu_diff`)"
+        echo "Syntax:" "$this" "$command <rdf-file-1> <rdf-file-2>"
+        echo "($(docu_diff))"
         exit 1
     fi
-    dest1="/tmp/$RANDOM-`basename $source1`"
-    dest2="/tmp/$RANDOM-`basename $source2`"
-    rapper -i guess $source1 | sort >$dest1
-    rapper -i guess $source2 | sort >$dest2
-    $RDFSHDIFF $dest1 $dest2
-    rm $dest1 $dest2
-}
-
-docu_distinctdiff () { echo "diff of all distinct triples from two RDF files"; }
-do_distinctdiff ()
-{
-    local source1 source2 difftool RDFSHDIFF dest1 dest2
-
-    _checkTool rapper rm sort
-
-    source1="$2"
-    source2="$3"
-    difftool="$4"
-
-    if [ "$difftool" != "" ]
-    then
-        RDFSHDIFF=$difftool
-    else
-        _checkTool diff
-        RDFSHDIFF="diff"
-    fi
-
-    if [ "$source2" == "" ]
-    then
-        echo "Syntax:" $this "$command <rdf-file-1> <rdf-file-2>"
-        echo "(`docu_diff`)"
-        exit 1
-    fi
-    dest1="/tmp/$RANDOM-`basename $source1`"
-    dest2="/tmp/$RANDOM-`basename $source2`"
-    rapper -i guess $source1 | sort -u >$dest1
-    rapper -i guess $source2 | sort -u >$dest2
-    $RDFSHDIFF $dest1 $dest2
-    rm $dest1 $dest2
+    dest1="/tmp/$RANDOM-$(basename "$source1")"
+    dest2="/tmp/$RANDOM-$(basename "$source2")"
+    rapper -i guess "$source1" 2> /dev/null | sort -u >"$dest1" || true
+    rapper -i guess "$source2" 2> /dev/null | sort -u >"$dest2" || true
+    $RDFSHDIFF "$dest1" "$dest2"
+    rm "$dest1" "$dest2"
 }
 
 docu_color () { echo "get a html color for a resource URI"; }
@@ -987,34 +873,16 @@ do_color ()
     uri="$2"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" $this "$command <uri>"
-        echo "(`docu_color`)"
+        echo "Syntax:" "$this" "$command <uri>"
+        echo "($(docu_color))"
         exit 1
     fi
 
-    _getColorForResource $uri
+    _getColorForResource "$uri"
 }
 
-docu_count () { echo "count triples using rapper"; }
+docu_count () { echo "count distinct triples"; }
 do_count ()
-{
-    local file
-
-    _checkTool rapper
-
-    file="$2"
-    if [ "$file" == "" ]
-    then
-        echo "Syntax:" $this "$command <file>"
-        echo "(`docu_count`)"
-        exit 1
-    fi
-
-    rapper -i guess --count $file
-}
-
-docu_distinctcount () { echo "count distinct triples using rapper"; }
-do_distinctcount ()
 {
     local file tmpfile count
 
@@ -1023,31 +891,30 @@ do_distinctcount ()
     file="$2"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" $this "$command <file>"
-        echo "(`docu_count`)"
+        echo "Syntax:" "$this" "$command <file>"
+        echo "($(docu_count))"
         exit 1
     fi
-    tmpfile="/tmp/$RANDOM-`basename $file`"
-    rapper -i guess $file 2>/dev/null | sort -u >$tmpfile
-    count=`cat $tmpfile| wc -l`
-    echo $count
-    rm $tmpfile
+    tmpfile="/tmp/$RANDOM-$(basename "$file")"
+    rapper -i guess "$file" 2>/dev/null | sort -u >"$tmpfile" || true
+    count=$(wc -l <"$tmpfile")
+    echo "$count"
+    rm "$tmpfile"
 }
 
-docu_split () { echo "split an RDF file into pieces of max X triple and -optional- run a command on each part"; }
+docu_split () { echo "split an RDF file into pieces of max X triple and outputs the piece filenames"; }
 do_split ()
 {
-    local file size todo tmpdir realtodo
+    local file size tmpdir
 
-    _checkTool rapper split wc sed
+    _checkTool rapper split wc find
 
-    file="$2"
-    size="$3"
-    todo="$4"
+    file="${2:-}"
+    size="${3:-}"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" $this "$command <file> <size-X> <command>"
-        echo "(`docu_split`)"
+        echo "Syntax:" "$this" "$command <file> <size-X> <command>"
+        echo "($(docu_split))"
         exit 1
     fi
     if [ "$size" == "" ]
@@ -1055,92 +922,83 @@ do_split ()
         size="25000"
     fi
 
-    tmpdir=`mktemp -d`
-    rapper -i guess -q $file | split -a 5 -l $size - $tmpdir/
-    echo "Input splitted into `ls -1 $tmpdir | wc -l` pieces of max. $size triples."
-
-    if [ "$todo" != "" ]
-    then
-        echo "Now executing '$todo' for every part (using %PART% as a placeholder):"
-        for piece in `ls -1 $tmpdir`
-        do
-            cd $tmpdir
-            realtodo=`echo $todo | $sed "s/%PART%/$piece/" `
-            echo $realtodo
-            $realtodo
-        done
-    fi
-
-    echo "The pieces are in $tmpdir ... "
+    tmpdir=$(mktemp -d)
+    rapper -i guess -q "$file" | split -a 5 -l $size - "$tmpdir/" || true
+    find "$tmpdir" -type f
 }
 
 docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files";}
 do_nscollect()
 {
-    local prefixfile countBefore files count
+    local prefixfile countBefore count
+    local -a files
 
     _checkTool cat wc grep sort
 
-    prefixfile="$2"
+    prefixfile="${2:-}"
 
     if [ "$prefixfile" == "" ]
     then
-        prefixfile="prefixes.n3"
+        prefixfile="prefixes.ttl"
     fi
 
     if [ -f "$prefixfile" ]
     then
-        countBefore=`cat $prefixfile| wc -l`
+        countBefore=$(wc -l < $prefixfile)
     else
         countBefore=0
     fi
 
-    files=`ls -1 *.n3 *.ttl 2>/dev/null | grep -v $prefixfile`
-    cat $files | grep "@prefix " | sort -u >$prefixfile
-    count=`cat $prefixfile| wc -l`
-    echo "$count prefixes collected in $prefixfile ($countBefore before)"
-    #for n3file in $files
-    #do
-    #done
+    files=($(find . -name "*.ttl" | grep -v $prefixfile))
+    rm -f "$prefixfile"
+    for file in "${files[@]}"
+    do
+        grep "@prefix " < "$file" >> "$prefixfile" || true
+    done
+    sort -u "$prefixfile" > "$prefixfile.new"
+    mv "$prefixfile.new" "$prefixfile"
+    count=$(wc -l < "$prefixfile")
+    echo "$count prefixes from ${#files[@]} file(s) collected in $prefixfile ($countBefore before)"
 }
 
 docu_nsdist () { echo "distributes prefix declarations from one file to a list of other ttl/n3 files";}
 do_nsdist ()
 {
-    local prefixfile files count tmpfile before after result
+    local prefixfile count tmpfile before after result
+    local -a files
 
     _checkTool grep mktemp wc
 
-    prefixfile="prefixes.n3"
+    prefixfile="prefixes.ttl"
     if [ ! -f "$prefixfile" ]
     then
-        echo "Syntax:" $this "$command <targetfiles>"
-        echo "(`docu_nsdist`)"
+        echo "Syntax:" "$this" "$command <targetfiles>"
+        echo "($(docu_nsdist))"
         echo "I try to use $prefixfile as source but it is empty."
         exit 1
     fi
 
-    if [ "$2" == "" ]
+    if [ "${2:-}" == "" ]
     then
-        files=`ls -1 *.n3 *.ttl 2>/dev/null | grep -v $prefixfile`
+        files=($(find . -name "*.ttl" | grep -v $prefixfile))
     else
-        files=$@
+        files=($@)
     fi
 
-    count=`cat $prefixfile| wc -l`
-    tmpfile=`_getTempFile`
-    for target in $files
+    count=$(wc -l < "$prefixfile")
+    tmpfile=$(_getTempFile)
+    for target in "${files[@]}"
     do
         if [ -f "$target" ]
         then
-            before=`cat $target | grep "@prefix "  | wc -l`
-
-            cat $target | grep -v "@prefix " >$tmpfile
-            cat $prefixfile >$target
-            cat $tmpfile >>$target
-
-            after=`cat $target | grep "@prefix "  | wc -l`
-            let result=$after-$before
+            # shellcheck disable=SC2126
+            before=$(grep "@prefix " < "$target" | wc -l || echo 0)
+            grep -v "@prefix " < "$target" >"$tmpfile" || true
+            cat $prefixfile >"$target"
+            cat "$tmpfile" >>"$target"
+            # shellcheck disable=SC2126
+            after=$(grep "@prefix " < "$target" | wc -l || echo 0)
+            let result=$after-$before || true
             if [ "$result" -ge "0" ]
             then
                 echo "$target: +$result prefix declarations"
@@ -1149,107 +1007,7 @@ do_nsdist ()
             fi
         fi
     done
-    rm $tmpfile
-}
-
-docu_pingall () { echo "sends a semantic pingback request to all possible targets of a given resource"; }
-do_pingall ()
-{
-    local pingsource pingtargets pingserver response
-
-    _checkTool head
-
-    pingsource="$2"
-    if [ "$pingsource" == "" ]
-    then
-        echo "Syntax:" $this "$command <pingsource>"
-        echo "(`docu_ping`)"
-        exit 1
-    fi
-    pingsource=`_expandQName $pingsource`
-
-    # search for possible targets
-    pingtargets=`_getRelatedResources $pingsource`
-    if [ "$pingtargets" == "" ]
-    then
-        echo "Error: No targets available at $pingsource."
-        exit 1
-    fi
-
-    for target in $pingtargets
-    do
-        # look for a pingback server responsable for the target
-        pingserver=`_isPingbackEnabled $target`
-        if [ "$pingserver" == "" ]
-        then
-            echo "$target: No pingback server found."
-        else
-            # finally, do the ping
-            response=`_sendPingback $pingserver $pingsource $target | head -1`
-            echo "$target (response): $response"
-        fi
-    done
-}
-
-docu_ping () { echo "sends a semantic pingback request from a source to a target or to all possible targets"; }
-do_ping ()
-{
-    local pingsource pingtargets count pingserver response
-
-    _checkTool grep wc
-
-    pingsource="$2"
-    pingtargets="$3"
-    if [ "$pingsource" == "" ]
-    then
-        echo "Syntax:" $this "$command <pingsource> <pingtarget>"
-        echo "(`docu_ping`)"
-        exit 1
-    fi
-    pingsource=`_expandQName $pingsource`
-
-    # check for ping target
-    if [ "$pingtargets" != "" ]
-    then
-        # target is given as parameter, so check
-        pingtargets=`_getRelatedResources $pingsource | grep "^$pingtargets$"`
-        if [ "$pingtargets" == "" ]
-        then
-            echo "Error: No link found."
-            exit 1
-        fi
-    else
-        # target not given as paremeter, so search for
-        pingtargets=`_getRelatedResources $pingsource`
-        if [ "$pingtargets" == "" ]
-        then
-            echo "Error: No targets available at all."
-            exit 1
-        fi
-    fi
-
-    count=`echo $pingtargets | wc -w`
-    if [ "$count" -ge 2 ]
-    then
-        echo "Please provide one of these ping target resources as a second parameter:"
-        for target in $pingtargets
-        do
-            echo "- $target"
-        done
-        exit 1
-    fi
-
-    # look for a pingback server responsable for the target
-    pingserver=`_isPingbackEnabled $pingtargets`
-    if [ "$pingserver" == "" ]
-    then
-        echo "Error: No pingback server found for $pingtargets"
-        exit 1
-    fi
-
-    # finally, do the ping
-    response=`_sendPingback $pingserver $pingsource $pingtargets`
-    echo "server response: $response"
+    rm "$tmpfile"
 }
 
 docu_turtleize() { echo "outputs an RDF file in turtle, using as much as possible prefix declarations"; }
@@ -1262,13 +1020,14 @@ do_turtleize ()
     file="$2"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" $this "$command <file>"
-        echo "(`docu_format`)"
+        echo "Syntax:" "$this" "$command <file>"
+        echo "($(docu_format))"
         exit 1
     fi
 
-    features=`_getFeatures $file`
-    rapper -q ${features} -i guess -o turtle $file
+    features=$(_getFeatures "$file")
+    # shellcheck disable=SC2086
+    rapper -q ${features} -i guess -o turtle "$file" 2>/dev/null || true
 }
 
 docu_gsp-put() { echo "delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
@@ -1371,23 +1130,23 @@ do_help ()
 
     _checkTool man
 
-    realfile=`readlink $thisexec`
+    realfile=$(readlink "$thisexec")
     if [ "$realfile" == "" ]
     then
         # assume useage over "xxx/yyy/rdf.sh/rdf.sh help"
-        execdir=`dirname $thisexec`
+        execdir=$(dirname "$thisexec")
         manpage="$execdir/rdf.1"
     else
         # assume rdf.sh started as link and manpage is in same dir with script
-        execdir=`dirname $thisexec`
-        scriptdir=`dirname $realfile`
+        execdir=$(dirname "$thisexec")
+        scriptdir=$(dirname "$realfile")
         manpage="$execdir/$scriptdir/rdf.1"
     fi
     # try central manpage first, then try the guessed one
     if [[ "$os" == "darwin" ]]; then
-        man rdf 2>/dev/null || man $manpage
+        man rdf 2>/dev/null || man "$manpage"
     else
-        man rdf 2>/dev/null || man -l $manpage
+        man rdf 2>/dev/null || man -l "$manpage"
     fi
 }
 
@@ -1397,7 +1156,7 @@ do_help ()
 
 
 # taken from http://stackoverflow.com/questions/2630812/
-commandlist=`typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | sort`
+commandlist=$(typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | sort)
 
 # if no command is given, present a basic help screen
 if [ "$command" == "" ]
@@ -1411,7 +1170,7 @@ then
     echo "Available commands are:"
     for cmd in $commandlist
     do
-        echo "  $cmd:" `docu_$cmd`
+        echo "  $cmd:" "$(docu_"$cmd")"
     done
     exit 1
 fi
@@ -1423,7 +1182,7 @@ then
     echo "("
     for cmd in $commandlist
     do
-        echo $cmd:\"`docu_$cmd`\"
+        echo "$cmd:\"$(docu_"$cmd")\""
     done
     echo ")"
     exit 1
@@ -1431,9 +1190,9 @@ fi
 
 # now start the sub - command
 # taken from http://stackoverflow.com/questions/1007538/
-if type do_$command >/dev/null 2>&1
+if type "do_$command" >/dev/null 2>&1
 then
-    do_$command $*
+    "do_$command" "$@"
 else
     echo "$this: '$command' is not a rdf command. See '$this help'."
     exit 1
