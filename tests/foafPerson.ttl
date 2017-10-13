@@ -1,0 +1,19 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix contact: <http://www.w3.org/2000/10/swap/pim/contact#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+
+foaf:Person
+    a rdfs:Class, owl:Class ;
+    rdfs:comment "A person." ;
+    rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
+    rdfs:label "Person" ;
+    rdfs:subClassOf geo:SpatialThing, foaf:Agent ;
+    owl:disjointWith foaf:Organization, foaf:Project ;
+    owl:equivalentClass schema:Person, contact:Person ;
+    vs:term_status "stable" .
+

@@ -28,37 +28,38 @@ LS_VCS_REF=--label "org.label-schema.vcs-ref=${GITDESCRIBE}"
 LS_VERSION=--label "org.label-schema.version=${TAG_VERSION}"
 LABEL_SCHEMA=${LS_BUILD_DATE} ${LS_VCS_REF} ${LS_VERSION}
 
-check:
-	shellcheck rdf
+check: tests
+	shellcheck rdf */*.sh
+
+TESTS ?= $(shell cd tests; echo *_test.sh)
+tests: ${TESTS}
+%_test.sh:
+	cd tests; shunit2 $@
 
 ## build the image based on docker file and latest repository
-build:
+build-image:
 	$(DOCKER_CMD) build -t ${IMAGE_NAME} ${LABEL_SCHEMA} .
 
-## build the image based on docker file and latest repository and ignore cache
-clean-build:
-	$(DOCKER_CMD) build --pull=true --no-cache -t ${IMAGE_NAME} ${LABEL_SCHEMA} .
-
 ## start a container which deletes automatically
-test:
+test-image:
 	$(DOCKER_CMD) run -i -t --name=${CONTAINER_NAME} --rm ${IMAGE_NAME}
 
 ## inspect the image by starting a shell session in a self-destructing container
-shell: 
+shell-on-image: 
 	$(DOCKER_CMD) run -i -t --rm ${IMAGE_NAME} sh
 
 ## tag the local image with a registry tag
-tag:
+tag-image:
 	$(DOCKER_CMD) tag ${IMAGE_NAME} ${TAG_VERSION}
 	$(DOCKER_CMD) tag ${IMAGE_NAME} ${TAG_BRANCH}
 
 ## push the local image to the registry
-push: tag
+push-image: tag
 	$(DOCKER_CMD) push ${TAG_VERSION}
 	$(DOCKER_CMD) push ${TAG_BRANCH}
 
 ## pull the image from the registry and tag it in order to use other targets
-pull:
+pull-image:
 	$(DOCKER_CMD) pull ${TAG_BRANCH}
 	$(DOCKER_CMD) tag ${TAG_BRANCH} ${IMAGE_NAME}
 	$(DOCKER_CMD) tag ${TAG_BRANCH} ${TAG_VERSION}
