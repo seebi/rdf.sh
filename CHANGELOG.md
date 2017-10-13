@@ -4,27 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-Some points from the roadmap as a reminder for me:
-
-* use conditional get and cache of downloaded files
-* document password retrieval for webid keystore
-* add a distinct option instead of new commands
-
 ## [Unreleased]
 
 TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
 
 ### Added
 
+* all downloaded files are now cached by default
 * allow to override the standard ntriples fetch command with alternatives such as any23's rover CLI
 * new commend: gsp-delete - delete a graph via SPARQL 1.1 Graph Store HTTP Protocol
 * new command: gsp-get -- get a graph via SPARQL 1.1 Graph Store HTTP Protocol
 * new command: gsp-put - delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol
 * docker image description
+* some shunit2 tests
+* integration with travis ci service
 
 ### Changed
 
 * switch change log format to [Keep a Changelog](http://keepachangelog.com/) 
+* the split command just outputs the file pieces now (in order to use xargs or parallel directly)
+* the distinctcount command is now the count command, the non-distinct version was removed
+* the distinctdiff command is now the diff command, the non-distinct version was removed
+
+### Fixed
+
+* most of the shellcheck issues
+
+### Removed
+
+* the distinctcount command is now the count command, the non-distinct version was removed
+* the distinctdiff command is now the diff command, the non-distinct version was removed
+* all semantic pingback related commands (nobody need this)
 
 ## [0.7.0] - May 2016
 
