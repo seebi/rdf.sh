@@ -2,8 +2,7 @@ language: generic
 
 os:
   - linux
-  - osx
 
 script:
-  - shellcheck rdf */*.sh
+  - make check
 
