@@ -2,6 +2,8 @@
 
 A multi-tool shell script for doing Semantic Web jobs on the command line.
 
+[![Build Status](https://travis-ci.org/seebi/rdf.sh.svg?branch=develop)](https://travis-ci.org/seebi/rdf.sh)
+
 # contents
 
 * [installation (manually, debian/ubuntu/, brew based)](#installation)
