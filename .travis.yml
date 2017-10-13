@@ -1,7 +1,7 @@
 language: generic
 
 before_script:
-    - curl -L "http://downloads.sourceforge.net/shunit2/shunit2-2.0.3.tgz" | tar zx
+    - curl -L "https://github.com/kward/shunit2/archive/master.tar.gz" | tar zx; cp shunit2-master/shunit2 /usr/local/bin/
 
 os:
   - linux
