@@ -186,7 +186,7 @@ _cacheGetPath ()
         exit 1
     fi
 
-    if [ "$RDFSH_CACHE_USE" == "true" ];
+    if [ "${RDFSH_CACHE_USE:-}" == "true" ];
     then
         cachefile=url-$(_md5sum "$url").nt
         if [ -r "$cachedir/$cachefile" ];
