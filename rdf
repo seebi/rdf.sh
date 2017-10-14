@@ -54,9 +54,9 @@ fi
 # TODO: add and use -w %{http_code} for better error detection
 if [ "${RDFSH_CURLOPTIONS_ADDITONS:-}" == "" ]
 then
-    curlcommand="curl -A ${name}/${version} -s -L $RDFSH_CURLOPTIONS_ADDITONS"
-else
     curlcommand="curl -A ${name}/${version} -s -L"
+else
+    curlcommand="curl -A ${name}/${version} -s -L $RDFSH_CURLOPTIONS_ADDITONS"
 fi
 
 curlArgs=(-A "'$name/$version'" -s -L)
