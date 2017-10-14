@@ -1,6 +1,6 @@
 This work was packaged for Debian by:
 
-    Sebastian Tramp <tramp@informatik.uni-leipzig.de> on Tue, 13 Jul 2012 15:37:27 +0100
+    Sebastian Tramp <mail@sebastian.tramp.name> on Tue, 13 Jul 2012 15:37:27 +0100
 
 It was downloaded from:
 
@@ -12,7 +12,7 @@ Upstream Author(s):
 
 Copyright:
 
-    <Copyright (C) 2012 Sebastian Tramp>
+    <Copyright (C) 2017 Sebastian Tramp>
 
 License:
 
@@ -25,7 +25,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2012 Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+    Copyright (C) 2017 Sebastian Tramp <mail@sebastian.tramp.name>
 
 you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

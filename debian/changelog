@@ -1,3 +1,24 @@
+rdf.sh (0.8.0) UNRELEASED; urgency=medium
+
+  * all downloaded files are now cached by default
+  * allow for overriding the standard ntriples fetch command with alternatives
+  * new commend: gsp-delete - delete a graph via SPARQL 1.1 GSP
+  * new command: gsp-get -- get a graph via SPARQL 1.1  GSP
+  * new command: gsp-put - delete and re-create a graph via SPARQL 1.1 GSP
+  * docker image description
+  * some shunit2 tests
+  * integration with travis ci service
+  * switch change log format to Keep a Changelog
+  * the split command just outputs the file pieces now
+  * the distinctcount command is now the count command,
+    the non-distinct version was removed
+  * the distinctdiff command is now the diff command,
+    the non-distinct version was removed
+  * shellcheck issues fixed
+  * all semantic pingback related commands (nobody need this)
+
+ -- Sebastian Tramp <mail@sebastian.tramp.name>  Sat, 14 Oct 2017 15:20:52 +0000
+
 rdf.sh (0.6) lod2; urgency=low
 
   * new command: color - get a color value for a resource URI :)

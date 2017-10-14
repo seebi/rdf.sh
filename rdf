@@ -46,6 +46,7 @@ touch "$prefixcache"
 # load config variables or create empty resource configuration
 if [ -r "$configfile" ]
 then
+    # shellcheck disable=SC1090
     source "$configfile"
 else
     touch "$configfile"

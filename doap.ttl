@@ -10,7 +10,6 @@
     rdfs:label "Sebastian Tramp" .
 
 <http://sebastian.tramp.name/Projects/rdf.sh>
-    dct:updated "2016-05-16T16:35:00Z"^^xsd:dateTime ;
     :description "A multi-tool shell script for doing Semantic Web jobs on the command line." ;
     :developer <http://sebastian.tramp.name> ;
     :download-page <https://github.com/seebi/rdf.sh/releases> ;

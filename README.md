@@ -36,8 +36,8 @@ Just copy or link it to you path, e.g. with
 
 ### debian / ubuntu
 
-You can download a debian package from the [download
-section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
+You can download a debian package from the [release
+section](https://github.com/seebi/rdf.sh/releases) and install it as root with
 the following commands:
 
 ```
@@ -55,11 +55,8 @@ Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 You can install `rdf.sh` by using the provided recipe:
 
 ```
-brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+brew install https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
-
-Currently, only the manpage and the script will be installed (if you know, how
-to provide zsh functions in brew, please write a mail).
 
 ### docker based
 

@@ -1,4 +1,4 @@
-changelog.md    usr/share/doc/rdf.sh
+CHANGELOG.md    usr/share/doc/rdf.sh
 doap.ttl        usr/share/doc/rdf.sh
 _rdf            usr/share/zsh/functions/rdf.sh
 rdf.1           usr/share/man/man1
