@@ -2,7 +2,7 @@ class RdfSh < Formula
   desc "multi-tool shell script for doing Semantic Web jobs on the command-line"
   homepage "https://github.com/seebi/rdf.sh"
   url "https://github.com/seebi/rdf.sh/archive/v0.8.0.tar.gz"
-  sha256 "3210042265082092540e698202f6aa1a7dadefff97924c23ea9e2da18a8fa94b"
+  sha256 "e66b677d82ad93d6d05a348ac13cb4e604db590392ae785e9eae84668c963218"
   head "https://github.com/seebi/rdf.sh.git"
 
   depends_on "raptor"

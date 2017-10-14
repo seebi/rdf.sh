@@ -55,11 +55,8 @@ Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 You can install `rdf.sh` by using the provided recipe:
 
 ```
-brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+brew install https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
-
-Currently, only the manpage and the script will be installed (if you know, how
-to provide zsh functions in brew, please write a mail).
 
 ### docker based
 
