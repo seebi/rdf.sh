@@ -7,7 +7,7 @@ testDesc() {
     ../rdf ns owl
     ../rdf ns foaf
     ../rdf ns contact
-    ../rdf ns geo
+    ../rdf ns wgs84
     ../rdf ns schema
     ../rdf ns vs
     ../rdf desc foaf:Person > test.ttl
