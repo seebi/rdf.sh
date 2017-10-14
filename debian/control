@@ -2,16 +2,16 @@ Source: rdf.sh
 Section: misc
 Priority: extra
 Architecture: all
-Maintainer: Sebastian Tramp <tramp@informatik.uni-leipzig.de>
+Maintainer: Sebastian Tramp <mail@sebastian.tramp.name>
 Build-Depends: debhelper (>= 7.0.50~)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.8
 Homepage: https://github.com/seebi/rdf.sh
 Vcs-Git: git://github.com/seebi/rdf.sh.git
 Vcs-Browser: https://github.com/seebi/rdf.sh
 
 Package: rdf.sh
 Architecture: all
-Depends: coreutils, grep, sed, man-db, bash, zsh, raptor2-utils, rasqal-utils, curl, ${misc:Depends}
+Depends: man-db, zsh, raptor2-utils, rasqal-utils, curl, ${misc:Depends}
 Description: multi-tool for doing Semantic Web jobs on the command line
  rdf.sh currently provides these subcommands:
  - count -- count triples using rapper
