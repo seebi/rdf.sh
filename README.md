@@ -40,8 +40,10 @@ You can download a debian package from the [download
 section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
 the following commands:
 
-    $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
-    $ sudo apt-get -f install
+```
+$ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
+$ sudo apt-get -f install
+```
 
 The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
 run will install all dependencies as well as `rdf`.
@@ -52,7 +54,9 @@ Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 
 You can install `rdf.sh` by using the provided recipe:
 
-    brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+```
+brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+```
 
 Currently, only the manpage and the script will be installed (if you know, how
 to provide zsh functions in brew, please write a mail).
@@ -61,11 +65,15 @@ to provide zsh functions in brew, please write a mail).
 
 You can install `rdf.sh` by using the provided docker image:
 
-    docker pull seebi/rdf.sh
+```
+docker pull seebi/rdf.sh
+```
 
 After that, you can e.g. run this command:
 
-    docker run -i -t --rm seebi/rdf.sh rdf desc foaf:Person
+```
+docker run -i -t --rm seebi/rdf.sh rdf desc foaf:Person
+```
 
 <a name="dependencies"></a>
 ### dependencies
@@ -343,15 +351,7 @@ listed as well.
 
 This feature only works with schema documents which are available by
 fetching the namespace URI (optionally with linked data headers to be
-redirected to an RDF document). Nevertheless, you can use this command
-also on non schema resources as FOAF profiles and WebIDs:
-
-```
-$ rdf list http://haschek.eye48.com/
-http://haschek.eye48.com/haschek.rdf
-http://haschek.eye48.com/
-http://haschek.eye48.com/gelabb/
-```
+redirected to an RDF document). 
 
 
 <a name="inspection"></a>
