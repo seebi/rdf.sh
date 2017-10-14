@@ -7,7 +7,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 # contents
 
-* [installation (manually, debian/ubuntu/, brew based)](#installation)
+* [installation (manually, debian/ubuntu/, brew, docker)](#installation)
 * [configuration](#configuration)
 * [usage / features](#usage-features)
     * [overview](#overview)
