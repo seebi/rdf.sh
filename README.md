@@ -36,8 +36,8 @@ Just copy or link it to you path, e.g. with
 
 ### debian / ubuntu
 
-You can download a debian package from the [download
-section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
+You can download a debian package from the [release
+section](https://github.com/seebi/rdf.sh/releases) and install it as root with
 the following commands:
 
 ```
