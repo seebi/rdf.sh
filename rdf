@@ -23,11 +23,11 @@ command="${1:-}"
 os=$(uname -s | tr "[:upper:]" "[:lower:]")
 
 # rdf.sh uses proper XDG config and cache directories now
-if [ "$XDG_CONFIG_HOME" == "" ]
+if [ "${XDG_CONFIG_HOME:-}" == "" ]
 then
     XDG_CONFIG_HOME="$HOME/.config"
 fi
-if [ "$XDG_CACHE_HOME" == "" ]
+if [ "${XDG_CACHE_HOME:-}" == "" ]
 then
     XDG_CACHE_HOME="$HOME/.cache"
 fi
