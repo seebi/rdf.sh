@@ -13,7 +13,7 @@ fi
 
 # application metadata
 name="rdf.sh"
-version="SNAPSHOT"
+version="0.8.0"
 home="https://github.com/seebi/rdf.sh"
 
 # basic application environment
