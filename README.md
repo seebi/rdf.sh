@@ -2,23 +2,117 @@
 
 A multi-tool shell script for doing Semantic Web jobs on the command line.
 
+[![Build Status](https://travis-ci.org/seebi/rdf.sh.svg?branch=develop)](https://travis-ci.org/seebi/rdf.sh)
+
+
 # contents
 
-* [usage / features](#usage-features)
-  * [overview](#overview)
-  * [namespace lookup](#nslookup)
-  * [resource description](#description)
-  * [linked data platform client](#ldp)
-  * [WebID requests](#webid)
-  * [syntax highlighting](#highlighting)
-  * [resource listings](#listings)
-  * [resource inspection / debugging](#inspection)
-  * [re-format RDF files in turtle](#turtleize)
-  * [prefix distribution for data projects](#prefixes)
-  * [spinning the semantic web: semantic pingback](#pingback)
-  * [autocompletion and resource history](#autocompletion)
-* [installation (manually, debian/ubuntu/, brew based)](#installation)
+* [installation (manually, debian/ubuntu/, brew, docker)](#installation)
 * [configuration](#configuration)
+* [usage / features](#usage-features)
+    * [overview](#overview)
+    * [namespace lookup](#nslookup)
+    * [resource description](#description)
+    * [SPARQL graph store protocol](#gsp)
+    * [linked data platform client](#ldp)
+    * [WebID requests](#webid)
+    * [syntax highlighting](#highlighting)
+    * [resource listings](#listings)
+    * [resource inspection / debugging](#inspection)
+    * [re-format RDF files in turtle](#turtleize)
+    * [prefix distribution for data projects](#prefixes)
+    * [autocompletion and resource history](#autocompletion)
+
+
+<a name="installation"></a>
+## installation
+
+### manually
+
+rdf.sh is a single bash shell script so installation is trivial ... :-)
+Just copy or link it to you path, e.g. with
+
+    $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+
+### debian / ubuntu
+
+You can download a debian package from the [download
+section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
+the following commands:
+
+```
+$ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
+$ sudo apt-get -f install
+```
+
+The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
+run will install all dependencies as well as `rdf`.
+
+Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
+
+### brew based
+
+You can install `rdf.sh` by using the provided recipe:
+
+```
+brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
+```
+
+Currently, only the manpage and the script will be installed (if you know, how
+to provide zsh functions in brew, please write a mail).
+
+### docker based
+
+You can install `rdf.sh` by using the provided docker image:
+
+```
+docker pull seebi/rdf.sh
+```
+
+After that, you can e.g. run this command:
+
+```
+docker run -i -t --rm seebi/rdf.sh rdf desc foaf:Person
+```
+
+<a name="dependencies"></a>
+### dependencies
+
+Required tools currently are:
+
+* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
+* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
+* [curl](http://curl.haxx.se/)
+
+Suggested tools are:
+
+ * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
+
+<a name="files"></a>
+### files
+
+These files are available in the repository:
+
+* `README.md` - this file
+* `_rdf` - zsh autocompletion file
+* `CHANGELOG.md` - version change log
+* `doap.ttl` - doap description of rdf.sh
+* `rdf.1` - rdf.sh man page
+* `rdf.sh` - the script
+* `Screenshot.png` - a screeny of rdf.sh in action
+* `example.rc` - an example config file which can be copied
+
+These files are used by rdf.sh:
+
+* `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
+* `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
+* `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
+* `$HOME/.config/rdf.sh/rc` - config file
+
+rdf.sh follows the
+[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+in order to allow different cache and config directories.
+
 
 <a name="usage-features"></a>
 ## usage / features
@@ -28,35 +122,38 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 rdf.sh currently provides these subcommands:
 
-* color -- get a html color for a resource URI
-* count -- count triples using rapper
-* distinctcount -- count distinct triples
-* delete -- deletes an existing linked data resource via LDP
-* desc -- outputs description of the given resource in a given format (default: turtle)
-* diff -- diff of triples from two RDF files
-* distinctdiff -- diff of distinct triples from two RDF files
-* edit -- edit the content of an existing linked data resource via LDP
-* get -- curls rdf in xml or turtle to stdout (tries accept header)
-* get-ntriples -- curls rdf and transforms to ntriples
-* head -- curls only the http header but accepts only rdf
-* headn -- curls only the http header
-* help -- outputs the manpage of rdf
-* list -- list resources which start with the given URI
-* ns -- curls the namespace from prefix.cc
-* nscollect -- collects prefix declarations of a list of ttl/n3 files
-* nsdist -- distributes prefix declarations from one file to a list of other ttl/n3 files
-* ping -- sends a semantic pingback request from a source to a target or to all possible targets
-* pingall -- sends a semantic pingback request to all possible targets of a given resource
-* put -- replaces an existing linked data resource via LDP
-* split -- split an RDF file into pieces of max X triple and -optional- run a command on each part
+* color: get a html color for a resource URI
+* count: count distinct triples
+* delete: deletes an existing linked data resource via LDP
+* desc: outputs description of the given resource in a given format (default: turtle)
+* diff: diff of triples from two RDF files
+* edit: edit the content of an existing linked data resource via LDP (GET + PUT)
+* get: fetches an URL as RDF to stdout (tries accept header)
+* get-ntriples: curls rdf and transforms to ntriples
+* gsp-delete: delete a graph via SPARQL 1.1 Graph Store HTTP Protocol
+* gsp-get: get a graph via SPARQL 1.1 Graph Store HTTP Protocol
+* gsp-put: delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol
+* head: curls only the http header but accepts only rdf
+* headn: curls only the http header
+* help: outputs the manpage of rdf
+* list: list resources which start with the given URI
+* ns: curls the namespace from prefix.cc
+* nscollect: collects prefix declarations of a list of ttl/n3 files
+* nsdist: distributes prefix declarations from one file to a list of other ttl/n3 files
+* put: replaces an existing linked data resource via LDP
+* split: split an RDF file into pieces of max X triple and output the file names
+* turtleize: outputs an RDF file in turtle, using as much as possible prefix declarations
+
 
 <a name="nslookup"></a>
 ### namespace lookup (`ns`)
 
 rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc) as well as locally defined prefixes:
 
-    $ rdf ns foaf
-    http://xmlns.com/foaf/0.1/
+```
+$ rdf ns foaf
+http://xmlns.com/foaf/0.1/
+```
 
 These namespace lookups are cached (typically
 `$HOME/.cache/rdf.sh/prefix.cache`) in order to avoid unneeded network
@@ -65,23 +162,27 @@ qnames as parameters (e.g. `foaf:Person` or `skos:Concept`).
 
 To define you own lookup table, just add a line
 
-    prefix|namespace
+```
+prefix|namespace
+```
 
 to `$HOME/.config/rdf.sh/prefix.local`. rdf.sh will use it as a priority
 lookup table which overwrites cache and prefix.cc lookup.
 
 rdf.sh can also output prefix.cc syntax templates (uncached): 
 
-    $ rdf ns skos sparql
-    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+```
+$ rdf ns skos sparql
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-    SELECT *
-    WHERE {
-      ?s ?p ?o .
-    }
+SELECT *
+WHERE {
+  ?s ?p ?o .
+}
 
-    $ rdf ns ping n3    
-    @prefix ping: <http://purl.org/net/pingback/> .
+$ rdf ns dct n3    
+@prefix dct: <http://purl.org/dc/terms/>.
+```
 
 
 <a name="description"></a>
@@ -90,30 +191,58 @@ rdf.sh can also output prefix.cc syntax templates (uncached):
 Describe a resource by querying for statements where the resource is the
 subject. This is extremly useful to fastly check schema details.
 
-    $ rdf desc foaf:Person
-    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2002/07/owl#> .
-    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-    @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-    @prefix contact: <http://www.w3.org/2000/10/swap/pim/contact#> .
-    
-    foaf:Person
-        a rdfs:Class, owl:Class ;
-        rdfs:comment "A person." ;
-        rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-        rdfs:label "Person" ;
-        rdfs:subClassOf contact:Person, geo:SpatialThing, foaf:Agent ;
-        owl:disjointWith foaf:Organization, foaf:Project ;
-        <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+```
+$ rdf desc foaf:Person
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix contact: <http://www.w3.org/2000/10/swap/pim/contact#> .
+
+foaf:Person
+    a rdfs:Class, owl:Class ;
+    rdfs:comment "A person." ;
+    rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
+    rdfs:label "Person" ;
+    rdfs:subClassOf contact:Person, geo:SpatialThing, foaf:Agent ;
+    owl:disjointWith foaf:Organization, foaf:Project ;
+    <http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+```
 
 In addition to the textual representation, you can calculate a color for visual
 resource representation with the `color` command:
 
-    ∴ rdf color http://sebastian.tramp.name
-    #2024e9
+```
+$ rdf color http://sebastian.tramp.name
+#2024e9
+```
 
 Refer to the [cold webpage](http://cold.aksw.org) for more information :-)
+
+<a name="gsp"></a>
+### SPARQL graph store protocol client
+
+The [SPARQL 1.1 Graph Store HTTP Protocol](https://www.w3.org/TR/sparql11-http-rdf-update/) describes the use of HTTP operations for the purpose of managing a collection of RDF graphs.
+rdf.sh supports the following commands in order to manipulate graphs:
+
+```
+Syntax: rdf gsp-get <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
+(get a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+```
+Syntax: rdf gsp-put <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>
+(delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+```
+Syntax: rdf gsp-delete <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
+(delete a graph via SPARQL 1.1 Graph Store HTTP Protocol)
+```
+
+If the store URL **is not given**, the [Direct Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#direct-graph-identification) is assumed, which means the store URL is taken as the graph URL.
+If the store URL **is given**, [Indirect Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification) is used.
 
 
 <a name="ldp"></a>
@@ -148,6 +277,7 @@ You can change the content of that file (add or remove triple) and you can use
 any prefix you've already declared via config or which is cached.
 Used prefix declarations are added automatically afterwards and the file is the
 PUTted to the server.
+
 
 <a name="webid"></a>
 ### WebID requests
@@ -184,6 +314,7 @@ e.g with
 
 before you start `rdf.sh`.
 
+
 <a name="listings"></a>
 ### resource listings (`list`)
 
@@ -191,24 +322,28 @@ To get a quick overview of an unknown RDF schema, rdf.sh provides the
 `list` command which outputs a distinct list of subject resources of the
 fetched URI:
 
-    $ rdf list geo:
-    http://www.w3.org/2003/01/geo/wgs84_pos#
-    http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing
-    http://www.w3.org/2003/01/geo/wgs84_pos#Point
-    http://www.w3.org/2003/01/geo/wgs84_pos#lat
-    http://www.w3.org/2003/01/geo/wgs84_pos#location
-    http://www.w3.org/2003/01/geo/wgs84_pos#long
-    http://www.w3.org/2003/01/geo/wgs84_pos#alt
-    http://www.w3.org/2003/01/geo/wgs84_pos#lat_long
+```
+$ rdf list geo:
+http://www.w3.org/2003/01/geo/wgs84_pos#
+http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing
+http://www.w3.org/2003/01/geo/wgs84_pos#Point
+http://www.w3.org/2003/01/geo/wgs84_pos#lat
+http://www.w3.org/2003/01/geo/wgs84_pos#location
+http://www.w3.org/2003/01/geo/wgs84_pos#long
+http://www.w3.org/2003/01/geo/wgs84_pos#alt
+http://www.w3.org/2003/01/geo/wgs84_pos#lat_long
+```
 
 You can also provide a starting sequence to constrain the output
 
-    $ rdf list skos:C   
-    http://www.w3.org/2004/02/skos/core#Concept
-    http://www.w3.org/2004/02/skos/core#ConceptScheme
-    http://www.w3.org/2004/02/skos/core#Collection
-    http://www.w3.org/2004/02/skos/core#changeNote
-    http://www.w3.org/2004/02/skos/core#closeMatch
+```
+$ rdf list skos:C   
+http://www.w3.org/2004/02/skos/core#Concept
+http://www.w3.org/2004/02/skos/core#ConceptScheme
+http://www.w3.org/2004/02/skos/core#Collection
+http://www.w3.org/2004/02/skos/core#changeNote
+http://www.w3.org/2004/02/skos/core#closeMatch
+```
 
 **Note:** Here the `$GREP_OPTIONS` environment applies to the list. In
 my case, I have a `--ignore-case` in it, so e.g. `skos:changeNote` is
@@ -216,36 +351,37 @@ listed as well.
 
 This feature only works with schema documents which are available by
 fetching the namespace URI (optionally with linked data headers to be
-redirected to an RDF document). Nevertheless, you can use this command
-also on non schema resources as FOAF profiles and WebIDs:
+redirected to an RDF document). 
 
-    $ rdf list http://haschek.eye48.com/
-    http://haschek.eye48.com/haschek.rdf
-    http://haschek.eye48.com/
-    http://haschek.eye48.com/gelabb/
 
 <a name="inspection"></a>
 ### resource inspection (`get`, `count`, `head` and `headn`)
 
 Fetch a resource via linked data and print it to stdout:
 
-    $ rdf get http://sebastian.tramp.name >me.rdf
+```
+$ rdf get http://sebastian.tramp.name >me.rdf
+```
 
-Count all statements of a resource (using rapper):
+Count all statements of a resource: 
  
-    $ rdf count http://sebastian.tramp.name
-    rapper: Parsing URI http://sebastian.tramp.name with parser guess
-    rapper: Parsing returned 58 triples
+```
+$ rdf count http://sebastian.tramp.name
+58
+```
 
 Inspect the header of a resource. Use `head` for header request with
 content negotiation suitable for linked data and `headn` for a normal
 header request as sent by browsers.
 
-    $ rdf head http://sebastian.tramp.name
-    HTTP/1.1 302 Found
-    [...]
-    Location: http://sebastian.tramp.name/index.rdf
-    [...]
+```
+$ rdf head http://sebastian.tramp.name
+HTTP/1.1 302 Found
+[...]
+Location: http://sebastian.tramp.name/index.rdf
+[...]
+```
+
 
 <a name="prefixes"></a>
 ### prefix distribution for data projects (`nscollect` and `nsdist`)
@@ -264,6 +400,7 @@ line to each of the ttl files of this project.
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
 
+
 <a name="turtleize"></a>
 ### re-format RDF files in turtle (`turtleize`)
 
@@ -276,20 +413,6 @@ your `prefix.cache` file, as well as which a defined in the `prefix.local` file.
 
 To turtleize your current buffer in vim for example, you can do a `:%! rdf turtleize %`.
 
-<a name="pingback"></a>
-### spinning the semantic web: semantic pingback
-
-With its `ping`/`pingall` commands, `rdf.sh` is a [Semantic
-Pingback](http://www.w3.org/wiki/Pingback) client with the following
-features:
-
-* Send a single pingback request from a source to a target resource
-  * Example: `rdf ping http://sebastian.tramp.name http://aksw.org/SebastianTramp`
-* Send a pingback request to all target resources of a source
-  * Example: `rdf pingall http://sebastian.tramp.name`
-* `rdf.sh` will do the following tests before sending a pingback request:
-  * Is the source resource related to the target resource?
-  * Is there a pingback server attached to the target resource?
 
 <a name="autocompletion"></a>
 ### autocompletion and resource history
@@ -306,88 +429,21 @@ The resource history is written to `$HOME/.cache/rdf.sh/resource.history`.
 
 When loaded, the completion function could be used in this way:
 
-    rdf de<tab> tramp<tab>
+```
+rdf de<tab> tramp<tab>
+```
 
 This could result in the following commandline:
 
-    rdf desc http://sebastian.tramp.name
+```
+rdf desc http://sebastian.tramp.name
+```
 
 Notes:
 
 * The substring matching feature of the zsh [completion system](http://linux.die.net/man/1/zshcompsys) should be turned on.
   * e.g. with `zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'`
 * This assumes that at least one resource exists in the history which matches `.*tramp.*`
-
-<a name="installation"></a>
-## installation
-
-### manually
-
-rdf.sh is a single bash shell script so installation is trivial ... :-)
-Just copy or link it to you path, e.g. with
-
-    $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
-
-### debian / ubuntu
-
-You can download a debian package from the [download
-section](https://github.com/seebi/rdf.sh/downloads) and install it as root with
-the following commands:
-
-    $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
-    $ sudo apt-get -f install
-
-The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
-run will install all dependencies as well as `rdf`.
-
-Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
-
-### brew based
-
-You can install 'rdf.sh' by using the provided recipe:
-
-    brew install https://raw.github.com/seebi/rdf.sh/master/brew/rdf.sh.rb
-
-Currently, only the manpage and the script will be installed (if you know, how
-to provide zsh functions in brew, please write a mail).
-
-<a name="dependencies"></a>
-### dependencies
-
-Required tools currently are:
-
-* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
-* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
-* [curl](http://curl.haxx.se/)
-
-Suggested tools are:
-
- * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
-
-<a name="files"></a>
-### files
-
-These files are available in the repository:
-
-* `README.md` - this file
-* `_rdf` - zsh autocompletion file
-* `changelog.md` - version changelog
-* `doap.ttl` - doap description of rdf.sh
-* `rdf.1` - rdf.sh man page
-* `rdf.sh` - the script
-* `Screenshot.png` - a screeny of rdf.sh in action
-* `example.rc` - an example config file which can be copied
-
-These files are used by rdf.sh:
-
-* `$HOME/.cache/rdf.sh/resource.history` - history of all processed resources
-* `$HOME/.cache/rdf.sh/prefix.cache` - a cache of all fetched namespaces
-* `$HOME/.config/rdf.sh/prefix.local` - locally defined prefix / namespaces
-* `$HOME/.config/rdf.sh/rc` - config file
-
-rdf.sh follows the
-[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
-in order to allow different cache and config directories.
 
 <a name="configuration"></a>
 ## configuration
@@ -398,5 +454,7 @@ this is the place to setup personal configuration options such as
 * WebID support
 * syntax highlighting suppression
 * setup of preferred accept headers
+* setup of alternate ntriples fetch program such as any23's rover (see [this feature request](https://github.com/seebi/rdf.sh/issues/8) for background infos)
 
 Please have a look at the [example rc file](https://github.com/seebi/rdf.sh/blob/master/example.rc).
+
