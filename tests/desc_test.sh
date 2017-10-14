@@ -12,7 +12,7 @@ testDesc() {
     ../rdf ns vs
     ../rdf desc foaf:Person > test.ttl
     diff test.ttl foafPerson.ttl || fail "test.ttl and foafPerson.ttl are not same described."
+    cat test.ttl
     rm test.ttl
-
 }
 
