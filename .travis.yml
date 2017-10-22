@@ -1,12 +1,12 @@
 language: generic
-
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y raptor2-utils rasqal-utils curl
-
+- sudo apt-get -qq update
+- sudo apt-get install -y raptor2-utils rasqal-utils curl
 os:
-  - linux
-
+- linux
 script:
-  - make check
-
+- make check
+env:
+  global:
+  - secure: F43MRlVHxHZkVgBtrBj1HZBOkrmEA/rAeHeDZmvkYB8z5o6MSh9F/FPa/zRIQGrMf8AOm+zdN7CJiL6+VR3UyzsOxwK2lIcknO4B6KOzq/F7/9zzo55lPYIBg3us+INPSiwZkh/3aBTioI+FSBlCI/uBqPHPlp0bVgpxJw48llGfKz7qAYeX4zBtWFG9wyyOIEyBQFKEMToitWoHJoepPT/Ld7lKQUmZIBw27uZ3xT8x6pXDtPstcTh8SNWcB0BXkRs75JV7IHxiKq9tisbLAaTCn2F1mokmh+2ntwFFWjEohCG+5FXy5cqiow8Je1pyDV058iAUIFxaEiNwFgMn9cMRcdDFlZN6rZzwkcBF6wD834cMoUWy/PhyRe70wRO5blig4HXPEYqIgkMm09VsUt+SsPOkqG21HNfW/iagAyInqrkcXkmWR9gbLJ7KuVV37GmPEx+iFcwqp95Su5YiKukrJ4DywcSWeKXPB1qgolDRKgyttKBMeTVnbKZtwyJZotG6Mg3ydc/pLgqtihvxx9qzhjdUl0ZD5uxLf8cjXfynwQI/U536swpKuPw5O6TRQEVCpDKicx+IklxCmotC9ONAdU8Gq5hCf8B0aNVNMg9bbKsXpdpLNIsdCSMPYAPo/QNVmGD/AMiV2yFlA4yRi2DlgCem0LaQlS24/E4bQck=
+  - secure: GU9M7UCYSKIFbF9nteTC3Fh8AL4ZZB4aJtOqPdTp4Uvm9cq+SL59lftxrQkm2wbtxONg6weXvuKvnM6t2WsNPg0gfc0zYHE3KIENV/AN/zrVEDSQnE3lmY2vYKJdQuxhP7RW3/kbYbs6NFEuvOCJS0DztrFu7Ggr5xnCVsm0tcL62nWE2OCva0DFdubqFO5UJbj8/X7FLZ0NrjkEDlgBOqvVYmEnG2H/lKLCKotwr1mRZqGLgGHkgkmNPuKxw1npn6Kf90yR1xKKWaWDAX+r3Y4KgiNLLaFTY9m73igG9lfDwUNoaG1v6Ly89118XyqQX2w7tfrpcyH5GpNbI/0GlLHQtsIsabcOZx731x4ZUsUQels+e+9IERQVb87o4pVWdXnl2KaT8KjormD+70Y5RbFpTt5cCPMxIqljLZlRehfodBH/o/FwXyVnuu1wsdynVjn4eIJBtUXA7J5bfhqnsQqku34Wji0Dd1bBYO4V2lv1ZXBki85613BeD78pWJQENSYIfOLZexGh9/mEVM5TZLWM1MPkZGZI7Y22SVwTKfrr/1WRWb80bOL7j51l4D2YjM8lKd/dfPA3K5nuoRB0GmrWyqgWSUpspjaCGj9dUuNN2o7ZmjPE+kHMebmcbfI0zLOwZWysKj/d9pO5aRnmVHmflnVjsIaOIdybBvT8lh8=
