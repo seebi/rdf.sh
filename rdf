@@ -61,8 +61,12 @@ else
 fi
 
 curlArgs=(-A "'$name/$version'" -s -L)
+
+# Auth is done either by a given token OR the credentials are in the .netrc
 if [ "${TOKEN:-}" != "" ]; then
     curlArgs+=(-H "'Authorization: Bearer ${TOKEN}'")
+else
+    curlArgs+=(--netrc-optional)
 fi
 
 if [ "${RDFSH_ACCEPT_HEADER:-}" == "" ]
@@ -106,7 +110,7 @@ _urlencode() {
 # outputs a given input turtle file (highlighted or not)
 _outputTurtle ()
 {
-    turtleFile=$1
+    turtleFile=${1:-}
     if [ "$turtleFile" == "" ]
     then
         echo "_outputTurtle error: need an parameter"
@@ -132,7 +136,7 @@ _md5sum ()
 {
     local string md5sumexec
 
-    string=$1
+    string=${1:-}
     if [ "$string" == "" ]
     then
         echo "_md5sum error: need an parameter"
@@ -157,8 +161,8 @@ _cachePopulateFile ()
 {
     local url file count cachefile
 
-    url=$1
-    file=$2
+    url=${1:-}
+    file=${2:-}
     if [ "$file" == "" ]
     then
         echo "_cachePopulateFile error: need two parameters $url and $file"
@@ -180,7 +184,7 @@ _cacheGetPath ()
 {
     local url cachefile
 
-    url=$1
+    url=${1:-}
     if [ "$url" == "" ]
     then
         echo "_cacheGetPath error: need one parameter"
@@ -205,7 +209,7 @@ _httpGetNtriples ()
 {
     local url tmpfile cachePath
 
-    url=$1
+    url=${1:-}
     if [ "$url" == "" ]
     then
         echo "_httpGetNtriples error: need an parameter"
@@ -238,7 +242,7 @@ _checkTool ()
 {
     local tool
 
-    tool=$1
+    tool=${1:-}
     if [ "$tool" == "" ]
     then
         echo "checkTool error: need an parameter"
@@ -261,7 +265,7 @@ _isQName ()
 
     _checkTool cut
 
-    qname=$1
+    qname=${1:-}
     if [ "$qname" == "" ]
     then
         echo "isQName error: need an parameter"
@@ -302,7 +306,7 @@ _getFeatures()
 
     _checkTool grep
 
-    file=$1
+    file=${1:-}
     if [ "$file" == "" ]
     then
         echo "getFeatures error: need an parameter"
@@ -330,7 +334,7 @@ _getPrefix ()
 
     _checkTool cut
 
-    qname=$1
+    qname=${1:-}
     if [ "$qname" == "" ]
     then
         echo "getPrefix error: need an qname parameter"
@@ -361,7 +365,7 @@ _getLocalName ()
 
     _checkTool cut
 
-    qname=$1
+    qname=${1:-}
     if [ "$qname" == "" ]
     then
         echo "getLocalName error: need an qname parameter"
@@ -390,7 +394,7 @@ _expandQName ()
 {
     local input isQName prefix localName namespace
 
-    input=$1
+    input=${1:-}
     isQName=$(_isQName "$input")
     if [ "$isQName" == "true" ]
     then
@@ -410,7 +414,7 @@ _getUndeclaredPrefixes ()
 {
     local file namespace prefix
 
-    file=$1
+    file=${1:-}
     if [ "$file" == "" ]
     then
         echo "getUndeclaredPrefixes error: need a file location parameter"
@@ -431,7 +435,7 @@ _getNamespaceFromPrefix ()
 
     _checkTool curl cut
 
-    prefix=$1
+    prefix=${1:-}
     if [ "$prefix" == "" ]
     then
         echo "getNamespaceFromPrefix error: need a prefix parameter"
@@ -459,7 +463,7 @@ _getPrefixForNamespace ()
 
     _checkTool cat grep head cut
 
-    namespace=$1
+    namespace=${1:-}
     if [ "$namespace" == "" ]
     then
         echo "getPrefixFromCache error: need a namespace parameter"
@@ -477,7 +481,7 @@ _getNamespaceForPrefix ()
 
     _checkTool cat grep head cut
 
-    prefix=$1
+    prefix=${1:-}
     if [ "$prefix" == "" ]
     then
         echo "getPrefixFromCache error: need a prefix parameter"
@@ -494,7 +498,7 @@ _getColorForResource()
 
     _checkTool cut
 
-    uri=$1
+    uri=${1:-}
     if [ "$uri" == "" ]
     then
         echo "getColorForResource error: need a resource parameter"
@@ -509,13 +513,13 @@ _addPrefixToCache ()
 {
     local prefix namespace existingNamespace
 
-    prefix=$1
+    prefix=${1:-}
     if [ "$prefix" == "" ]
     then
         echo "addPrefixToCache error: need a prefix parameter"
         exit 1
     fi
-    namespace=$2
+    namespace=${2:-}
     if [ "$namespace" == "" ]
     then
         echo "addPrefixToCache error: need a namespace parameter"
@@ -536,14 +540,14 @@ _addToHistory ()
 
     _checkTool grep wc sed
 
-    resource=$1
+    resource=${1:-}
     if [ "$resource" == "" ]
     then
         echo "addToHistory error: need an resource parameter"
         exit 1
     fi
 
-    historyfile=$2
+    historyfile=${2:-}
     if [ "$historyfile" == "" ]
     then
         echo "addToHistory error: need an historyfile as second parameter "
@@ -587,7 +591,7 @@ do_ns ()
 
     _checkTool curl
 
-    prefix="$2"
+    prefix="${2:-}"
     suffix="${3:-}"
     if [ "$prefix" == "" ]
     then
@@ -621,7 +625,7 @@ do_edit ()
 
     _checkTool curl rapper rm cp
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -660,8 +664,8 @@ do_put ()
 
     _checkTool curl
 
-    uri="$2"
-    filename="$3"
+    uri="${2:-}"
+    filename="${3:-}"
     if [ "$filename" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
@@ -684,7 +688,7 @@ do_delete ()
 
     _checkTool curl
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -703,7 +707,7 @@ do_desc ()
 
     _checkTool curl mv cat grep cut wc roqet rapper rm
 
-    uri="$2"
+    uri="${2:-}"
     output="${3:-}"
     if [ "$uri" == "" ]
     then
@@ -740,7 +744,7 @@ do_list ()
 
     _checkTool roqet cut grep rm
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -759,7 +763,7 @@ do_get ()
 {
     local uri tmpfile
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -780,7 +784,7 @@ do_get-ntriples ()
 {
     local uri
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -800,7 +804,7 @@ do_headn ()
 
     _checkTool curl
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -820,7 +824,7 @@ do_head ()
 
     _checkTool curl
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
@@ -871,7 +875,7 @@ do_color ()
 {
     local uri
 
-    uri="$2"
+    uri="${2:-}"
     if [ "$uri" == "" ]
     then
         echo "Syntax:" "$this" "$command <uri>"
@@ -889,7 +893,7 @@ do_count ()
 
     _checkTool rapper wc sort
 
-    file="$2"
+    file="${2:-}"
     if [ "$file" == "" ]
     then
         echo "Syntax:" "$this" "$command <file>"
@@ -1018,7 +1022,7 @@ do_turtleize ()
 
     _checkTool rapper
 
-    file="$2"
+    file="${2:-}"
     if [ "$file" == "" ]
     then
         echo "Syntax:" "$this" "$command <file>"
@@ -1036,12 +1040,17 @@ do_gsp-put ()
 {
     local sourceFile graphUri storeUrl args
 
-    graphUri="$2"
-    sourceFile="$3"
+    graphUri="${2:-}"
+    sourceFile="${3:-}"
     if [ "$sourceFile" == "" ]
     then
         echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>"
         echo "($(docu_gsp-put))"
+        exit 1
+    fi
+    if [ ! -f "$sourceFile" ]
+    then
+        echo "Error:" "$sourceFile" "does not exist or is not readable."
         exit 1
     fi
     graphUri=$(_expandQName "$graphUri")
@@ -1049,7 +1058,7 @@ do_gsp-put ()
     args=("${curlArgs[@]}")
     args+=(-X PUT)
     args+=(-H "'Content-Type:text/turtle'")
-    storeUrl="$4"
+    storeUrl="${4:-}"
     if [ "$storeUrl" == "" ]
     then
         # try to get $graphUri (direct graph identification)
@@ -1061,8 +1070,14 @@ do_gsp-put ()
         storeUrl="$storeUrl?graph=$encodedGraphUri"
     fi
     args+=(--data-binary @$sourceFile "$storeUrl")
-    echo curl "${args[*]}"
-    eval curl "${args[*]}"
+    # TODO: try to avoid eval
+    output=$(eval curl "${args[*]}")
+    if [ "$output" == "" ]
+    then
+        echo "200 OK"
+    else
+        echo "$output"
+    fi
 }
 
 docu_gsp-delete() { echo "delete a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
@@ -1070,7 +1085,7 @@ do_gsp-delete ()
 {
     local graphUri storeUrl args
 
-    graphUri="$2"
+    graphUri="${2:-}"
     if [ "$graphUri" == "" ]
     then
         echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
@@ -1081,7 +1096,7 @@ do_gsp-delete ()
 
     args=("${curlArgs[@]}")
     args+=(-X DELETE)
-    storeUrl="$3"
+    storeUrl="${3:-}"
     if [ "$storeUrl" == "" ]
     then
         # try to get $graphUri (direct graph identification)
@@ -1092,7 +1107,14 @@ do_gsp-delete ()
         storeUrl=$(_expandQName "$storeUrl")
         args+=(-G --data-urlencode "'graph=$graphUri'" "$storeUrl")
     fi
-    eval curl "${args[*]}"
+    # TODO: try to avoid eval
+    output=$(eval curl "${args[*]}")
+    if [ "$output" == "" ]
+    then
+        echo "200 OK"
+    else
+        echo "$output"
+    fi
 }
 
 docu_gsp-get() { echo "get a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
@@ -1100,7 +1122,7 @@ do_gsp-get ()
 {
     local graphUri storeUrl args
 
-    graphUri="$2"
+    graphUri="${2:-}"
     if [ "$graphUri" == "" ]
     then
         echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
@@ -1111,7 +1133,7 @@ do_gsp-get ()
 
     args=("${curlArgs[@]}")
     args+=(-G)
-    storeUrl="$3"
+    storeUrl="${3:-}"
     if [ "$storeUrl" == "" ]
     then
         # try to get $graphUri (direct graph identification)
@@ -1121,6 +1143,7 @@ do_gsp-get ()
         # try to get $graphUri via $storeUrl (indirect graph identification)
         args+=(--data-urlencode "'graph=$graphUri'" "$storeUrl")
     fi
+    # TODO: try to avoid eval
     eval curl "${args[*]}"
 }
 
