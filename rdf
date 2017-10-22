@@ -62,9 +62,14 @@ fi
 
 curlArgs=(-A "'$name/$version'" -s -L)
 
-# Auth is done either by a given token OR the credentials are in the .netrc
-if [ "${TOKEN:-}" != "" ]; then
-    curlArgs+=(-H "'Authorization: Bearer ${TOKEN}'")
+# Auth is done either by a given
+# - an env token
+# - OR user and pass env credentials
+# - OR the the credentials are in the .netrc
+if [ "${RDFSH_TOKEN:-}" != "" ]; then
+    curlArgs+=(-H "'Authorization: Bearer ${RDFSH_TOKEN}'")
+elif [ "${RDFSH_USER:-}" != "" ] && [ "${RDFSH_PASSWORD:-}" != "" ] ; then
+    curlArgs+=(-u "'${RDFSH_USER}:${RDFSH_PASSWORD}'")
 else
     curlArgs+=(--netrc-optional)
 fi
@@ -89,6 +94,16 @@ fi
 ###
 # private functions
 ###
+
+# https://stackoverflow.com/questions/1527049
+# Join elements of an array
+_joinArrayBy() {
+    local d=$1;
+    shift;
+    echo -n "$1";
+    shift;
+    printf "%s" "${@/#/$d}";
+}
 
 # https://stackoverflow.com/questions/38015239/
 # urlencode a string
