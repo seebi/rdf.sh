@@ -69,7 +69,7 @@ docker pull seebi/rdf.sh
 After that, you can e.g. run this command:
 
 ```
-docker run -i -t --rm seebi/rdf.sh rdf desc foaf:Person
+docker run -i -t --rm seebi/rdf.sh desc foaf:Person
 ```
 
 <a name="dependencies"></a>

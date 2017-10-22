@@ -27,4 +27,4 @@ COPY rdf /usr/local/bin
 # prepopulate the namespace prefix cache from prefix.cc
 RUN mkdir -p ~/.cache/rdf.sh/ && curl -s http://prefix.cc/popular/all.file.txt | sed -e "s/\t/|/" >~/.cache/rdf.sh/prefix.cache
 
-CMD rdf
+ENTRYPOINT ["/usr/local/bin/rdf"]
