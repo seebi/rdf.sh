@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security section
 
+### Added
+
+* skolemize command to materialize bnodes
+
 ## [0.8.1] 2017-10-14
 
 ### Changed

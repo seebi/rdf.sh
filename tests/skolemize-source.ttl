@@ -1,0 +1,13 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+<urn:example:shape>
+    a sh:NodeShape ;
+    sh:property [
+        sh:datatype xsd:integer ;
+        sh:message "ID must be a number" ;
+        sh:name "ID" ;
+        sh:path <urn:example:id>
+    ] .
+

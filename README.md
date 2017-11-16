@@ -19,6 +19,7 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
     * [syntax highlighting](#highlighting)
     * [resource listings](#listings)
     * [resource inspection / debugging](#inspection)
+    * [materialize / skolemize bnodes](#skolemize)
     * [re-format RDF files in turtle](#turtleize)
     * [prefix distribution for data projects](#prefixes)
     * [autocompletion and resource history](#autocompletion)
@@ -396,6 +397,13 @@ line to each of the ttl files of this project.
   current directory and collect them in the file `prefixes.n3`
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
+
+
+<a name="skolemize"></a>
+### Materialize / skolemize bnodes (`skolemize`)
+
+Blank nodes can be painful, so this command materializes all blank nodes as full IRIs.
+The first parameter is the RDF file while the second parameter is an optional namespace for the UUID minted IRIs (default is `urn:uuid:`).
 
 
 <a name="turtleize"></a>

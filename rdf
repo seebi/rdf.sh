@@ -1041,13 +1041,80 @@ do_turtleize ()
     if [ "$file" == "" ]
     then
         echo "Syntax:" "$this" "$command <file>"
-        echo "($(docu_format))"
+        echo "($(docu_turtleize))"
         exit 1
     fi
 
     features=$(_getFeatures "$file")
     # shellcheck disable=SC2086
     rapper -q ${features} -i guess -o turtle "$file" 2>/dev/null || true
+}
+
+docu_skolemize() { echo "Not a real skolemization but materialises bnodes as IRIs and outputs the file turtleized. The second parameter is an optional namespace IRI."; }
+do_skolemize ()
+{
+    local file domain seed
+
+    _checkTool rapper grep awk sort
+
+    file="${2:-}"
+    if [ "$file" == "" ]
+    then
+        echo "Syntax:" "$this" "$command <file>"
+        echo "($(docu_skolemize))"
+        exit 1
+    fi
+
+    domain="${3:-}"
+    if [ "$domain" == "" ]
+    then
+        domain="urn:uuid:"
+    else
+        domain=$(_expandQName "$domain")
+    fi
+
+    tmpInput="/tmp/$RANDOM-$(basename "$file")"
+    tmpOutput="/tmp/$RANDOM-$(basename "$file")"
+    rapper -i guess "$file" 2>/dev/null | sort -u >"$tmpInput" || true
+
+    # in order to have stable uuids with the same file, change seed to md5sum of the file
+    seed="$tmpInput/"
+    awk -v domain="$domain" -v seed="$seed" '
+        BEGIN{FS=" "; OFS=" "; ORS=""}
+        {
+            subject=$1
+            predicate=$2
+            object=$3
+            if (subject ~ /^_:genid[0-9]+$/) {
+                cmd="uuid -v5 ns:URL " domain seed subject
+                cmd |& getline subject
+                close(cmd)
+                subject = "<" domain subject ">"
+            }
+            print subject
+
+            if (predicate ~ /^_:genid[0-9]+$/) {
+                cmd="uuid -v5 ns:URL " domain seed predicate
+                cmd |& getline predicate
+                close(cmd)
+                predicate = "<" domain predicate ">"
+            }
+            print " " predicate
+
+            if (object ~ /^_:genid[0-9]+$/) {
+                cmd="uuid -v5 ns:URL " domain seed object
+                cmd |& getline object
+                close(cmd)
+                object = "<" domain object ">"
+                print " " object " .\n"
+            } else {
+                for (i=3; i<=NF; ++i) print " " $i
+                print "\n"
+            }
+        }' < "$tmpInput" > "$tmpOutput"
+
+    $thisexec turtleize "$tmpOutput"
+    rm -f "$tmpInput" "$tmpOutput"
 }
 
 docu_gsp-put() { echo "delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol"; }
