@@ -12,6 +12,10 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 
 * skolemize command to materialize bnodes
 
+### Fixed
+
+* add missing dependencies to the docker image
+
 ## [0.8.1] 2017-10-14
 
 ### Changed
