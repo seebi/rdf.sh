@@ -59,6 +59,13 @@ You can install `rdf.sh` by using the provided recipe:
 brew install https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
 
+This will install the latest stable version. In case you want to install the latest develop version, use this command:
+
+```
+brew install --HEAD https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
+```
+
+
 ### docker based
 
 You can install `rdf.sh` by using the provided docker image:
