@@ -10,7 +10,7 @@ LABEL \
 
 # install dependencies
 RUN apt-get update && \
-    apt-get install -y curl uuid jq && \
+    apt-get install -y curl uuid jq gawk && \
     apt-get install -y raptor2-utils rasqal-utils && \
     rm -rf /var/lib/apt/lists/* && \
     pip install Pygments && \
