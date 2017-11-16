@@ -8,6 +8,8 @@ class RdfSh < Formula
   depends_on "raptor"
   depends_on "rasqal"
   depends_on "curl"
+  depends_on "bash"
+  depends_on "ossp-uuid"
 
   def install
     bin.install("rdf" => "rdf")
