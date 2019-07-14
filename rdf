@@ -6,8 +6,8 @@
 set -euo pipefail; export FS=$'\n\t'
 
 BASH_MAJOR_VERSION=$(echo "${BASH_VERSION}" | cut -d "." -f 1)
-if [ "$BASH_MAJOR_VERSION" != "4" ]; then
-    echo "Error: $(basename "${0}") needs a bash major version 4."
+if [ "$BASH_MAJOR_VERSION" -lt "4" ]; then
+    echo "Error: $(basename "${0}") needs a bash major version >4."
     exit 1
 fi
 
