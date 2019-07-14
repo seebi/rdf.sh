@@ -15,6 +15,7 @@ TODO: add at least one Added, Changed, Deprecated, Removed, Fixed or Security se
 ### Fixed
 
 * add missing dependencies to the docker image
+* bash check for bash >4
 
 ## [0.8.1] 2017-10-14
 
