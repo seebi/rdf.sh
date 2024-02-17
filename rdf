@@ -333,7 +333,7 @@ _getFeatures()
     # shellcheck disable=SC2013
     for namespace in $(cat "$prefixlocal" "$prefixcache" | grep "|" | grep -v "?" | cut -d "|" -f 2)
     do
-        namespaceCount=$(grep -c -E "$namespace[^>]+\>" "$file")
+        namespaceCount=$(grep -c -E "${namespace}[^>]+\>" "$file")
         if [[ "$namespaceCount" -ge 1 ]]; then
             prefix=$(_getPrefixForNamespace "$namespace")
             features="$features -f xmlns:$prefix=\"$namespace\""
