@@ -1018,7 +1018,7 @@ do_nsdist ()
             cat "$tmpfile" >>"$target"
             # shellcheck disable=SC2126
             after=$(grep "@prefix " < "$target" | wc -l || echo 0)
-            let result=$after-$before || true
+            result=$((after - before)) || true
             if [ "$result" -ge "0" ]
             then
                 echo "$target: +$result prefix declarations"
