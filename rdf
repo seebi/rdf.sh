@@ -943,7 +943,7 @@ do_split ()
     fi
 
     tmpdir=$(mktemp -d)
-    rapper -i guess -q "$file" | split -a 5 -l $size - "$tmpdir/" || true
+    rapper -i guess -q "$file" | split -a 5 -l "$size" - "$tmpdir/" || true
     find "$tmpdir" -type f
 }
 
@@ -964,12 +964,12 @@ do_nscollect()
 
     if [ -f "$prefixfile" ]
     then
-        countBefore=$(wc -l < $prefixfile)
+        countBefore=$(wc -l < "$prefixfile")
     else
         countBefore=0
     fi
 
-    files=($(find . -name "*.ttl" | grep -v $prefixfile))
+    files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
     rm -f "$prefixfile"
     for file in "${files[@]}"
     do
@@ -1000,9 +1000,9 @@ do_nsdist ()
 
     if [ "${2:-}" == "" ]
     then
-        files=($(find . -name "*.ttl" | grep -v $prefixfile))
+        files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
     else
-        files=($@)
+        files=("$@")
     fi
 
     count=$(wc -l < "$prefixfile")
@@ -1151,7 +1151,7 @@ do_gsp-put ()
         encodedGraphUri=$(_urlencode "$graphUri")
         storeUrl="$storeUrl?graph=$encodedGraphUri"
     fi
-    args+=(--data-binary @$sourceFile "$storeUrl")
+    args+=(--data-binary "@$sourceFile" "$storeUrl")
     # TODO: try to avoid eval
     output=$(eval curl "${args[*]}")
     if [ "$output" == "" ]
