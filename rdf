@@ -7,7 +7,7 @@ set -euo pipefail; export FS=$'\n\t'
 
 BASH_MAJOR_VERSION=$(echo "${BASH_VERSION}" | cut -d "." -f 1)
 if [ "$BASH_MAJOR_VERSION" -lt "4" ]; then
-    echo "Error: $(basename "${0}") needs a bash major version >4."
+    >&2 echo "Error: $(basename "${0}") needs a bash major version >4."
     exit 1
 fi
 
@@ -128,7 +128,7 @@ _outputTurtle ()
     turtleFile=${1:-}
     if [ "$turtleFile" == "" ]
     then
-        echo "_outputTurtle error: need an parameter"
+        >&2 echo "Error: _outputTurtle: need an parameter"
         exit 1
     fi
 
@@ -154,7 +154,7 @@ _md5sum ()
     string=${1:-}
     if [ "$string" == "" ]
     then
-        echo "_md5sum error: need an parameter"
+        >&2 echo "Error: _md5sum: need an parameter"
         exit 1
     fi
 
@@ -164,7 +164,7 @@ _md5sum ()
         if which md5sum 2>/dev/null >/dev/null; then
             md5sumexec="md5sum"
         else
-            echo "Error: you need 'md5' or 'md5sum' for this command."
+            >&2 echo "Error: you need 'md5' or 'md5sum' for this command."
             exit 1
         fi
     fi
@@ -180,7 +180,7 @@ _cachePopulateFile ()
     file=${2:-}
     if [ "$file" == "" ]
     then
-        echo "_cachePopulateFile error: need two parameters $url and $file"
+        >&2 echo "Error: _cachePopulateFile: need two parameters $url and $file"
         exit 1
     fi
 
@@ -202,7 +202,7 @@ _cacheGetPath ()
     url=${1:-}
     if [ "$url" == "" ]
     then
-        echo "_cacheGetPath error: need one parameter"
+        >&2 echo "Error: _cacheGetPath: need one parameter"
         exit 1
     fi
 
@@ -227,7 +227,7 @@ _httpGetNtriples ()
     url=${1:-}
     if [ "$url" == "" ]
     then
-        echo "_httpGetNtriples error: need an parameter"
+        >&2 echo "Error: _httpGetNtriples: need an parameter"
         exit 1
     fi
 
@@ -260,14 +260,14 @@ _checkTool ()
     tool=${1:-}
     if [ "$tool" == "" ]
     then
-        echo "checkTool error: need an parameter"
+        >&2 echo "Error: _checkTool: need a parameter"
         exit 1
     fi
 
     for tool in "$@"
     do
         if ! which "$tool" 2>/dev/null >/dev/null; then
-            echo "Error: the command line tool '$tool' is not available in your path."
+            >&2 echo "Error: the command line tool '$tool' is not available in your path."
             exit 1
         fi
     done
@@ -283,7 +283,7 @@ _isQName ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        echo "isQName error: need an parameter"
+        >&2 echo "Error: _isQName: need an parameter"
         exit 1
     fi
 
@@ -324,7 +324,7 @@ _getFeatures()
     file=${1:-}
     if [ "$file" == "" ]
     then
-        echo "getFeatures error: need an parameter"
+        >&2 echo "Error: _getFeatures: need an parameter"
         exit 1
     fi
 
@@ -352,20 +352,20 @@ _getPrefix ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        echo "getPrefix error: need an qname parameter"
+        >&2 echo "Error: _getPrefix: need an qname parameter"
         exit 1
     fi
 
     LocalPart=$(echo "$qname" | cut -d ":" -f 2)
     if [ "$qname" == "$LocalPart" ]
     then
-        echo "getPrefix error: $qname is not a valid qname"
+        >&2 echo "Error: _getPrefix: $qname is not a valid qname"
         exit 1
     else
         Prefix=$(echo "$qname" | cut -d ":" -f 1)
         if [ "$qname" != "$Prefix:$LocalPart" ]
         then
-            echo "getPrefix error: $qname is not a valid qname"
+            >&2 echo "Error: _getPrefix: $qname is not a valid qname"
             exit 1
         else
             echo "$Prefix"
@@ -383,20 +383,20 @@ _getLocalName ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        echo "getLocalName error: need an qname parameter"
+        >&2 echo "Error: _getLocalName: need an qname parameter"
         exit 1
     fi
 
     LocalPart=$(echo "$qname" | cut -d ":" -f 2)
     if [ "$qname" == "$LocalPart" ]
     then
-        echo "getLocalName error: $qname is not a valid qname"
+        >&2 echo "Error: _getLocalName: $qname is not a valid qname"
         exit 1
     else
         Prefix=$(echo "$qname" | cut -d ":" -f 1)
         if [ "$qname" != "$Prefix:$LocalPart" ]
         then
-        echo "getLocalName error: $qname is not a valid qname"
+        >&2 echo "Error: _getLocalName: $qname is not a valid qname"
         exit 1
         else
             echo "$LocalPart"
@@ -432,7 +432,7 @@ _getUndeclaredPrefixes ()
     file=${1:-}
     if [ "$file" == "" ]
     then
-        echo "getUndeclaredPrefixes error: need a file location parameter"
+        >&2 echo "Error: _getUndeclaredPrefixes: need a file location parameter"
         exit 1
     fi
     # shellcheck disable=SC2013
@@ -453,7 +453,7 @@ _getNamespaceFromPrefix ()
     prefix=${1:-}
     if [ "$prefix" == "" ]
     then
-        echo "getNamespaceFromPrefix error: need a prefix parameter"
+        >&2 echo "Error: _getNamespaceFromPrefix: need a prefix parameter"
         exit 1
     fi
     namespace=$(_getNamespaceForPrefix "$prefix")
@@ -481,7 +481,7 @@ _getPrefixForNamespace ()
     namespace=${1:-}
     if [ "$namespace" == "" ]
     then
-        echo "getPrefixFromCache error: need a namespace parameter"
+        >&2 echo "Error: _getPrefixForNamespace: need a namespace parameter"
         exit 1
     fi
     prefix=$(cat "$prefixlocal" "$prefixcache" | grep "$namespace" | head -1 | cut -d "|" -f 1)
@@ -499,7 +499,7 @@ _getNamespaceForPrefix ()
     prefix=${1:-}
     if [ "$prefix" == "" ]
     then
-        echo "getPrefixFromCache error: need a prefix parameter"
+        >&2 echo "Error: _getNamespaceForPrefix: need a prefix parameter"
         exit 1
     fi
     namespace=$(cat "$prefixlocal" "$prefixcache" | grep "^$prefix|" | head -1 | cut -d "|" -f 2)
@@ -516,7 +516,7 @@ _getColorForResource()
     uri=${1:-}
     if [ "$uri" == "" ]
     then
-        echo "getColorForResource error: need a resource parameter"
+        >&2 echo "Error: _getColorForResource: need a resource parameter"
         exit 1
     fi
 
@@ -531,13 +531,13 @@ _addPrefixToCache ()
     prefix=${1:-}
     if [ "$prefix" == "" ]
     then
-        echo "addPrefixToCache error: need a prefix parameter"
+        >&2 echo "Error: _addPrefixToCache: need a prefix parameter"
         exit 1
     fi
     namespace=${2:-}
     if [ "$namespace" == "" ]
     then
-        echo "addPrefixToCache error: need a namespace parameter"
+        >&2 echo "Error: _addPrefixToCache: need a namespace parameter"
         exit 1
     fi
     touch "$prefixcache"
@@ -558,14 +558,14 @@ _addToHistory ()
     resource=${1:-}
     if [ "$resource" == "" ]
     then
-        echo "addToHistory error: need an resource parameter"
+        >&2 echo "Error: _addToHistory: need an resource parameter"
         exit 1
     fi
 
     historyfile=${2:-}
     if [ "$historyfile" == "" ]
     then
-        echo "addToHistory error: need an historyfile as second parameter "
+        >&2 echo "Error: _addToHistory: need an historyfile as second parameter "
         exit 1
     fi
     touch "$historyfile"
@@ -610,9 +610,9 @@ do_ns ()
     suffix="${3:-}"
     if [ "$prefix" == "" ]
     then
-        echo "Syntax:" "$this" "$command <prefix> <suffix>"
-        echo "($(docu_ns))"
-        echo " suffix can be n3, rdfa, sparql, ...)"
+        >&2 echo "Syntax: $this $command <prefix> <suffix>"
+        >&2 echo "($(docu_ns))"
+        >&2 echo " suffix can be n3, rdfa, sparql, ...)"
         exit 1
     fi
     if [ "$suffix" == "" ]
@@ -643,8 +643,8 @@ do_edit ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_edit))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_edit))"
         exit 1
     fi
     uri=$(_expandQName "$uri")
@@ -683,8 +683,8 @@ do_put ()
     filename="${3:-}"
     if [ "$filename" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
-        echo "($(docu_put))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart> <path/to/your/file.rdf>"
+        >&2 echo "($(docu_put))"
         exit 1
     fi
     uri=$(_expandQName "$uri")
@@ -706,8 +706,8 @@ do_delete ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_delete))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_delete))"
         exit 1
     fi
     uri=$(_expandQName "$uri")
@@ -726,8 +726,8 @@ do_desc ()
     output="${3:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart> <format>"
-        echo "($(docu_desc))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart> <format>"
+        >&2 echo "($(docu_desc))"
         exit 1
     fi
     if [ "$output" == "" ]
@@ -762,8 +762,8 @@ do_list ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_list))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_list))"
         exit 1
     fi
     uri=$(_expandQName "$uri")
@@ -781,8 +781,8 @@ do_get ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_get))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_get))"
         exit 1
     fi
 
@@ -802,8 +802,8 @@ do_get-ntriples ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_get-ntriples))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_get-ntriples))"
         exit 1
     fi
 
@@ -822,8 +822,8 @@ do_headn ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_head))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_head))"
         exit 1
     fi
 
@@ -842,8 +842,8 @@ do_head ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <URI | Prefix:LocalPart>"
-        echo "($(docu_rdfhead))"
+        >&2 echo "Syntax: $this $command <URI | Prefix:LocalPart>"
+        >&2 echo "($(docu_rdfhead))"
         exit 1
     fi
 
@@ -873,8 +873,8 @@ do_diff ()
 
     if [ "$source2" == "" ]
     then
-        echo "Syntax:" "$this" "$command <rdf-file-1> <rdf-file-2>"
-        echo "($(docu_diff))"
+        >&2 echo "Syntax: $this $command <rdf-file-1> <rdf-file-2>"
+        >&2 echo "($(docu_diff))"
         exit 1
     fi
     dest1="/tmp/$RANDOM-$(basename "$source1")"
@@ -893,8 +893,8 @@ do_color ()
     uri="${2:-}"
     if [ "$uri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <uri>"
-        echo "($(docu_color))"
+        >&2 echo "Syntax: $this $command <uri>"
+        >&2 echo "($(docu_color))"
         exit 1
     fi
 
@@ -911,8 +911,8 @@ do_count ()
     file="${2:-}"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" "$this" "$command <file>"
-        echo "($(docu_count))"
+        >&2 echo "Syntax: $this $command <file>"
+        >&2 echo "($(docu_count))"
         exit 1
     fi
     tmpfile="/tmp/$RANDOM-$(basename "$file")"
@@ -933,8 +933,8 @@ do_split ()
     size="${3:-}"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" "$this" "$command <file> <size-X> <command>"
-        echo "($(docu_split))"
+        >&2 echo "Syntax: $this $command <file> <size-X> <command>"
+        >&2 echo "($(docu_split))"
         exit 1
     fi
     if [ "$size" == "" ]
@@ -992,9 +992,9 @@ do_nsdist ()
     prefixfile="prefixes.ttl"
     if [ ! -f "$prefixfile" ]
     then
-        echo "Syntax:" "$this" "$command <targetfiles>"
-        echo "($(docu_nsdist))"
-        echo "I try to use $prefixfile as source but it is empty."
+        >&2 echo "Syntax: $this $command <targetfiles>"
+        >&2 echo "($(docu_nsdist))"
+        >&2 echo "I try to use $prefixfile as source but it is empty."
         exit 1
     fi
 
@@ -1040,8 +1040,8 @@ do_turtleize ()
     file="${2:-}"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" "$this" "$command <file>"
-        echo "($(docu_turtleize))"
+        >&2 echo "Syntax: $this $command <file>"
+        >&2 echo "($(docu_turtleize))"
         exit 1
     fi
 
@@ -1060,8 +1060,8 @@ do_skolemize ()
     file="${2:-}"
     if [ "$file" == "" ]
     then
-        echo "Syntax:" "$this" "$command <file>"
-        echo "($(docu_skolemize))"
+        >&2 echo "Syntax: $this $command <file>"
+        >&2 echo "($(docu_skolemize))"
         exit 1
     fi
 
@@ -1126,8 +1126,8 @@ do_gsp-put ()
     sourceFile="${3:-}"
     if [ "$sourceFile" == "" ]
     then
-        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>"
-        echo "($(docu_gsp-put))"
+        >&2 echo "Syntax: $this $command <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>"
+        >&2 echo "($(docu_gsp-put))"
         exit 1
     fi
     if [ ! -f "$sourceFile" ]
@@ -1170,8 +1170,8 @@ do_gsp-delete ()
     graphUri="${2:-}"
     if [ "$graphUri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
-        echo "($(docu_gsp-delete))"
+        >&2 echo "Syntax: $this $command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
+        >&2 echo "($(docu_gsp-delete))"
         exit 1
     fi
     graphUri=$(_expandQName "$graphUri")
@@ -1207,8 +1207,8 @@ do_gsp-get ()
     graphUri="${2:-}"
     if [ "$graphUri" == "" ]
     then
-        echo "Syntax:" "$this" "$command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
-        echo "($(docu_gsp-get))"
+        >&2 echo "Syntax: $this $command <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>"
+        >&2 echo "($(docu_gsp-get))"
         exit 1
     fi
     graphUri=$(_expandQName "$graphUri")
