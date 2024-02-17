@@ -885,7 +885,7 @@ do_diff ()
     rm "$dest1" "$dest2"
 }
 
-docu_color () { echo "get a html color for a resource URI"; }
+docu_color () { echo "get an HTML color for a resource URI"; }
 do_color ()
 {
     local uri
@@ -1267,7 +1267,7 @@ commandlist=$(typeset -f | grep "do_.*()" | cut -d "_" -f 2 | cut -d " " -f 1 | 
 # if no command is given, present a basic help screen
 if [ "$command" == "" ]
 then
-    echo "$this is a a multi-tool shell script for doing Semantic Web jobs on the command line."
+    echo "$this is a multi-tool shell script for doing Semantic Web jobs on the command line."
     echo "Version:  $version"
     echo "Homepage: $home"
     echo ""
@@ -1300,6 +1300,6 @@ if type "do_$command" >/dev/null 2>&1
 then
     "do_$command" "$@"
 else
-    echo "$this: '$command' is not a rdf command. See '$this help'."
+    echo "$this: '$command' is not an rdf command. See '$this help'."
     exit 1
 fi
