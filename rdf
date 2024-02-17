@@ -1291,7 +1291,7 @@ then
         echo "$cmd:\"$(docu_"$cmd")\""
     done
     echo ")"
-    exit 1
+    exit 0
 fi
 
 # now start the sub - command
