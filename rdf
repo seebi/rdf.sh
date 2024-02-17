@@ -1236,7 +1236,7 @@ do_help ()
 
     _checkTool man
 
-    realfile=$(readlink "$thisexec")
+    realfile=$(readlink "$thisexec" || true)
     if [ "$realfile" == "" ]
     then
         # assume useage over "xxx/yyy/rdf.sh/rdf.sh help"
