@@ -128,7 +128,7 @@ _outputTurtle ()
     turtleFile=${1:-}
     if [ "$turtleFile" == "" ]
     then
-        >&2 echo "Error: _outputTurtle: need an parameter"
+        >&2 echo "Error: _outputTurtle: need a parameter"
         exit 1
     fi
 
@@ -154,7 +154,7 @@ _md5sum ()
     string=${1:-}
     if [ "$string" == "" ]
     then
-        >&2 echo "Error: _md5sum: need an parameter"
+        >&2 echo "Error: _md5sum: need a parameter"
         exit 1
     fi
 
@@ -218,7 +218,7 @@ _cacheGetPath ()
     fi
 }
 
-# fetches an URL as ntriples and outputs it to stdout
+# fetches a URL as ntriples and outputs it to stdout
 # caches the fetched ntriples documents optionally
 _httpGetNtriples ()
 {
@@ -227,7 +227,7 @@ _httpGetNtriples ()
     url=${1:-}
     if [ "$url" == "" ]
     then
-        >&2 echo "Error: _httpGetNtriples: need an parameter"
+        >&2 echo "Error: _httpGetNtriples: need a parameter"
         exit 1
     fi
 
@@ -283,7 +283,7 @@ _isQName ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        >&2 echo "Error: _isQName: need an parameter"
+        >&2 echo "Error: _isQName: need a parameter"
         exit 1
     fi
 
@@ -324,7 +324,7 @@ _getFeatures()
     file=${1:-}
     if [ "$file" == "" ]
     then
-        >&2 echo "Error: _getFeatures: need an parameter"
+        >&2 echo "Error: _getFeatures: need a parameter"
         exit 1
     fi
 
@@ -352,7 +352,7 @@ _getPrefix ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        >&2 echo "Error: _getPrefix: need an qname parameter"
+        >&2 echo "Error: _getPrefix: need a qname parameter"
         exit 1
     fi
 
@@ -383,7 +383,7 @@ _getLocalName ()
     qname=${1:-}
     if [ "$qname" == "" ]
     then
-        >&2 echo "Error: _getLocalName: need an qname parameter"
+        >&2 echo "Error: _getLocalName: need a qname parameter"
         exit 1
     fi
 
@@ -558,14 +558,14 @@ _addToHistory ()
     resource=${1:-}
     if [ "$resource" == "" ]
     then
-        >&2 echo "Error: _addToHistory: need an resource parameter"
+        >&2 echo "Error: _addToHistory: need a resource parameter"
         exit 1
     fi
 
     historyfile=${2:-}
     if [ "$historyfile" == "" ]
     then
-        >&2 echo "Error: _addToHistory: need an historyfile as second parameter "
+        >&2 echo "Error: _addToHistory: need a historyfile as second parameter "
         exit 1
     fi
     touch "$historyfile"
@@ -773,7 +773,7 @@ do_list ()
     rm -f "$tmpfile" "$tmpfile.nt"
 }
 
-docu_get () { echo "fetches an URL as RDF to stdout (tries accept header)"; }
+docu_get () { echo "fetches a URL as RDF to stdout (tries accept header)"; }
 do_get ()
 {
     local uri tmpfile
