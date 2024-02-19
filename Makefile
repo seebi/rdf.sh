@@ -34,7 +34,7 @@ check: tests
 TESTS ?= $(shell cd tests; echo *_test.sh)
 tests: ${TESTS}
 %_test.sh:
-	cd tests; shunit2/shunit2 $@
+	cd tests; shunit2 $@
 
 ## build the image based on docker file and latest repository
 build-image:

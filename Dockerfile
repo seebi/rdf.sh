@@ -22,9 +22,14 @@ RUN apt-get update && \
     rm -rf master.tar.gz n3pygments-master
 
 # copy main script
-COPY rdf /usr/local/bin
+COPY rdf /usr/local/bin/
+# copy man page
+COPY rdf.1 /usr/local/man/man1/
 
 # prepopulate the namespace prefix cache from prefix.cc
-RUN mkdir -p ~/.cache/rdf.sh/ && curl -s http://prefix.cc/popular/all.file.txt | sed -e "s/\t/|/" >~/.cache/rdf.sh/prefix.cache
+RUN mkdir -p ~/.cache/rdf.sh/ && \
+    curl -s http://prefix.cc/popular/all.file.txt \
+        | sed -e "s/\t/|/" \
+        > ~/.cache/rdf.sh/prefix.cache
 
 ENTRYPOINT ["/usr/local/bin/rdf"]
