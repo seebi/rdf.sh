@@ -31,7 +31,9 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 rdf.sh is a single bash shell script so installation is trivial ... :-)
 Just copy or link it to you path, e.g. with
 
-    $ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+```shell
+$ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+```
 
 ### debian / ubuntu
 
@@ -39,7 +41,7 @@ You can download a debian package from the [release
 section](https://github.com/seebi/rdf.sh/releases) and install it as root with
 the following commands:
 
-```
+```shell
 $ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
 $ sudo apt-get -f install
 ```
@@ -53,13 +55,13 @@ Currently, `zsh` is a hard dependency since the zsh completion "needs" it.
 
 You can install `rdf.sh` by using the provided recipe:
 
-```
+```shell
 brew install https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
 
 This will install the latest stable version. In case you want to install the latest develop version, use this command:
 
-```
+```shell
 brew install --HEAD https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
 
@@ -67,13 +69,13 @@ brew install --HEAD https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/
 
 You can install `rdf.sh` by using the provided docker image:
 
-```
+```shell
 docker pull seebi/rdf.sh
 ```
 
 After that, you can e.g. run this command:
 
-```
+```shell
 docker run -i -t --rm seebi/rdf.sh desc foaf:Person
 ```
 
@@ -150,7 +152,7 @@ rdf.sh currently provides these subcommands:
 
 rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc) as well as locally defined prefixes:
 
-```
+```shell
 $ rdf ns foaf
 http://xmlns.com/foaf/0.1/
 ```
@@ -171,7 +173,7 @@ lookup table which overwrites cache and prefix.cc lookup.
 
 rdf.sh can also output prefix.cc syntax templates (uncached): 
 
-```
+```shell
 $ rdf ns skos sparql
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
@@ -190,7 +192,7 @@ $ rdf ns dct n3
 Describe a resource by querying for statements where the resource is the
 subject. This is extremly useful to fastly check schema details.
 
-```
+```shell
 $ rdf desc foaf:Person
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -212,7 +214,7 @@ foaf:Person
 In addition to the textual representation, you can calculate a color for visual
 resource representation with the `color` command:
 
-```
+```shell
 $ rdf color http://sebastian.tramp.name
 #2024e9
 ```
@@ -290,7 +292,7 @@ with your private key AND the certificate.
 
 To use your proper created WebID pem file, just add this to your rc file:
 
-```
+```bash
 RDFSH_CURLOPTIONS_ADDITONS="-E $HOME/path/to/your/webid.pem"
 ```
 
@@ -309,7 +311,9 @@ If you do not want syntax highlighting for some reason, you can disable it by
 setting the shell environment variable `RDFSH_HIGHLIGHTING_SUPPRESS` to `true`
 e.g with
 
-    export RDFSH_HIGHLIGHTING_SUPPRESS=true
+```bash
+export RDFSH_HIGHLIGHTING_SUPPRESS=true
+```
 
 before you start `rdf.sh`.
 
@@ -320,7 +324,7 @@ To get a quick overview of an unknown RDF schema, rdf.sh provides the
 `list` command which outputs a distinct list of subject resources of the
 fetched URI:
 
-```
+```shell
 $ rdf list geo:
 http://www.w3.org/2003/01/geo/wgs84_pos#
 http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing
@@ -334,7 +338,7 @@ http://www.w3.org/2003/01/geo/wgs84_pos#lat_long
 
 You can also provide a starting sequence to constrain the output
 
-```
+```shell
 $ rdf list skos:C   
 http://www.w3.org/2004/02/skos/core#Concept
 http://www.w3.org/2004/02/skos/core#ConceptScheme
@@ -356,13 +360,13 @@ redirected to an RDF document).
 
 Fetch a resource via linked data and print it to stdout:
 
-```
+```shell
 $ rdf get http://sebastian.tramp.name >me.rdf
 ```
 
 Count all statements of a resource: 
  
-```
+```shell
 $ rdf count http://sebastian.tramp.name
 58
 ```
@@ -371,7 +375,7 @@ Inspect the header of a resource. Use `head` for header request with
 content negotiation suitable for linked data and `headn` for a normal
 header request as sent by browsers.
 
-```
+```shell
 $ rdf head http://sebastian.tramp.name
 HTTP/1.1 302 Found
 [...]
@@ -429,13 +433,13 @@ The resource history is written to `$HOME/.cache/rdf.sh/resource.history`.
 
 When loaded, the completion function could be used in this way:
 
-```
+```shell
 rdf de<tab> tramp<tab>
 ```
 
 This could result in the following commandline:
 
-```
+```shell
 rdf desc http://sebastian.tramp.name
 ```
 
