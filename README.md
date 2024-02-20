@@ -84,8 +84,8 @@ docker run -i -t --rm seebi/rdf.sh desc foaf:Person
 
 Required tools currently are:
 
-* [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
-* [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
+* [roqet](https://librdf.org/rasqal/roqet.html) (from rasqal-utils)
+* [rapper](https://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
 * [curl](https://curl.se/)
 
 Suggested tools are:
@@ -150,7 +150,7 @@ rdf.sh currently provides these subcommands:
 <a name="nslookup"></a>
 ### namespace lookup (`ns`)
 
-rdf.sh allows you to quickly lookup namespaces from [prefix.cc](http://prefix.cc) as well as locally defined prefixes:
+rdf.sh allows you to quickly lookup namespaces from [prefix.cc](https://prefix.cc) as well as locally defined prefixes:
 
 ```shell
 $ rdf ns foaf
@@ -250,11 +250,11 @@ If the store URL **is given**, [Indirect Graph Identification](https://www.w3.or
 <a name="ldp"></a>
 ### linked data platform client
 
-The [Linked Data Platform](http://www.w3.org/TR/ldp/) describe a read-write
+The [Linked Data Platform](https://www.w3.org/TR/ldp/) describe a read-write
 Linked Data architecture, based on HTTP access to web resources that describe
 their state using the RDF data model. rdf.sh supports
-[DELETE](http://www.w3.org/TR/ldp/#http-delete),
-[PUT](http://www.w3.org/TR/ldp/#http-put) and edit (GET, followed by an edit
+[DELETE](https://www.w3.org/TR/ldp/#http-delete),
+[PUT](https://www.w3.org/TR/ldp/#http-put) and edit (GET, followed by an edit
 command, followed by a PUT request)
 of Linked Data Platform Resources (LDPRs).
 
@@ -300,7 +300,7 @@ RDFSH_CURLOPTIONS_ADDITONS="-E $HOME/path/to/your/webid.pem"
 ### syntax highlighting
 
 rdf.sh supports the highlighted output of turtle with
-[pygmentize](http://pygments.org/) and a proper
+[pygmentize](https://pygments.org/) and a proper
 [turtle lexer](https://github.com/gniezen/n3pygments). If everything is
 available (`pygmentize -l turtle` does not throw an error), then it will look
 like this.
@@ -422,8 +422,8 @@ To turtleize your current buffer in vim for example, you can do a `:%! rdf turtl
 ### autocompletion and resource history
 
 `rdf.sh` can be used with a 
-[zsh](http://en.wikipedia.org/wiki/Zsh)
-[command-line completion](http://en.wikipedia.org/wiki/Command-line_completion)
+[zsh](https://en.wikipedia.org/wiki/Zsh)
+[command-line completion](https://en.wikipedia.org/wiki/Command-line_completion)
 function.
 This boosts the usability of  this tool to a new level!
 The completion features support for the base commands as well as for
@@ -445,7 +445,7 @@ rdf desc http://sebastian.tramp.name
 
 Notes:
 
-* The substring matching feature of the zsh [completion system](http://linux.die.net/man/1/zshcompsys) should be turned on.
+* The substring matching feature of the zsh [completion system](https://linux.die.net/man/1/zshcompsys) should be turned on.
   * e.g. with `zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'`
 * This assumes that at least one resource exists in the history which matches `.*tramp.*`
 
