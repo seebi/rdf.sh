@@ -4,7 +4,6 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 [![Build Status](https://api.travis-ci.com/seebi/rdf.sh.svg?branch=develop)](https://app.travis-ci.com/seebi/rdf.sh)
 
-
 # contents
 
 * [installation (manually, debian/ubuntu/, brew, docker)](#installation)
@@ -23,7 +22,6 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
     * [re-format RDF files in turtle](#turtleize)
     * [prefix distribution for data projects](#prefixes)
     * [autocompletion and resource history](#autocompletion)
-
 
 <a name="installation"></a>
 ## installation
@@ -64,7 +62,6 @@ This will install the latest stable version. In case you want to install the lat
 ```
 brew install --HEAD https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
-
 
 ### docker based
 
@@ -118,7 +115,6 @@ rdf.sh follows the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 in order to allow different cache and config directories.
 
-
 <a name="usage-features"></a>
 ## usage / features
 
@@ -148,7 +144,6 @@ rdf.sh currently provides these subcommands:
 * put: replaces an existing linked data resource via LDP
 * split: split an RDF file into pieces of max X triple and output the file names
 * turtleize: outputs an RDF file in turtle, using as much as possible prefix declarations
-
 
 <a name="nslookup"></a>
 ### namespace lookup (`ns`)
@@ -188,7 +183,6 @@ WHERE {
 $ rdf ns dct n3    
 @prefix dct: <http://purl.org/dc/terms/>.
 ```
-
 
 <a name="description"></a>
 ### resource description (`desc`)
@@ -251,7 +245,6 @@ Syntax: rdf gsp-delete <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalP
 If the store URL **is not given**, the [Direct Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#direct-graph-identification) is assumed, which means the store URL is taken as the graph URL.
 If the store URL **is given**, [Indirect Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification) is used.
 
-
 <a name="ldp"></a>
 ### linked data platform client
 
@@ -284,7 +277,6 @@ You can change the content of that file (add or remove triple) and you can use
 any prefix you've already declared via config or which is cached.
 Used prefix declarations are added automatically afterwards and the file is the
 PUTted to the server.
-
 
 <a name="webid"></a>
 ### WebID requests
@@ -320,7 +312,6 @@ e.g with
     export RDFSH_HIGHLIGHTING_SUPPRESS=true
 
 before you start `rdf.sh`.
-
 
 <a name="listings"></a>
 ### resource listings (`list`)
@@ -360,7 +351,6 @@ This feature only works with schema documents which are available by
 fetching the namespace URI (optionally with linked data headers to be
 redirected to an RDF document). 
 
-
 <a name="inspection"></a>
 ### resource inspection (`get`, `count`, `head` and `headn`)
 
@@ -389,7 +379,6 @@ Location: http://sebastian.tramp.name/index.rdf
 [...]
 ```
 
-
 <a name="prefixes"></a>
 ### prefix distribution for data projects (`nscollect` and `nsdist`)
 
@@ -407,13 +396,11 @@ line to each of the ttl files of this project.
 * `rdf nsdist *.n3` firstly removes all `@prefix` lines from the target files
   and then add `prefixes.n3` on top of them.
 
-
 <a name="skolemize"></a>
 ### Materialize / skolemize bnodes (`skolemize`)
 
 Blank nodes can be painful, so this command materializes all blank nodes as full IRIs.
 The first parameter is the RDF file while the second parameter is an optional namespace for the UUID minted IRIs (default is `urn:uuid:`).
-
 
 <a name="turtleize"></a>
 ### re-format RDF files in turtle (`turtleize`)
@@ -426,7 +413,6 @@ turtleize uses rapper and tries to detect all namespaces which are cached in
 your `prefix.cache` file, as well as which a defined in the `prefix.local` file.
 
 To turtleize your current buffer in vim for example, you can do a `:%! rdf turtleize %`.
-
 
 <a name="autocompletion"></a>
 ### autocompletion and resource history
@@ -471,4 +457,3 @@ this is the place to setup personal configuration options such as
 * setup of alternate ntriples fetch program such as any23's rover (see [this feature request](https://github.com/seebi/rdf.sh/issues/8) for background infos)
 
 Please have a look at the [example rc file](example.rc).
-
