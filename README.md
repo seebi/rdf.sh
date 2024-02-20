@@ -171,7 +171,7 @@ prefix|namespace
 to `$HOME/.config/rdf.sh/prefix.local`. rdf.sh will use it as a priority
 lookup table which overwrites cache and prefix.cc lookup.
 
-rdf.sh can also output prefix.cc syntax templates (uncached): 
+rdf.sh can also output prefix.cc syntax templates (uncached):
 
 ```shell
 $ rdf ns skos sparql
@@ -182,7 +182,7 @@ WHERE {
   ?s ?p ?o .
 }
 
-$ rdf ns dct n3    
+$ rdf ns dct n3
 @prefix dct: <http://purl.org/dc/terms/>.
 ```
 
@@ -339,7 +339,7 @@ http://www.w3.org/2003/01/geo/wgs84_pos#lat_long
 You can also provide a starting sequence to constrain the output
 
 ```shell
-$ rdf list skos:C   
+$ rdf list skos:C
 http://www.w3.org/2004/02/skos/core#Concept
 http://www.w3.org/2004/02/skos/core#ConceptScheme
 http://www.w3.org/2004/02/skos/core#Collection
@@ -353,7 +353,7 @@ listed as well.
 
 This feature only works with schema documents which are available by
 fetching the namespace URI (optionally with linked data headers to be
-redirected to an RDF document). 
+redirected to an RDF document).
 
 <a name="inspection"></a>
 ### resource inspection (`get`, `count`, `head` and `headn`)
@@ -364,8 +364,8 @@ Fetch a resource via linked data and print it to stdout:
 $ rdf get http://sebastian.tramp.name >me.rdf
 ```
 
-Count all statements of a resource: 
- 
+Count all statements of a resource:
+
 ```shell
 $ rdf count http://sebastian.tramp.name
 58
@@ -421,7 +421,7 @@ To turtleize your current buffer in vim for example, you can do a `:%! rdf turtl
 <a name="autocompletion"></a>
 ### autocompletion and resource history
 
-`rdf.sh` can be used with a 
+`rdf.sh` can be used with a
 [zsh](https://en.wikipedia.org/wiki/Zsh)
 [command-line completion](https://en.wikipedia.org/wiki/Command-line_completion)
 function.
