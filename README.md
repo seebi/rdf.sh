@@ -32,7 +32,7 @@ rdf.sh is a single bash shell script so installation is trivial ... :-)
 Just copy or link it to you path, e.g. with
 
 ```shell
-$ sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
+sudo ln -s /path/to/rdf.sh /usr/local/bin/rdf
 ```
 
 ### debian / ubuntu
@@ -42,8 +42,8 @@ section](https://github.com/seebi/rdf.sh/releases) and install it as root with
 the following commands:
 
 ```shell
-$ sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
-$ sudo apt-get -f install
+sudo dpkg -i /path/to/your/rdf.sh_X.Y_all.deb
+sudo apt-get -f install
 ```
 
 The `dpkg` run will probably fail due to missing dependencies but the `apt-get`
@@ -361,7 +361,7 @@ redirected to an RDF document).
 Fetch a resource via linked data and print it to stdout:
 
 ```shell
-$ rdf get http://sebastian.tramp.name >me.rdf
+rdf get http://sebastian.tramp.name >me.rdf
 ```
 
 Count all statements of a resource:
