@@ -2,7 +2,7 @@
 
 A multi-tool shell script for doing Semantic Web jobs on the command line.
 
-[![Build Status](https://travis-ci.org/seebi/rdf.sh.svg?branch=develop)](https://travis-ci.org/seebi/rdf.sh)
+[![Build Status](https://api.travis-ci.com/seebi/rdf.sh.svg?branch=develop)](https://app.travis-ci.com/seebi/rdf.sh)
 
 
 # contents
@@ -87,11 +87,11 @@ Required tools currently are:
 
 * [roqet](http://librdf.org/rasqal/roqet.html) (from rasqal-utils)
 * [rapper](http://librdf.org/raptor/rapper.html) (from raptor-utils or raptor2-utils)
-* [curl](http://curl.haxx.se/)
+* [curl](https://curl.se/)
 
 Suggested tools are:
 
- * [zsh](http://zsh.sourceforge.net/) (without the autocompletion, it is not the same)
+ * [zsh](https://zsh.sourceforge.io/) (without the autocompletion, it is not the same)
 
 <a name="files"></a>
 ### files
@@ -115,7 +115,7 @@ These files are used by rdf.sh:
 * `$HOME/.config/rdf.sh/rc` - config file
 
 rdf.sh follows the
-[XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 in order to allow different cache and config directories.
 
 
@@ -223,7 +223,9 @@ $ rdf color http://sebastian.tramp.name
 #2024e9
 ```
 
-Refer to the [cold webpage](http://cold.aksw.org) for more information :-)
+Refer to the [cold webpage (archived)](
+https://web.archive.org/web/20210301164303/http://cold.aksw.org/index.php)
+for more information. :-)
 
 <a name="gsp"></a>
 ### SPARQL graph store protocol client
@@ -290,7 +292,7 @@ PUTted to the server.
 In order to request ressources with your WebID client certificate, you need to
 setup the rdf.sh `rc` file (see configuration section).
 Curl allows for using client certs with the
-[-E parameter](http://curl.haxx.se/docs/manpage.html#-E), which needs a
+[-E parameter](https://curl.se/docs/manpage.html#-E), which needs a
 [pem](https://en.wikipedia.org/wiki/X.509#Certificate_filename_extensions) file
 with your private key AND the certificate.
 
@@ -309,7 +311,7 @@ rdf.sh supports the highlighted output of turtle with
 available (`pygmentize -l turtle` does not throw an error), then it will look
 like this.
 
-<img src="https://raw.github.com/seebi/rdf.sh/master/Screenshot.png" />
+![](Screenshot.png)
 
 If you do not want syntax highlighting for some reason, you can disable it by
 setting the shell environment variable `RDFSH_HIGHLIGHTING_SUPPRESS` to `true`
@@ -468,5 +470,5 @@ this is the place to setup personal configuration options such as
 * setup of preferred accept headers
 * setup of alternate ntriples fetch program such as any23's rover (see [this feature request](https://github.com/seebi/rdf.sh/issues/8) for background infos)
 
-Please have a look at the [example rc file](https://github.com/seebi/rdf.sh/blob/master/example.rc).
+Please have a look at the [example rc file](example.rc).
 
