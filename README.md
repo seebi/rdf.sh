@@ -59,7 +59,8 @@ You can install `rdf.sh` by using the provided recipe:
 brew install https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
 ```
 
-This will install the latest stable version. In case you want to install the latest develop version, use this command:
+This will install the latest stable version.
+In case you want to install the latest develop version, use this command:
 
 ```shell
 brew install --HEAD https://raw.githubusercontent.com/seebi/rdf.sh/develop/brew/rdf.sh.rb
@@ -114,7 +115,8 @@ These files are used by rdf.sh:
 * `$HOME/.config/rdf.sh/rc` - config file
 
 rdf.sh follows the
-[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
+[XDG Base Directory Specification](
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 in order to allow different cache and config directories.
 
 <a name="usage-features"></a>
@@ -142,15 +144,18 @@ rdf.sh currently provides these subcommands:
 * list: list resources which start with the given URI
 * ns: curls the namespace from prefix.cc
 * nscollect: collects prefix declarations of a list of ttl/n3 files
-* nsdist: distributes prefix declarations from one file to a list of other ttl/n3 files
+* nsdist: distributes prefix declarations from one file
+  to a list of other ttl/n3 files
 * put: replaces an existing linked data resource via LDP
 * split: split an RDF file into pieces of max X triple and output the file names
-* turtleize: outputs an RDF file in turtle, using as much as possible prefix declarations
+* turtleize: outputs an RDF file in turtle,
+  using as much as possible prefix declarations
 
 <a name="nslookup"></a>
 ### namespace lookup (`ns`)
 
-rdf.sh allows you to quickly lookup namespaces from [prefix.cc](https://prefix.cc) as well as locally defined prefixes:
+rdf.sh allows you to quickly lookup namespaces from [prefix.cc](https://prefix.cc)
+as well as locally defined prefixes:
 
 ```shell
 $ rdf ns foaf
@@ -226,7 +231,9 @@ for more information. :-)
 <a name="gsp"></a>
 ### SPARQL graph store protocol client
 
-The [SPARQL 1.1 Graph Store HTTP Protocol](https://www.w3.org/TR/sparql11-http-rdf-update/) describes the use of HTTP operations for the purpose of managing a collection of RDF graphs.
+The [SPARQL 1.1 Graph Store HTTP Protocol](https://www.w3.org/TR/sparql11-http-rdf-update/)
+describes the use of HTTP operations
+for the purpose of managing a collection of RDF graphs.
 rdf.sh supports the following commands in order to manipulate graphs:
 
 ```
@@ -244,8 +251,14 @@ Syntax: rdf gsp-delete <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalP
 (delete a graph via SPARQL 1.1 Graph Store HTTP Protocol)
 ```
 
-If the store URL **is not given**, the [Direct Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#direct-graph-identification) is assumed, which means the store URL is taken as the graph URL.
-If the store URL **is given**, [Indirect Graph Identification](https://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification) is used.
+If the store URL **is not given**,
+the [Direct Graph Identification](
+https://www.w3.org/TR/sparql11-http-rdf-update/#direct-graph-identification)
+is assumed,
+which means the store URL is taken as the graph URL.
+If the store URL **is given**, [Indirect Graph Identification](
+https://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification)
+is used.
 
 <a name="ldp"></a>
 ### linked data platform client
@@ -403,8 +416,11 @@ line to each of the ttl files of this project.
 <a name="skolemize"></a>
 ### Materialize / skolemize bnodes (`skolemize`)
 
-Blank nodes can be painful, so this command materializes all blank nodes as full IRIs.
-The first parameter is the RDF file while the second parameter is an optional namespace for the UUID minted IRIs (default is `urn:uuid:`).
+Blank nodes can be painful,
+so this command materializes all blank nodes as full IRIs.
+The first parameter is the RDF file,
+while the second parameter is an optional namespace for the UUID minted IRIs
+(default is `urn:uuid:`).
 
 <a name="turtleize"></a>
 ### re-format RDF files in turtle (`turtleize`)
@@ -416,7 +432,8 @@ formatted because all needed prefix declarations are added.
 turtleize uses rapper and tries to detect all namespaces which are cached in
 your `prefix.cache` file, as well as which a defined in the `prefix.local` file.
 
-To turtleize your current buffer in vim for example, you can do a `:%! rdf turtleize %`.
+To turtleize your current buffer in vim for example,
+you can do a `:%! rdf turtleize %`.
 
 <a name="autocompletion"></a>
 ### autocompletion and resource history
@@ -445,7 +462,8 @@ rdf desc http://sebastian.tramp.name
 
 Notes:
 
-* The substring matching feature of the zsh [completion system](https://linux.die.net/man/1/zshcompsys) should be turned on.
+* The substring matching feature of the zsh [completion system](
+  https://linux.die.net/man/1/zshcompsys) should be turned on.
   * e.g. with `zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'`
 * This assumes that at least one resource exists in the history which matches `.*tramp.*`
 
@@ -458,6 +476,8 @@ this is the place to setup personal configuration options such as
 * WebID support
 * syntax highlighting suppression
 * setup of preferred accept headers
-* setup of alternate ntriples fetch program such as any23's rover (see [this feature request](https://github.com/seebi/rdf.sh/issues/8) for background infos)
+* setup of alternate ntriples fetch program such as any23's rover
+  (see [this feature request](https://github.com/seebi/rdf.sh/issues/8)
+  for background infos)
 
 Please have a look at the [example rc file](example.rc).
