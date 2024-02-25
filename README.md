@@ -236,17 +236,17 @@ describes the use of HTTP operations
 for the purpose of managing a collection of RDF graphs.
 rdf.sh supports the following commands in order to manipulate graphs:
 
-```
+```manpage
 Syntax: rdf gsp-get <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
 (get a graph via SPARQL 1.1 Graph Store HTTP Protocol)
 ```
 
-```
+```manpage
 Syntax: rdf gsp-put <graph URI | Prefix:LocalPart> <path/to/your/file.rdf> <store URL | Prefix:LocalPart (optional)>
 (delete and re-create a graph via SPARQL 1.1 Graph Store HTTP Protocol)
 ```
 
-```
+```manpage
 Syntax: rdf gsp-delete <graph URI | Prefix:LocalPart> <store URL | Prefix:LocalPart (optional)>
 (delete a graph via SPARQL 1.1 Graph Store HTTP Protocol)
 ```
