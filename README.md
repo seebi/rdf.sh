@@ -4,24 +4,24 @@ A multi-tool shell script for doing Semantic Web jobs on the command line.
 
 [![Build Status](https://api.travis-ci.com/seebi/rdf.sh.svg?branch=develop)](https://app.travis-ci.com/seebi/rdf.sh)
 
-# contents
+## contents
 
 * [installation (manually, debian/ubuntu/, brew, docker)](#installation)
 * [configuration](#configuration)
 * [usage / features](#usage-features)
-    * [overview](#overview)
-    * [namespace lookup](#nslookup)
-    * [resource description](#description)
-    * [SPARQL graph store protocol](#gsp)
-    * [linked data platform client](#ldp)
-    * [WebID requests](#webid)
-    * [syntax highlighting](#highlighting)
-    * [resource listings](#listings)
-    * [resource inspection / debugging](#inspection)
-    * [materialize / skolemize bnodes](#skolemize)
-    * [re-format RDF files in turtle](#turtleize)
-    * [prefix distribution for data projects](#prefixes)
-    * [autocompletion and resource history](#autocompletion)
+  * [overview](#overview)
+  * [namespace lookup](#nslookup)
+  * [resource description](#description)
+  * [SPARQL graph store protocol](#gsp)
+  * [linked data platform client](#ldp)
+  * [WebID requests](#webid)
+  * [syntax highlighting](#highlighting)
+  * [resource listings](#listings)
+  * [resource inspection / debugging](#inspection)
+  * [materialize / skolemize bnodes](#skolemize)
+  * [re-format RDF files in turtle](#turtleize)
+  * [prefix distribution for data projects](#prefixes)
+  * [autocompletion and resource history](#autocompletion)
 
 <a name="installation"></a>
 ## installation
@@ -91,7 +91,7 @@ Required tools currently are:
 
 Suggested tools are:
 
- * [zsh](https://zsh.sourceforge.io/) (without the autocompletion, it is not the same)
+* [zsh](https://zsh.sourceforge.io/) (without the autocompletion, it is not the same)
 
 <a name="files"></a>
 ### files
