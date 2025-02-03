@@ -1030,6 +1030,76 @@ do_nsdist ()
     rm "$tmpfile"
 }
 
+docu_nssort () { echo "sorts the prefix declarations in files, re-inserting all at the line of the first found prefix";}
+do_nssort ()
+{
+    local before prefixes after
+    local -a files
+
+    _checkTool awk mktemp
+
+    if [ "${2:-}" == "" ]
+    then
+        >&2 echo "Syntax: $this $command <target-turtle-files>"
+        >&2 echo "($(docu_nssort))"
+        exit 1
+    else
+        files=("$@")
+    fi
+
+    tmpfile=$(_getTempFile)
+    for target in "${files[@]}"
+    do
+        if [ -f "$target" ]
+        then
+            awk '
+BEGIN {
+    nBef = 1
+    nPref = 1
+    nAft = 1
+}
+
+/^@prefix/ {
+    lStart = sprintf("%s %-8s", $1, $2)
+    $1=$2=""
+    aPref[nPref++] = sprintf("%s%s", lStart, $0)
+    # skips processing this line further
+    next
+}
+
+{
+    if (nPref < 2) {
+        aBef[nBef++] = $0
+    } else {
+        aAft[nAft++] = $0
+    }
+}
+
+END {
+    # sorts the prefixes
+    # NOTE This is a GNU AWK (gawk) function.
+    #      If your AWK does not suport it, install gawk
+    #      or add an asort implemention here in the code.
+    nPref = asort(aPref)
+    # Do not know why, but this is necessary
+    nBef--
+    nAft--
+    for (i = 1; i <= nBef; i++) {
+        print aBef[i]
+    }
+    for (i = 1; i <= nPref; i++) {
+        print aPref[i]
+    }
+    for (i = 1; i <= nAft; i++) {
+        print aAft[i]
+    }
+}' < "$target" > "$tmpfile"
+             mv "$tmpfile" "$target"
+            echo "$target: prefixes sorted"
+        fi
+    done
+}
+
 docu_turtleize() { echo "outputs an RDF file in turtle, using as much as possible prefix declarations"; }
 do_turtleize ()
 {

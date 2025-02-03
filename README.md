@@ -146,6 +146,7 @@ rdf.sh currently provides these subcommands:
 * nscollect: collects prefix declarations of a list of ttl/n3 files
 * nsdist: distributes prefix declarations from one file
   to a list of other ttl/n3 files
+* nssort: sorts the prefix declarations in files
 * put: replaces an existing linked data resource via LDP
 * split: split an RDF file into pieces of max X triple and output the file names
 * turtleize: outputs an RDF file in turtle,
