@@ -224,6 +224,8 @@ _httpGetNtriples ()
 {
     local url tmpfile cachePath
 
+    _checkTool curl rapper
+
     url=${1:-}
     if [ "$url" == "" ]
     then
@@ -969,7 +971,7 @@ do_nscollect()
         countBefore=0
     fi
 
-    files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
+    mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
     rm -f "$prefixfile"
     for file in "${files[@]}"
     do
@@ -1000,10 +1002,17 @@ do_nsdist ()
 
     if [ "${2:-}" == "" ]
     then
-        files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
+        mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
     else
         files=("$@")
     fi
+
+    _count_prefixes() {
+        local ttl_file
+        ttl_file="$1"
+
+        grep "@prefix " -r "$ttl_file" 2> /dev/null | wc -l || true
+    }
 
     count=$(wc -l < "$prefixfile")
     tmpfile=$(_getTempFile)
@@ -1011,13 +1020,11 @@ do_nsdist ()
     do
         if [ -f "$target" ]
         then
-            # shellcheck disable=SC2126
-            before=$(grep "@prefix " < "$target" | wc -l || echo 0)
-            grep -v "@prefix " < "$target" >"$tmpfile" || true
-            cat $prefixfile >"$target"
-            cat "$tmpfile" >>"$target"
-            # shellcheck disable=SC2126
-            after=$(grep "@prefix " < "$target" | wc -l || echo 0)
+            before=$(_count_prefixes "$target")
+            grep -v "@prefix " < "$target" > "$tmpfile" || true
+            cat $prefixfile > "$target"
+            cat "$tmpfile" >> "$target"
+            after=$(_count_prefixes "$target")
             result=$((after - before)) || true
             if [ "$result" -ge "0" ]
             then
@@ -1147,7 +1154,7 @@ do_skolemize ()
     tmpOutput="/tmp/$RANDOM-$(basename "$file")"
     rapper -i guess "$file" 2>/dev/null | sort -u >"$tmpInput" || true
 
-    # in order to have stable uuids with the same file, change seed to md5sum of the file
+    # in order to have stable UUIDs with the same file, change seed to md5sum of the file
     seed="$tmpInput/"
     awk -v domain="$domain" -v seed="$seed" '
         BEGIN{FS=" "; OFS=" "; ORS=""}
@@ -1340,13 +1347,13 @@ then
     echo "$this is a multi-tool shell script for doing Semantic Web jobs on the command line."
     echo "Version:  $version"
     echo "Homepage: $home"
-    echo ""
+    echo
     echo "Syntax: $this <command>"
-    echo ""
+    echo
     echo "Available commands are:"
     for cmd in $commandlist
     do
-        echo "  $cmd:" "$(docu_"$cmd")"
+        printf '  %-15s %s\n' "$cmd" "$(docu_"$cmd")"
     done
     exit 1
 fi
